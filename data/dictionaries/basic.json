@@ -1,0 +1,20 @@
+{
+  "धर्म": {
+    "word": "धर्म",
+    "lemma": "धर्म",
+    "meaning": "duty, righteousness, law",
+    "pos": "noun",
+    "features": {
+      "gender": "masculine"
+    }
+  },
+  "कर्म": {
+    "word": "कर्म",
+    "lemma": "कर्मन्",
+    "meaning": "action, deed",
+    "pos": "noun",
+    "features": {
+      "gender": "neuter"
+    }
+  }
+}

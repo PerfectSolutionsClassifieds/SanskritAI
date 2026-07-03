@@ -1,0 +1,2 @@
+-- Initial schema placeholder.
+-- Add tables for words, slokas, corpus records, and analysis results here.
