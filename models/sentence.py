@@ -1,225 +1,133 @@
 """
 SanskritAI
-Sentence Domain Model
+Sentence Model
 
 Represents one Sanskrit sentence.
-
-A Sentence is an ordered collection of Word objects.
-Every stage of processing is preserved so that no
-information is ever lost during analysis.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import List
 
 from models.base import BaseModel
 from models.word import Word
 from models.pipeline_state import PipelineState
-
-from models.enums.language import Language
+from models.enums.pipeline_stage import PipelineStage
 
 
 @dataclass
 class Sentence(BaseModel):
     """
     Represents one Sanskrit sentence.
+
+    A Sentence is a collection of Word objects together with
+    its processing state.
+
+    Future pipeline:
+
+        Raw Text
+            ↓
+        Normalization
+            ↓
+        Tokenization
+            ↓
+        Padaccheda
+            ↓
+        Morphology
+            ↓
+        Grammar
+            ↓
+        Translation
     """
 
-    # ---------------------------------------------------------
-    # Original Text
-    # ---------------------------------------------------------
-
     original_text: str = ""
-
     normalized_text: str = ""
 
-    #language: str = "Sanskrit"
-    language: Language = Language.SANSKRIT
-
-    # ---------------------------------------------------------
-    # Word Collections
-    # ---------------------------------------------------------
-
-    # Raw tokenizer output
-    original_words: list[Word] = field(default_factory=list)
-
-    # Output after Padaccheda
-    padaccheda_words: list[Word] = field(default_factory=list)
-
-    # Output after grammar analysis
-    analyzed_words: list[Word] = field(default_factory=list)
-
-    # Output after dictionary lookup
-    lexical_words: list[Word] = field(default_factory=list)
-
-    # ---------------------------------------------------------
-    # Position
-    # ---------------------------------------------------------
+    words: List[Word] = field(default_factory=list)
 
     sentence_number: int = 1
-
     line_number: int = 1
 
-    paragraph_number: int = 1
-
-    chapter_number: int = 1
+    pipeline: PipelineState = field(default_factory=PipelineState)
 
     # ---------------------------------------------------------
-    # Processing State
+    # Pipeline helpers
     # ---------------------------------------------------------
 
-    pipeline: PipelineState = field(
-        default_factory=PipelineState
-    )
+    def start_analysis(self):
+        """Start the analysis pipeline."""
+        self.pipeline.start()
+
+    def finish_analysis(self):
+        """Finish the analysis pipeline."""
+        self.pipeline.finish()
+
+    def set_stage(self, stage: PipelineStage):
+        """Advance to a specific pipeline stage."""
+        self.pipeline.advance(stage)
 
     # ---------------------------------------------------------
-    # Original Tokens
+    # Word Management
     # ---------------------------------------------------------
 
     def add_original_word(self, word: Word):
+        """
+        Add a word exactly as found in the manuscript.
+        """
 
-        word.position = len(self.original_words) + 1
+        word.position = len(self.words) + 1
+        word.line_number = self.line_number
         word.sentence_number = self.sentence_number
 
-        self.original_words.append(word)
+        self.words.append(word)
 
-        self.touch()
+        if self.pipeline.current_stage.value == "created":
+            self.pipeline.start()
 
-    # ---------------------------------------------------------
+        self.pipeline.advance(PipelineStage.TOKENIZED)
 
-    def add_padaccheda_word(self, word: Word):
-
-        word.position = len(self.padaccheda_words) + 1
-
-        self.padaccheda_words.append(word)
-
-        self.touch()
-
-    # ---------------------------------------------------------
-
-    def add_analyzed_word(self, word: Word):
-
-        word.position = len(self.analyzed_words) + 1
-
-        self.analyzed_words.append(word)
-
-        self.touch()
-
-    # ---------------------------------------------------------
-
-    def add_lexical_word(self, word: Word):
-
-        word.position = len(self.lexical_words) + 1
-
-        self.lexical_words.append(word)
-
-        self.touch()
-
-    # ---------------------------------------------------------
-    # Active Words
-    # ---------------------------------------------------------
-
-    @property
-    def words(self) -> list[Word]:
+    def add_word(self, word: Word):
         """
-        Return the latest available representation.
-        """
-
-        if self.lexical_words:
-            return self.lexical_words
-
-        if self.analyzed_words:
-            return self.analyzed_words
-
-        if self.padaccheda_words:
-            return self.padaccheda_words
-
-        return self.original_words
-
-    # ---------------------------------------------------------
-
-    @property
-    def word_count(self) -> int:
-
-        return len(self.words)
-
-    # ---------------------------------------------------------
-    
-    def add_word(self, word: Word) -> None:
-        """
-        Backward-compatible alias.
-        Adds a word to the original word collection.
+        Alias maintained for backward compatibility.
         """
         self.add_original_word(word)
-    
-    def get_word(self, position: int) -> Optional[Word]:
-
-        if 0 <= position < len(self.words):
-            return self.words[position]
-
-        return None
 
     # ---------------------------------------------------------
-
-    def text(self) -> str:
-
-        return " ".join(
-            word.original_text
-            for word in self.words
-        )
-
+    # Information
     # ---------------------------------------------------------
 
-    def clear_analysis(self):
+    @property
+    def word_count(self):
+        return len(self.words)
 
-        self.padaccheda_words.clear()
-
-        self.analyzed_words.clear()
-
-        self.lexical_words.clear()
-
-        self.pipeline = PipelineState()
-
-        self.touch()
+    def text(self):
+        return " ".join(word.original_text for word in self.words)
 
     # ---------------------------------------------------------
-
-    def original_text_view(self) -> str:
-
-        return " ".join(
-            word.original_text
-            for word in self.original_words
-        )
-
+    # Status
     # ---------------------------------------------------------
 
-    def padaccheda_text(self) -> str:
+    def normalize(self):
+        self.pipeline.advance(PipelineStage.NORMALIZED)
 
-        return " ".join(
-            word.original_text
-            for word in self.padaccheda_words
-        )
+    def tokenize(self):
+        self.pipeline.advance(PipelineStage.TOKENIZED)
+
+    def padaccheda_complete(self):
+        self.pipeline.advance(PipelineStage.PADACCHEDA)
+
+    def morphology_complete(self):
+        self.pipeline.advance(PipelineStage.MORPHOLOGY)
+
+    def grammar_complete(self):
+        self.pipeline.advance(PipelineStage.GRAMMAR)
+
+    def translation_complete(self):
+        self.pipeline.advance(PipelineStage.TRANSLATED)
 
     # ---------------------------------------------------------
-
-    def analyzed_text(self) -> str:
-
-        return " ".join(
-            word.original_text
-            for word in self.analyzed_words
-        )
-
-    # ---------------------------------------------------------
-
-    def lexical_text(self) -> str:
-
-        return " ".join(
-            word.original_text
-            for word in self.lexical_words
-        )
-
+    # Summary
     # ---------------------------------------------------------
 
     def summary(self):
@@ -228,5 +136,9 @@ class Sentence(BaseModel):
             f"Sentence("
             f"words={self.word_count}, "
             f"stage={self.pipeline.current_stage.value}, "
-            f"text='{self.text()}')"
+            f"text='{self.text()}'"
+            f")"
         )
+
+    def __str__(self):
+        return self.summary()
