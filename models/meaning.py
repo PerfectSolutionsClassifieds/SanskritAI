@@ -44,7 +44,7 @@ class Meaning(BaseModel):
 
     #source: Optional[str] = None
     source: DictionarySource = DictionarySource.UNKNOWN
-    
+
     source_reference: Optional[str] = None
 
     # ---------------------------------------------------------

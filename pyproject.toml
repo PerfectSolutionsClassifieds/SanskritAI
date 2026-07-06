@@ -1,16 +1,32 @@
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "sanskritai"
-version = "0.2.0"
-description = "Sanskrit knowledge platform starter project"
+version = "0.3.0"
+description = "Sanskrit knowledge platform"
+readme = "README.md"
 requires-python = ">=3.10"
+
 dependencies = [
-    "pandas",
     "numpy",
+    "pandas",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = [
+    "pytest",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["models*", "analysis*", "services*", "storage*", "utils*", "core*", "pipeline*", "lexicon*", "plugins*", "tests*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
 testpaths = ["tests"]
+pythonpath = ["."]

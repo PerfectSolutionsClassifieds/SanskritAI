@@ -5,7 +5,7 @@ Dictionary Sources
 from enum import Enum
 
 
-class DictionarySource(Enum):
+class DictionarySource(str, Enum):
 
     UNKNOWN = "Unknown"
 
