@@ -1,0 +1,274 @@
+{
+    "schema_version": "2.0",
+    "registry_name": "Canonical Sanskrit Work Registry",
+    "generated_by": "SanskritAI",
+    "generated_on": "2026-07-08",
+    "works": [
+        {
+            "identifier": "amarakosha",
+            "title": "Amarakosha",
+            "corpus_type": "dictionary",
+            "language": "sanskrit",
+            "script": null,
+            "description": "Classical Sanskrit thesaurus traditionally attributed to Amarasiṃha.",
+            "author": "Amarasiṃha",
+            "period": "Classical",
+            "repository": null,
+            "aliases": [
+                {
+                    "value": "Amarakosha",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": true,
+                    "source": "manual"
+                },
+                {
+                    "value": "Amarakosa",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "अमरकोश",
+                    "language": "sanskrit",
+                    "script": "devanagari",
+                    "is_preferred": false,
+                    "source": "manual"
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "identifier": "vacaspatyam",
+            "title": "Vacaspatyam",
+            "corpus_type": "dictionary",
+            "language": "sanskrit",
+            "script": null,
+            "description": "Comprehensive Sanskrit lexicon by Taranatha Tarkavachaspati.",
+            "author": "Taranatha Tarkavachaspati",
+            "period": "19th Century",
+            "repository": null,
+            "aliases": [
+                {
+                    "value": "Vacaspatyam",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": true,
+                    "source": "manual"
+                },
+                {
+                    "value": "Vācaspatyam",
+                    "language": "sanskrit",
+                    "script": "iast",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "वाचस्पत्यम्",
+                    "language": "sanskrit",
+                    "script": "devanagari",
+                    "is_preferred": false,
+                    "source": "manual"
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "identifier": "shabdakalpadruma",
+            "title": "Shabdakalpadruma",
+            "corpus_type": "dictionary",
+            "language": "sanskrit",
+            "script": null,
+            "description": "Large encyclopedic Sanskrit dictionary by Radhakanta Deva.",
+            "author": "Radhakanta Deva",
+            "period": "19th Century",
+            "repository": null,
+            "aliases": [
+                {
+                    "value": "Shabdakalpadruma",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": true,
+                    "source": "manual"
+                },
+                {
+                    "value": "Śabdakalpadruma",
+                    "language": "sanskrit",
+                    "script": "iast",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "शब्दकल्पद्रुम",
+                    "language": "sanskrit",
+                    "script": "devanagari",
+                    "is_preferred": false,
+                    "source": "manual"
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "identifier": "srimad_bhagavatam",
+            "title": "Srimad Bhagavatam",
+            "corpus_type": "purana",
+            "language": "sanskrit",
+            "script": null,
+            "description": "Mahapurana consisting of twelve Skandhas.",
+            "author": "Vyāsa (traditionally)",
+            "period": "Ancient",
+            "repository": null,
+            "aliases": [
+                {
+                    "value": "Srimad Bhagavatam",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": true,
+                    "source": "manual"
+                },
+                {
+                    "value": "Bhagavata Purana",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "Bhagavatam",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "Śrīmad Bhāgavatam",
+                    "language": "sanskrit",
+                    "script": "iast",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "भागवत",
+                    "language": "sanskrit",
+                    "script": "devanagari",
+                    "is_preferred": false,
+                    "source": "manual"
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "identifier": "shiva_purana",
+            "title": "Shiva Purana",
+            "corpus_type": "purana",
+            "language": "sanskrit",
+            "script": null,
+            "description": "One of the eighteen Mahāpurāṇas.",
+            "author": "Vyāsa (traditionally)",
+            "period": "Ancient",
+            "repository": null,
+            "aliases": [
+                {
+                    "value": "Shiva Purana",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": true,
+                    "source": "manual"
+                },
+                {
+                    "value": "Shivapurana",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "Śivapurāṇa",
+                    "language": "sanskrit",
+                    "script": "iast",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "शिवपुराण",
+                    "language": "sanskrit",
+                    "script": "devanagari",
+                    "is_preferred": false,
+                    "source": "manual"
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "identifier": "mahabharata",
+            "title": "Mahabharata",
+            "corpus_type": "itihasa",
+            "language": "sanskrit",
+            "script": null,
+            "description": "The great Sanskrit epic.",
+            "author": "Vyāsa (traditionally)",
+            "period": "Ancient",
+            "repository": null,
+            "aliases": [
+                {
+                    "value": "Mahabharata",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": true,
+                    "source": "manual"
+                },
+                {
+                    "value": "Mahābhārata",
+                    "language": "sanskrit",
+                    "script": "iast",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "महाभारत",
+                    "language": "sanskrit",
+                    "script": "devanagari",
+                    "is_preferred": false,
+                    "source": "manual"
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "identifier": "ramayana",
+            "title": "Ramayana",
+            "corpus_type": "itihasa",
+            "language": "sanskrit",
+            "script": null,
+            "description": "Epic traditionally attributed to Vālmīki.",
+            "author": "Vālmīki",
+            "period": "Ancient",
+            "repository": null,
+            "aliases": [
+                {
+                    "value": "Ramayana",
+                    "language": "english",
+                    "script": "latin",
+                    "is_preferred": true,
+                    "source": "manual"
+                },
+                {
+                    "value": "Rāmāyaṇa",
+                    "language": "sanskrit",
+                    "script": "iast",
+                    "is_preferred": false,
+                    "source": "manual"
+                },
+                {
+                    "value": "रामायण",
+                    "language": "sanskrit",
+                    "script": "devanagari",
+                    "is_preferred": false,
+                    "source": "manual"
+                }
+            ],
+            "metadata": {}
+        }
+    ]
+}
