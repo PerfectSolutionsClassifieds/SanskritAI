@@ -6,23 +6,28 @@ SanskritAI
 
 Core Event
 
-Defines the immutable base class for all domain events within
-the SanskritAI Architectural Kernel.
+Defines the immutable runtime occurrence of a domain event.
 
 An Event represents something that has already occurred.
+Its semantic identity is described by EventMetadata,
+while Event itself captures the runtime occurrence
+(timestamp and payload).
 
-Examples
---------
+Architecture
+------------
 
-CorpusCreatedEvent
-DocumentAddedEvent
-VerseParsedEvent
-LexemeImportedEvent
-MorphologyAnalyzedEvent
+EventMetadata
+      │
+      ▼
+Event
+      │
+      ▼
+Infrastructure
+(EventEnvelope, EventBus, etc.)
 
 Version
 -------
-v0.3.0
+v0.7.0
 """
 
 from dataclasses import dataclass, field
@@ -30,69 +35,98 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
+from SanskritAI.core.events.event_metadata import EventMetadata
+from SanskritAI.core.mixins.displayable import Displayable
+from SanskritAI.core.mixins.immutable import Immutable
+from SanskritAI.core.value_objects.value_object import ValueObject
+
 
 @dataclass(frozen=True, slots=True)
-class Event:
+class Event(
+    ValueObject,
+    Immutable,
+    Displayable,
+):
     """
-    Immutable base class for all domain events.
+    Immutable runtime occurrence of a domain event.
     """
 
-    # ---------------------------------------------------------
-    # Identity
-    # ---------------------------------------------------------
+    metadata: EventMetadata
 
-    event_id: UUID = field(
+    event_instance_id: UUID = field(
         default_factory=uuid4,
     )
-
-    # ---------------------------------------------------------
-    # Time
-    # ---------------------------------------------------------
 
     timestamp: datetime = field(
         default_factory=lambda: datetime.now(
             timezone.utc,
-        )
+        ),
     )
-
-    # ---------------------------------------------------------
-    # Optional payload
-    # ---------------------------------------------------------
 
     payload: dict[str, Any] = field(
         default_factory=dict,
     )
 
-    # ---------------------------------------------------------
+    @property
+    def identifier(self) -> str:
+        """
+        Returns the runtime occurrence identifier.
+        """
+        return str(self.occurrence_id)
+
+    @property
+    def event_identifier(self) -> str:
+        """
+        Returns the semantic event identifier.
+        """
+        return self.metadata.identifier
+
+    @property
+    def display_name(self) -> str:
+        return self.metadata.display_name
+
+    @property
+    def display_text(self) -> str:
+        return self.metadata.display_text
+
+    @property
+    def display_description(self) -> str:
+        return self.metadata.display_description
 
     @property
     def name(self) -> str:
         """
-        Event class name.
+        Compatibility alias.
         """
+        return self.display_name
 
-        return self.__class__.__name__
+    @property
+    def event_type(self):
+        return self.metadata.event_type
 
-    # ---------------------------------------------------------
+    @property
+    def priority(self):
+        return self.metadata.priority
 
     def to_dict(self) -> dict[str, Any]:
         """
-        Serialize the event.
+        Serializes the event occurrence.
         """
-
         return {
-            "event_id": str(self.event_id),
-            "name": self.name,
+            "event_instance_id": self.identifier,
+            "event_id": self.event_identifier,
+            "event_type": self.event_type.identifier,
+            "priority": self.priority.identifier,
             "timestamp": self.timestamp.isoformat(),
             "payload": self.payload,
         }
 
-    # ---------------------------------------------------------
-
     def __repr__(self) -> str:
-
         return (
-            f"{self.name}"
-            f"(id={self.event_id}, "
-            f"time={self.timestamp.isoformat()})"
+            f"{self.display_name}"
+            f"(occurrence={self.identifier}, "
+            f"event={self.event_identifier})"
         )
+
+    def __str__(self) -> str:
+        return self.display_text
