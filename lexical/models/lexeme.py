@@ -39,6 +39,8 @@ Version
 v0.3.0
 """
 
+from typing import Any
+
 from SanskritAI.lexical.models.base_lexical_node import (
     BaseLexicalNode,
 )
@@ -62,7 +64,6 @@ class Lexeme(
         identifier: str,
         metadata: LexemeMetadata,
     ) -> None:
-
         super().__init__(
             identifier=identifier,
             metadata=metadata,
@@ -79,7 +80,6 @@ class Lexeme(
         """
         Canonical lemma.
         """
-
         return self.metadata.lemma
 
     # ---------------------------------------------------------
@@ -91,7 +91,6 @@ class Lexeme(
         """
         Transliterated lemma.
         """
-
         return self.metadata.transliteration
 
     # ---------------------------------------------------------
@@ -99,11 +98,10 @@ class Lexeme(
     @property
     def part_of_speech(
         self,
-    ):
+    ) -> Any:
         """
         Grammatical category.
         """
-
         return self.metadata.part_of_speech
 
     # ---------------------------------------------------------
@@ -115,7 +113,6 @@ class Lexeme(
         """
         Dhātu or lexical root, when known.
         """
-
         return self.metadata.root
 
     # ---------------------------------------------------------
@@ -127,7 +124,6 @@ class Lexeme(
         """
         Corpus frequency.
         """
-
         return self.metadata.frequency
 
     # ---------------------------------------------------------
@@ -139,7 +135,6 @@ class Lexeme(
         """
         Language.
         """
-
         return self.metadata.language
 
     # ---------------------------------------------------------
@@ -151,7 +146,6 @@ class Lexeme(
         """
         Script.
         """
-
         return self.metadata.script
 
     # ---------------------------------------------------------
@@ -159,9 +153,8 @@ class Lexeme(
     @property
     def status(
         self,
-    ):
+    ) -> Any:
         """
         Editorial status.
         """
-
         return self.metadata.status

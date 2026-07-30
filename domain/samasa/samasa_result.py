@@ -1,0 +1,143 @@
+from __future__ import annotations
+
+"""
+SanskritAI
+==========
+
+Samasa Result
+
+Defines the immutable outcome produced by every Samasa
+operation.
+
+The SamasaResult now carries a typed SamasaAnalysisCollection
+instead of a bare tuple so the kernel mirrors the Morphology
+and Grammar patterns more closely.
+
+Version
+-------
+v1.1.0
+"""
+
+from dataclasses import dataclass, field
+
+from SanskritAI.core.mixins.displayable import Displayable
+from SanskritAI.core.mixins.immutable import Immutable
+from SanskritAI.core.value_objects.value_object import ValueObject
+
+from SanskritAI.domain.samasa.samasa_analysis import SamasaAnalysis
+from SanskritAI.domain.samasa.samasa_analysis_collection import (
+    SamasaAnalysisCollection,
+)
+from SanskritAI.domain.samasa.samasa_context import SamasaContext
+from SanskritAI.domain.samasa.samasa_diagnostic import SamasaDiagnostic
+
+
+@dataclass(frozen=True, slots=True)
+class SamasaResult(
+    ValueObject,
+    Immutable,
+    Displayable,
+):
+    """
+    Immutable result produced by Samasa resolution.
+    """
+
+    context: SamasaContext
+
+    analyses: SamasaAnalysisCollection = field(
+        default_factory=SamasaAnalysisCollection
+    )
+
+    succeeded: bool = True
+
+    confidence: float = 1.0
+
+    diagnostics: tuple[SamasaDiagnostic, ...] = field(default_factory=tuple)
+
+    @property
+    def identifier(self) -> str:
+        return self.context.identifier
+
+    @property
+    def display_name(self) -> str:
+        return "Samasa Result"
+
+    @property
+    def display_text(self) -> str:
+        state = "Succeeded" if self.succeeded else "Failed"
+        return f"{self.display_name} [{state}]"
+
+    @property
+    def display_description(self) -> str:
+        if self.has_diagnostics:
+            return self.diagnostics[0].message
+        return ""
+
+    @property
+    def subject(self):
+        return self.context.subject
+
+    @property
+    def source(self) -> str:
+        return self.context.source
+
+    @property
+    def language(self) -> str:
+        return self.context.language
+
+    @property
+    def script(self) -> str:
+        return self.context.script
+
+    @property
+    def has_diagnostics(self) -> bool:
+        return len(self.diagnostics) > 0
+
+    @property
+    def diagnostic_count(self) -> int:
+        return len(self.diagnostics)
+
+    @property
+    def has_errors(self) -> bool:
+        return any(diagnostic.is_error for diagnostic in self.diagnostics)
+
+    @property
+    def has_warnings(self) -> bool:
+        return any(diagnostic.is_warning for diagnostic in self.diagnostics)
+
+    @property
+    def first_diagnostic(self) -> SamasaDiagnostic | None:
+        if not self.diagnostics:
+            return None
+        return self.diagnostics[0]
+
+    @property
+    def resolved(self) -> bool:
+        return self.succeeded and self.has_analyses
+
+    @property
+    def unresolved(self) -> bool:
+        return not self.resolved
+
+    @property
+    def is_confident(self) -> bool:
+        return self.confidence >= 0.80
+
+    @property
+    def has_analyses(self) -> bool:
+        return self.analyses.has_analyses
+
+    @property
+    def analysis_count(self) -> int:
+        return self.analyses.count
+
+    @property
+    def first_analysis(self) -> SamasaAnalysis | None:
+        return self.analyses.first
+
+    @property
+    def result(self) -> SamasaAnalysisCollection:
+        return self.analyses
+
+    def __str__(self) -> str:
+        return self.display_text

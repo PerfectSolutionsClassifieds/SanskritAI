@@ -80,10 +80,9 @@ class BaseLexicalNode(
         By convention this returns the metadata title when
         available; otherwise it falls back to the identifier.
         """
-
         title = getattr(self.metadata, "title", "")
 
         if title:
             return title
 
-        return str(self.id)
+        return str(self.identifier)
