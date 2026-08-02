@@ -9,57 +9,50 @@ Paninian Rule
 Canonical abstract base class for every executable
 Paninian grammatical rule.
 
-Architecture
-------------
+Purpose
+-------
+PaninianRule represents one executable grammatical rule of the
+Aṣṭādhyāyī.
 
-                 PaninianRule
-                      │
-      ┌───────────────┼────────────────┐
-      │               │                │
-  SamjnaRule      VidhiRule      SandhiRule
-      │               │                │
-      ▼               ▼                ▼
- Concrete Sūtras  Concrete Sūtras  Concrete Sūtras
+Unlike previous versions, descriptive information is no longer
+stored directly inside the rule.
 
-Unlike previous revisions, this class no longer owns dozens of
-independent metadata fields.
-
-Every rule instead owns exactly one immutable
+Every rule instead owns a
 
     PaninianRuleMetadata
 
-instance.
+instance, making metadata reusable throughout SanskritAI.
 
-The metadata itself now cleanly separates
+Architecture
+------------
 
-    • Classical Sūtra Category
+                PaninianRule
+                     │
+     ┌───────────────┼────────────────┐
+     │               │                │
+ SamjnaRule      VidhiRule      SandhiRule
+     │               │                │
+     ▼               ▼                ▼
+Concrete Sutra  Concrete Sutra  Concrete Sutra
 
-            Saṃjñā
-            Paribhāṣā
-            Vidhi
-            Niyama
-            Atideśa
-            Adhikāra
+Responsibilities
+----------------
 
-from
+PaninianRule
 
-    • Operational Behaviour
+• determines applicability
 
-            Āgama
-            Lopa
-            Ādeśa
-            Sandhi
-            Tripādī
-            Pratyaya
-            Samāsa
-            ...
+• validates execution
 
-This faithfully models the architecture of the
-Aṣṭādhyāyī.
+• performs grammatical transformation
+
+• participates in tracing
+
+• exposes immutable metadata
 
 Version
 -------
-v3.0.0
+v2.0.0
 """
 
 from abc import ABC
@@ -77,10 +70,7 @@ from SanskritAI.domain.panini.paninian_rule_metadata import (
 )
 
 
-@dataclass(
-    frozen=True,
-    slots=True,
-)
+@dataclass(frozen=True, slots=True)
 class PaninianRule(
     ValueObject,
     Immutable,
@@ -88,7 +78,7 @@ class PaninianRule(
     ABC,
 ):
     """
-    Canonical executable Paninian grammatical rule.
+    Canonical executable Paninian rule.
     """
 
     metadata: PaninianRuleMetadata
@@ -116,50 +106,24 @@ class PaninianRule(
         return self.metadata.display_description
 
     # ---------------------------------------------------------
-    # Classical Classification
+    # Metadata
     # ---------------------------------------------------------
+
+    @property
+    def identifier(self) -> str:
+        return self.metadata.rule_name
+
+    @property
+    def sutra_number(self) -> str:
+        return self.metadata.sutra_number
+
+    @property
+    def sutra(self) -> str:
+        return self.metadata.sutra_text
 
     @property
     def category(self):
-        """
-        Classical Paninian classification.
-
-        Examples
-
-            SAMJNA
-
-            VIDHI
-
-            NIYAMA
-
-            PARIBHASHA
-        """
         return self.metadata.category
-
-    # ---------------------------------------------------------
-    # Operational Behaviour
-    # ---------------------------------------------------------
-
-    @property
-    def operation(self):
-        """
-        Operational grammatical behaviour.
-
-        Examples
-
-            AGAMA
-
-            LOPA
-
-            ADESHA
-
-            SANDHI
-        """
-        return self.metadata.operation
-
-    # ---------------------------------------------------------
-    # Metadata
-    # ---------------------------------------------------------
 
     @property
     def rule_type(self):
@@ -170,19 +134,19 @@ class PaninianRule(
         return self.metadata.priority
 
     @property
-    def source(self) -> str:
-        return self.metadata.source
+    def adhyaya(self) -> int:
+        return self.metadata.adhyaya
 
     @property
-    def notes(self) -> str:
-        return self.metadata.notes
+    def pada(self) -> int:
+        return self.metadata.pada
 
     @property
-    def tags(self) -> tuple[str, ...]:
-        return self.metadata.tags
+    def location(self) -> str:
+        return self.metadata.canonical_location
 
     # ---------------------------------------------------------
-    # Classification Helpers
+    # Classification
     # ---------------------------------------------------------
 
     @property
@@ -190,23 +154,35 @@ class PaninianRule(
         return self.enabled
 
     @property
-    def is_transformational(self) -> bool:
-        return self.metadata.is_transformational
+    def is_optional(self) -> bool:
+        return self.metadata.is_optional
 
     @property
-    def is_phonological(self) -> bool:
-        return self.metadata.is_phonological
+    def is_exception(self) -> bool:
+        return self.metadata.is_exception
+
+    @property
+    def is_default_rule(self) -> bool:
+        return self.metadata.is_default_rule
+
+    @property
+    def is_meta_rule(self) -> bool:
+        return self.metadata.is_meta_rule
 
     @property
     def is_morphological(self) -> bool:
         return self.metadata.is_morphological
 
     @property
-    def has_operation(self) -> bool:
-        return self.metadata.has_operation
+    def is_phonological(self) -> bool:
+        return self.metadata.is_phonological
+
+    @property
+    def is_semantic(self) -> bool:
+        return self.metadata.is_semantic
 
     # ---------------------------------------------------------
-    # Life-cycle
+    # Execution Life-cycle
     # ---------------------------------------------------------
 
     def supports(
@@ -214,10 +190,10 @@ class PaninianRule(
         context: Any,
     ) -> bool:
         """
-        Determines whether this rule may participate in
-        the current derivation.
+        Determines whether this rule may participate
+        in the current derivation.
 
-        Concrete subclasses may override.
+        Concrete rules may override.
         """
         return self.enabled
 
@@ -247,7 +223,7 @@ class PaninianRule(
         context: Any,
     ) -> tuple[Any, ...]:
         """
-        Executes the grammatical transformation.
+        Applies the grammatical rule.
 
         Returns
         -------
@@ -263,7 +239,7 @@ class PaninianRule(
         result: tuple[Any, ...],
     ) -> tuple[Any, ...]:
         """
-        Hook executed immediately after apply().
+        Hook executed after apply().
         """
         return result
 
@@ -273,21 +249,21 @@ class PaninianRule(
 
     def explain(self) -> str:
         """
-        Returns a human-readable explanation.
+        Returns the canonical explanation.
         """
-        return self.display_description
+        return self.metadata.display_description
 
     def trace(self) -> dict[str, Any]:
         """
-        Returns structured trace information.
+        Returns a structured trace payload.
         """
         return {
+            "sutra_number": self.sutra_number,
+            "sutra": self.sutra,
             "category": self.category.value,
-            "operation": self.operation.value,
             "rule_type": self.rule_type.value,
-            "priority": self.priority.value,
-            "source": self.source,
-            "tags": self.tags,
+            "priority": int(self.priority),
+            "location": self.location,
         }
 
     # ---------------------------------------------------------
@@ -298,7 +274,7 @@ class PaninianRule(
         self,
         other: "PaninianRule",
     ) -> bool:
-        return self.priority.value < other.priority.value
+        return self.priority < other.priority
 
     def __str__(self) -> str:
         return self.display_text
