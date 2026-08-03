@@ -8,64 +8,50 @@ Canonical Lexicon
 
 Purpose
 -------
-Represents one complete lexical repository.
+Represents one complete canonical lexical repository.
 
-Examples
-
-    Monier–Williams Lexicon
-
-    Apte Lexicon
-
-    Amarakośa Lexicon
-
-    Śabdakalpadruma Lexicon
-
-    Vācaspatyam Lexicon
-
-Later
-
-    Śiva Purāṇa Context Dictionary
-
-    Viṣṇu Purāṇa Context Dictionary
-
-    Bhāgavata Context Dictionary
-
-Each CanonicalLexicon owns
-
-    Dictionary Entries
-
-Each Dictionary Entry owns
-
-    Dictionary Senses
+A CanonicalLexicon is the immutable root of the lexical
+knowledge graph.
 
 Architecture
 ------------
 
 CanonicalLexicon
-
         │
-
-        ├──────────────► CanonicalDictionaryEntry
-
-        │                       │
-
-        │                       ├────────► Sense
-
-        │                       ├────────► Sense
-
-        │                       └────────► Sense
+        ▼
+CanonicalDictionaryEntry
+        │
+        ▼
+CanonicalDictionarySense
+        │
+        ├────────────► CanonicalContext
+        │
+        └────────────► CanonicalSource
 
 Version
 -------
-1.0.0
+2.0.0
 """
 
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Mapping
+from typing import Iterator
 
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
     CanonicalDictionaryEntry,
+)
+
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
+    CanonicalDictionarySense,
+)
+
+from SanskritAI.acquisition.knowledge.models.canonical_context import (
+    CanonicalContext,
+)
+
+from SanskritAI.acquisition.knowledge.models.canonical_source import (
+    CanonicalSource,
 )
 
 
@@ -75,7 +61,7 @@ from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
 )
 class CanonicalLexicon:
     """
-    Canonical lexical repository.
+    Immutable canonical lexical repository.
     """
 
     identifier: str
@@ -96,6 +82,10 @@ class CanonicalLexicon:
     ] = field(
         default_factory=dict,
     )
+
+    # ---------------------------------------------------------
+    # Entries
+    # ---------------------------------------------------------
 
     @property
     def entry_count(
@@ -122,6 +112,92 @@ class CanonicalLexicon:
             headword,
         )
 
+    def all_entries(
+        self,
+    ) -> tuple[
+        CanonicalDictionaryEntry,
+        ...
+    ]:
+
+        return tuple(
+            self.entries.values()
+        )
+
+    # ---------------------------------------------------------
+    # Graph Traversal
+    # ---------------------------------------------------------
+
+    def all_senses(
+        self,
+    ) -> Iterator[
+        CanonicalDictionarySense
+    ]:
+
+        for entry in self.entries.values():
+
+            yield from entry.senses
+
+    def all_contexts(
+        self,
+    ) -> Iterator[
+        CanonicalContext
+    ]:
+
+        seen: set[str] = set()
+
+        for sense in self.all_senses():
+
+            if sense.context is None:
+                continue
+
+            identifier = sense.context.identifier
+
+            if identifier in seen:
+                continue
+
+            seen.add(identifier)
+
+            yield sense.context
+
+    def all_sources(
+        self,
+    ) -> Iterator[
+        CanonicalSource
+    ]:
+
+        seen: set[str] = set()
+
+        for sense in self.all_senses():
+
+            if sense.source is None:
+                continue
+
+            if sense.source.source_id in seen:
+                continue
+
+            seen.add(
+                sense.source.source_id
+            )
+
+            yield sense.source
+
+    # ---------------------------------------------------------
+    # Diagnostics
+    # ---------------------------------------------------------
+
+    @property
+    def sense_count(
+        self,
+    ) -> int:
+
+        return sum(
+
+            len(entry)
+
+            for entry in self.entries.values()
+
+        )
+
     def summary(
         self,
     ) -> dict:
@@ -136,7 +212,13 @@ class CanonicalLexicon:
 
             "entries": self.entry_count,
 
+            "senses": self.sense_count,
+
         }
+
+    # ---------------------------------------------------------
+    # Python Protocol
+    # ---------------------------------------------------------
 
     def __len__(
         self,
@@ -155,7 +237,13 @@ class CanonicalLexicon:
     ) -> str:
 
         return (
-            f"CanonicalLexicon("
+
+            "CanonicalLexicon("
+
             f"{self.name}, "
-            f"{self.entry_count} entries)"
+
+            f"{self.entry_count} entries, "
+
+            f"{self.sense_count} senses)"
+
         )

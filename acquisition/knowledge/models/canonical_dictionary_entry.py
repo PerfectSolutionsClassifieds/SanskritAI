@@ -8,48 +8,37 @@ Canonical Dictionary Entry
 
 Purpose
 -------
-Represents one canonical lexical entry within the
-Canonical Sanskrit Knowledge Repository.
+Represents one canonical Sanskrit lexical entry.
 
-Unlike CanonicalLexicalRecord, which is an acquisition
-transfer object, CanonicalDictionaryEntry is a stable
-domain object used by
-
-    • Reader UI
-
-    • Grammar Engine
-
-    • AI Retrieval
-
-    • Contextual Dictionaries
-
-    • REST APIs
-
-One Dictionary Entry may later contain multiple
-Dictionary Senses.
+Unlike previous versions, the Dictionary Entry now owns
+its contextual Dictionary Senses, making the lexical graph
+fully traversable.
 
 Architecture
 ------------
 
-CanonicalLexicalRecord
-
-        ↓
-
+CanonicalLexicon
+        │
+        ▼
 CanonicalDictionaryEntry
-
-        ↓
-
-CanonicalDictionarySense
+        │
+        ├──────────────► CanonicalDictionarySense
+        ├──────────────► CanonicalDictionarySense
+        └──────────────► CanonicalDictionarySense
 
 Version
 -------
-1.0.0
+2.0.0
 """
 
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 from typing import Mapping
+
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
+    CanonicalDictionarySense,
+)
 
 
 @dataclass(
@@ -60,10 +49,11 @@ class CanonicalDictionaryEntry:
     """
     Canonical lexical entry.
 
-    One entry represents one Sanskrit lexical headword.
+    One entry represents the lexical identity of a Sanskrit
+    headword.
 
-    Context-specific meanings are intentionally NOT stored
-    here; they belong to CanonicalDictionarySense.
+    Contextual meanings are represented by the immutable
+    CanonicalDictionarySense objects owned by this entry.
     """
 
     # ---------------------------------------------------------
@@ -93,6 +83,15 @@ class CanonicalDictionaryEntry:
     entry_type: str | None = None
 
     # ---------------------------------------------------------
+    # Contextual Meanings
+    # ---------------------------------------------------------
+
+    senses: tuple[
+        CanonicalDictionarySense,
+        ...
+    ] = ()
+
+    # ---------------------------------------------------------
     # Source Information
     # ---------------------------------------------------------
 
@@ -105,12 +104,62 @@ class CanonicalDictionaryEntry:
     citation: str | None = None
 
     # ---------------------------------------------------------
-    # Repository Metadata
+    # Extension Metadata
     # ---------------------------------------------------------
 
-    metadata: Mapping[str, Any] = field(
+    metadata: Mapping[
+        str,
+        Any,
+    ] = field(
         default_factory=dict,
     )
+
+    # ---------------------------------------------------------
+    # Convenience
+    # ---------------------------------------------------------
+
+    @property
+    def sense_count(
+        self,
+    ) -> int:
+
+        return len(
+            self.senses,
+        )
+
+    @property
+    def display_name(
+        self,
+    ) -> str:
+
+        return self.headword
+
+    @property
+    def has_transliteration(
+        self,
+    ) -> bool:
+
+        return self.transliteration is not None
+
+    @property
+    def has_multiple_senses(
+        self,
+    ) -> bool:
+
+        return self.sense_count > 1
+
+    # ---------------------------------------------------------
+    # Lookup
+    # ---------------------------------------------------------
+
+    def primary_sense(
+        self,
+    ) -> CanonicalDictionarySense | None:
+
+        if not self.senses:
+            return None
+
+        return self.senses[0]
 
     # ---------------------------------------------------------
     # Diagnostics
@@ -130,25 +179,25 @@ class CanonicalDictionaryEntry:
 
             "entry_type": self.entry_type,
 
+            "sense_count": self.sense_count,
+
         }
 
     # ---------------------------------------------------------
-    # Convenience
+    # Python Protocol
     # ---------------------------------------------------------
 
-    @property
-    def display_name(
+    def __len__(
         self,
-    ) -> str:
+    ) -> int:
 
-        return self.headword
+        return self.sense_count
 
-    @property
-    def has_transliteration(
+    def __iter__(
         self,
-    ) -> bool:
+    ):
 
-        return self.transliteration is not None
+        yield from self.senses
 
     def __str__(
         self,
@@ -156,5 +205,6 @@ class CanonicalDictionaryEntry:
 
         return (
             "CanonicalDictionaryEntry("
-            f"{self.headword})"
+            f"{self.headword}, "
+            f"{self.sense_count} senses)"
         )

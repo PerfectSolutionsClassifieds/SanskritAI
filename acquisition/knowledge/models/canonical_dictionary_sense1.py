@@ -14,49 +14,72 @@ headword.
 Unlike CanonicalDictionaryEntry, which represents the
 lexical identity of a word, CanonicalDictionarySense
 represents one interpretation of that word within a
-particular textual context.
+particular textual or lexical context.
 
-This refactored version establishes the canonical
-object graph by referencing immutable Context and
-Source objects directly.
+This design naturally supports multiple meanings for the
+same Sanskrit word across
+
+    • Purāṇas
+
+    • Chapters
+
+    • Ślokas
+
+    • Dictionaries
+
+without duplicating the lexical entry itself.
 
 Architecture
 ------------
 
-CanonicalLexicon
-        │
-        ▼
 CanonicalDictionaryEntry
-        │
-        ▼
-CanonicalDictionarySense
-        │
-        ├──────────────► CanonicalContext
-        │
-        └──────────────► CanonicalSource
+            │
+            ├─────────────► Sense 1
+            │
+            ├─────────────► Sense 2
+            │
+            ├─────────────► Sense 3
+            │
+            ▼
 
 Reader UI
-Grammar Engine
+
 AI Retrieval
-REST APIs
+
+Grammar Engine
+
+Future Context Dictionaries
+
+Examples
+--------
+
+Word
+
+    अग्नि
+
+may possess different senses
+
+    • physical fire
+
+    • sacrificial fire
+
+    • deity Agni
+
+    • digestive fire
+
+    • spiritual radiance
+
+Each becomes one CanonicalDictionarySense.
 
 Version
 -------
-2.0.0
+1.0.0
 """
 
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 from typing import Mapping
-
-from SanskritAI.acquisition.knowledge.models.canonical_context import (
-    CanonicalContext,
-)
-
-from SanskritAI.acquisition.knowledge.models.canonical_source import (
-    CanonicalSource,
-)
 
 
 @dataclass(
@@ -87,12 +110,18 @@ class CanonicalDictionarySense:
     semantic_notes: str | None = None
 
     # ---------------------------------------------------------
-    # Canonical Relationships
+    # Context
     # ---------------------------------------------------------
 
-    context: CanonicalContext | None = None
+    corpus: str | None = None
 
-    source: CanonicalSource | None = None
+    work: str | None = None
+
+    section: str | None = None
+
+    chapter: str | None = None
+
+    verse: str | None = None
 
     # ---------------------------------------------------------
     # Linguistic Classification
@@ -118,6 +147,10 @@ class CanonicalDictionarySense:
     # Provenance
     # ---------------------------------------------------------
 
+    source_name: str = ""
+
+    source_version: str = ""
+
     citation: str | None = None
 
     confidence: float = 1.0
@@ -126,35 +159,77 @@ class CanonicalDictionarySense:
     # Extension Metadata
     # ---------------------------------------------------------
 
-    metadata: Mapping[
-        str,
-        Any,
-    ] = field(
+    metadata: Mapping[str, Any] = field(
         default_factory=dict,
     )
+
+    # ---------------------------------------------------------
+    # Diagnostics
+    # ---------------------------------------------------------
+
+    def summary(
+        self,
+    ) -> dict:
+
+        return {
+
+            "sense_id": self.sense_id,
+
+            "headword": self.entry_headword,
+
+            "definition": self.definition,
+
+            "corpus": self.corpus,
+
+            "work": self.work,
+
+            "chapter": self.chapter,
+
+            "verse": self.verse,
+
+            "source": self.source_name,
+
+        }
 
     # ---------------------------------------------------------
     # Convenience
     # ---------------------------------------------------------
 
     @property
-    def has_context(
+    def is_contextual(
         self,
     ) -> bool:
+        """
+        Returns True if this sense belongs to a
+        specific textual context.
+        """
 
-        return self.context is not None
+        return any(
 
-    @property
-    def has_source(
-        self,
-    ) -> bool:
+            value is not None
 
-        return self.source is not None
+            for value in (
+
+                self.corpus,
+
+                self.work,
+
+                self.chapter,
+
+                self.verse,
+
+            )
+
+        )
 
     @property
     def has_grammar(
         self,
     ) -> bool:
+        """
+        Returns True if grammatical annotations
+        are available.
+        """
 
         return any(
 
@@ -178,56 +253,9 @@ class CanonicalDictionarySense:
 
         )
 
-    @property
-    def identifier(
-        self,
-    ) -> str:
-
-        return self.sense_id
-
-    # ---------------------------------------------------------
-    # Diagnostics
-    # ---------------------------------------------------------
-
-    def summary(
-        self,
-    ) -> dict:
-
-        return {
-
-            "sense_id": self.sense_id,
-
-            "headword": self.entry_headword,
-
-            "definition": self.definition,
-
-            "context":
-                None
-                if self.context is None
-                else self.context.identifier,
-
-            "source":
-                None
-                if self.source is None
-                else self.source.display_name,
-
-            "confidence": self.confidence,
-
-        }
-
-    # ---------------------------------------------------------
-    # Representation
-    # ---------------------------------------------------------
-
     def __str__(
         self,
     ) -> str:
-
-        context = (
-            self.context.identifier
-            if self.context is not None
-            else "global"
-        )
 
         return (
 
@@ -235,8 +263,6 @@ class CanonicalDictionarySense:
 
             f"{self.entry_headword}"
 
-            f" @ {context}"
-
-            ")"
+            f": {self.definition})"
 
         )
