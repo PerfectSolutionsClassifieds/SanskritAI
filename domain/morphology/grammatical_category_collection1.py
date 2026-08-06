@@ -6,11 +6,33 @@ SanskritAI
 
 Grammatical Category Collection
 
-Immutable collection of canonical grammatical categories.
+Immutable collection of grammatical categories.
+
+This collection forms the canonical container for Sanskrit
+grammatical categories and is reused throughout the
+Morphology Kernel.
+
+Examples
+--------
+
+Vibhaktis
+
+Vacanas
+
+Lingas
+
+Lakaras
+
+Future relationships
+--------------------
+
+MorphologicalFeatures
+        │
+        └── GrammaticalCategoryCollection
 
 Version
 -------
-v2.0.0
+v1.0.0
 """
 
 from dataclasses import dataclass, field
@@ -31,59 +53,34 @@ class GrammaticalCategoryCollection(
     Immutable,
     Displayable,
 ):
+    """
+    Immutable collection of grammatical categories.
+    """
 
-    items: tuple[
+    categories: tuple[
         GrammaticalCategory,
         ...
     ] = field(default_factory=tuple)
 
     def __iter__(self) -> Iterator[GrammaticalCategory]:
-        return iter(self.items)
+        return iter(self.categories)
 
     def __len__(self) -> int:
-        return len(self.items)
+        return len(self.categories)
 
     def __getitem__(
         self,
         index: int,
     ) -> GrammaticalCategory:
-        return self.items[index]
-
-    def __contains__(
-        self,
-        category: GrammaticalCategory,
-    ) -> bool:
-        return category in self.items
-
-    @property
-    def count(self) -> int:
-        return len(self.items)
+        return self.categories[index]
 
     @property
     def is_empty(self) -> bool:
-        return self.count == 0
+        return len(self.categories) == 0
 
     @property
-    def first(
-        self,
-    ) -> GrammaticalCategory | None:
-        return self.items[0] if self.items else None
-
-    @property
-    def last(
-        self,
-    ) -> GrammaticalCategory | None:
-        return self.items[-1] if self.items else None
-
-    def find(
-        self,
-        identifier: str,
-    ) -> GrammaticalCategory | None:
-
-        for item in self.items:
-            if item.identifier == identifier:
-                return item
-        return None
+    def count(self) -> int:
+        return len(self.categories)
 
     @property
     def display_name(self) -> str:
@@ -96,8 +93,8 @@ class GrammaticalCategoryCollection(
     @property
     def display_description(self) -> str:
         return (
-            "Immutable collection of canonical "
-            "grammatical categories."
+            "Immutable collection of grammatical "
+            "categories."
         )
 
     def __str__(self) -> str:

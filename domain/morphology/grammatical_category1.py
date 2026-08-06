@@ -4,14 +4,35 @@ from __future__ import annotations
 SanskritAI
 ==========
 
-Canonical Grammatical Category
+Grammatical Category
 
-Base immutable definition of every grammatical category used
-throughout SanskritAI.
+Defines the canonical immutable foundation for all Sanskrit
+grammatical categories.
+
+Every grammatical category (Vibhakti, Vacana, Liṅga,
+Puruṣa, Lakāra, Pada, Prayoga, etc.) derives from this
+base class.
+
+This class intentionally models only the grammatical
+category itself and remains independent of any parser,
+analysis engine, or linguistic theory.
+
+Hierarchy
+---------
+
+GrammaticalCategory
+        │
+        ├── Vibhakti
+        ├── Vacana
+        ├── Linga
+        ├── Purusha
+        ├── Lakara
+        ├── Pada
+        └── Prayoga
 
 Version
 -------
-v2.0.0
+v1.0.0
 """
 
 from dataclasses import dataclass
@@ -28,7 +49,7 @@ class GrammaticalCategory(
     Displayable,
 ):
     """
-    Canonical immutable grammatical category definition.
+    Canonical immutable grammatical category.
     """
 
     identifier: str
@@ -51,9 +72,10 @@ class GrammaticalCategory(
     def display_text(self) -> str:
         if self.english_name:
             return (
-                f"{self.sanskrit_name} "
-                f"({self.english_name})"
+                f"{self.sanskrit_name}"
+                f" ({self.english_name})"
             )
+
         return self.sanskrit_name
 
     @property
