@@ -1,0 +1,3 @@
+"""
+SanskritAI Reader Domain tests.
+"""

@@ -12,10 +12,6 @@ core/config.py
 core/constants.py
 core/exceptions.py
 core/version.py
-lexicon/__init__.py
-lexicon/amarakosha.py
-lexicon/dhatupatha.py
-lexicon/dictionary.py
 models/__init__.py
 models/analysis_result.py
 models/base.py
@@ -86,6 +82,7 @@ storage/repositories/corpus_repository.py
 storage/repositories/sloka_repository.py
 storage/repositories/word_repository.py
 tests/__init__.py
+tests/test_derivation_pratyaya_vakya_flow.py
 tests/test_dictionary.py
 tests/test_normalizer.py
 tests/test_padaccheda.py

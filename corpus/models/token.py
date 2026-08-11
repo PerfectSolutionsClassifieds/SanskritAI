@@ -35,6 +35,7 @@ v0.3.0
 from SanskritAI.corpus.models.base_node import (
     BaseNode,
 )
+
 from SanskritAI.corpus.models.token_metadata import (
     TokenMetadata,
 )
@@ -70,7 +71,7 @@ class Token(
         self,
     ) -> str:
         """
-        Token text.
+        Original token surface text.
         """
 
         return self.metadata.text
@@ -92,7 +93,7 @@ class Token(
     @property
     def token_type(
         self,
-    ):
+    ) -> object:
         """
         Token classification.
         """
@@ -104,12 +105,14 @@ class Token(
     @property
     def language(
         self,
-    ) -> str:
+    ):
         """
         Language of the token.
+
+        Language belongs to the shared Classification object.
         """
 
-        return self.metadata.language
+        return self.metadata.classification.language
 
     # ---------------------------------------------------------
 
@@ -145,4 +148,4 @@ class Token(
         True if this token represents a lexical word.
         """
 
-        return not self.metadata.is_punctuation
+        return self.metadata.is_word

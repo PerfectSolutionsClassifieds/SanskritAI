@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -20,18 +21,25 @@ Every executable sūtra follows the same life-cycle:
         ↓
     after_apply()
 
-Concrete subclasses NEVER override apply().
+Concrete subclasses should implement the semantic
+operation required by their specific rule hierarchy.
 
-They implement only _execute_rule().
+Version
+-------
+v2.1.0
 """
 
 from abc import ABC
 from abc import abstractmethod
 
-from SanskritAI.domain.panini.paninian_rule import PaninianRule
+from SanskritAI.domain.panini.paninian_rule import (
+    PaninianRule,
+)
+
 from SanskritAI.domain.panini.paninian_rule_metadata import (
     PaninianRuleMetadata,
 )
+
 from SanskritAI.domain.panini.paninian_sutra import (
     PaninianSutra,
 )
@@ -50,13 +58,12 @@ class AbstractSutra(
         *,
         metadata: PaninianRuleMetadata,
     ) -> None:
-
         super().__init__(
             metadata=metadata,
         )
 
     # ---------------------------------------------------------
-    # Canonical Sutra
+    # Canonical Sūtra
     # ---------------------------------------------------------
 
     @property
@@ -82,6 +89,20 @@ class AbstractSutra(
     @property
     def canonical_location(self) -> str:
         return self.sutra.canonical_location
+
+    @property
+    def adhyaya(self) -> int:
+        """
+        Aṣṭādhyāyī chapter number of this sūtra.
+        """
+        return self.sutra.adhyaya
+
+    @property
+    def pada(self) -> int:
+        """
+        Aṣṭādhyāyī pāda number of this sūtra.
+        """
+        return self.sutra.pada
 
     # ---------------------------------------------------------
     # Execution contract
@@ -153,24 +174,16 @@ class AbstractSutra(
 
         This method SHOULD NEVER be overridden.
 
-        Life-cycle
+        Life-cycle:
 
             supports()
-
                 ↓
-
             validate()
-
                 ↓
-
             before_apply()
-
                 ↓
-
             _execute_rule()
-
                 ↓
-
             after_apply()
         """
 
@@ -211,7 +224,6 @@ class AbstractSutra(
         )
 
     def trace(self) -> dict:
-
         trace = super().trace()
 
         trace.update(
@@ -221,6 +233,8 @@ class AbstractSutra(
                 "transliteration": self.transliteration,
                 "translation": self.translation,
                 "canonical_location": self.canonical_location,
+                "adhyaya": self.adhyaya,
+                "pada": self.pada,
             }
         )
 

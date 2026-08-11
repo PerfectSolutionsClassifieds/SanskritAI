@@ -7,7 +7,7 @@ Description-Content-Type: text/markdown
 Requires-Dist: numpy
 Requires-Dist: pandas
 Provides-Extra: dev
-Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest>=8; extra == "dev"
 
 # SanskritAI
 

@@ -1,3 +1,4 @@
+
 """
 SanskritAI
 ==========
@@ -79,6 +80,39 @@ def create_agni() -> Lexeme:
         lexeme_id="LEX-AGNI",
         lemma="अग्नि",
         transliteration="agni",
+        language=Language.SANSKRIT,
+        script=Script.DEVANAGARI,
+    )
+
+    lexeme.add_dictionary_entry(entry)
+
+    return lexeme
+
+
+def create_gam() -> Lexeme:
+    """
+    Create a sample Lexeme representing गम्.
+
+    The fixture uses the canonical Sanskrit verbal root
+    गम् ("to go") as a simple lexical test object.
+    """
+
+    sense = DictionarySense(
+        sense_id="SENSE-GAM-001",
+        definition="To go; to move.",
+    )
+
+    entry = DictionaryEntry(
+        entry_id="ENTRY-GAM-AMARA",
+        source=DictionarySource.AMARAKOSHA,
+        headword="गम्",
+        senses=[sense],
+    )
+
+    lexeme = Lexeme(
+        lexeme_id="LEX-GAM",
+        lemma="गम्",
+        transliteration="gam",
         language=Language.SANSKRIT,
         script=Script.DEVANAGARI,
     )

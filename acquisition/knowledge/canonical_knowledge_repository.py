@@ -6,143 +6,322 @@ SanskritAI
 
 Canonical Knowledge Repository
 
-Purpose
--------
-The immutable root of the Canonical Sanskrit Knowledge
-Repository.
+Composition Root for the complete SanskritAI knowledge layer.
 
-The repository owns two major subsystems
+Responsibilities
+----------------
 
-    • Registries
+This class is the ONLY object responsible for constructing
+the canonical linguistic infrastructure.
 
-    • KnowledgeIndex
+It wires together
+
+    • repositories
+
+    • services
+
+    • registry
+
+All downstream components should depend only upon
+
+    KnowledgeServiceRegistry
+
+rather than constructing repositories or services directly.
 
 Architecture
 ------------
 
 CanonicalKnowledgeRepository
+            │
+            ▼
+KnowledgeServiceRegistry
+            │
+            ├── Lexical
+            ├── Dhatu
+            ├── Morphology
+            ├── Sandhi
+            ├── Samasa
+            └── Semantic
 
-        │
+Future versions may additionally register
 
-        ├──────── Registries
+    • ResolutionPipeline
 
-        │           ├── LexicalRegistry
+    • ReaderEngine
 
-        │           ├── LemmaRegistry
+    • AIReasoner
 
-        │           └── SourceRegistry
+    • PragmaticsEngine
 
-        │
-
-        └──────── KnowledgeIndex
-
-                    ├── HeadwordIndex
-
-                    ├── LemmaIndex
-
-                    ├── ContextIndex
-
-                    ├── SourceIndex
-
-                    └── LexicalLookupEngine
+    • CommentarialEngine
 
 Version
 -------
-3.0.0
+v3.1.0
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from SanskritAI.acquisition.knowledge.registries.lexical_registry import (
-    LexicalRegistry,
+# =========================================================
+# Registry
+# =========================================================
+
+from SanskritAI.acquisition.knowledge.knowledge_service_registry import (
+    KnowledgeServiceRegistry,
 )
 
-from SanskritAI.acquisition.knowledge.registries.lemma_registry import (
-    LemmaRegistry,
+# =========================================================
+# Default Repositories
+# =========================================================
+
+from SanskritAI.domain.lexical.default_lexical_repository import (
+    DefaultLexicalRepository,
 )
 
-from SanskritAI.acquisition.knowledge.registries.source_registry import (
-    SourceRegistry,
+from SanskritAI.domain.dhatu.default_dhatu_repository import (
+    DefaultDhatuRepository,
 )
 
-from SanskritAI.acquisition.knowledge.indexes.knowledge_index import (
-    KnowledgeIndex,
+from SanskritAI.domain.morphology.default_morphological_repository import (
+    DefaultMorphologicalRepository,
+)
+
+from SanskritAI.domain.sandhi.default_sandhi_repository import (
+    DefaultSandhiRepository,
+)
+
+from SanskritAI.domain.samasa.default_samasa_repository import (
+    DefaultSamasaRepository,
+)
+
+from SanskritAI.domain.semantic.default_semantic_repository import (
+    DefaultSemanticRepository,
+)
+
+# =========================================================
+# Default Services
+# =========================================================
+
+from SanskritAI.domain.lexical.default_lexical_service import (
+    DefaultLexicalService,
+)
+
+from SanskritAI.domain.dhatu.default_dhatu_service import (
+    DefaultDhatuService,
+)
+
+from SanskritAI.domain.morphology.default_morphological_service import (
+    DefaultMorphologicalService,
+)
+
+from SanskritAI.domain.sandhi.default_sandhi_service import (
+    DefaultSandhiService,
+)
+
+from SanskritAI.domain.samasa.default_samasa_service import (
+    DefaultSamasaService,
+)
+
+from SanskritAI.domain.semantic.default_semantic_service import (
+    DefaultSemanticService,
 )
 
 
 @dataclass(slots=True)
 class CanonicalKnowledgeRepository:
     """
-    Root object of the Canonical Sanskrit Knowledge Repository.
+    SanskritAI Composition Root.
+
+    Owns the construction of every repository and service,
+    then exposes them through a single immutable registry.
     """
 
-    lexical_registry: LexicalRegistry
+    # =====================================================
+    # Repositories
+    # =====================================================
 
-    lemma_registry: LemmaRegistry
+    lexical_repository: DefaultLexicalRepository = field(
+        default_factory=DefaultLexicalRepository,
+    )
 
-    source_registry: SourceRegistry
+    dhatu_repository: DefaultDhatuRepository = field(
+        default_factory=DefaultDhatuRepository,
+    )
 
-    knowledge_index: KnowledgeIndex
+    morphological_repository: DefaultMorphologicalRepository = field(
+        default_factory=DefaultMorphologicalRepository,
+    )
 
-    # ---------------------------------------------------------
-    # Convenience
-    # ---------------------------------------------------------
+    sandhi_repository: DefaultSandhiRepository = field(
+        default_factory=DefaultSandhiRepository,
+    )
+
+    samasa_repository: DefaultSamasaRepository = field(
+        default_factory=DefaultSamasaRepository,
+    )
+
+    semantic_repository: DefaultSemanticRepository = field(
+        default_factory=DefaultSemanticRepository,
+    )
+
+    # =====================================================
+    # Services
+    # =====================================================
+
+    lexical_service: DefaultLexicalService = field(init=False)
+
+    dhatu_service: DefaultDhatuService = field(init=False)
+
+    morphological_service: DefaultMorphologicalService = field(
+        init=False,
+    )
+
+    sandhi_service: DefaultSandhiService = field(init=False)
+
+    samasa_service: DefaultSamasaService = field(init=False)
+
+    semantic_service: DefaultSemanticService = field(init=False)
+
+    # =====================================================
+    # Registry
+    # =====================================================
+
+    registry: KnowledgeServiceRegistry = field(init=False)
+
+    # =====================================================
+    # Construction
+    # =====================================================
+
+    def __post_init__(self) -> None:
+
+        # -------------------------------------------------
+        # Services
+        # -------------------------------------------------
+
+        self.lexical_service = DefaultLexicalService(
+            repository=self.lexical_repository,
+        )
+
+        self.dhatu_service = DefaultDhatuService(
+            repository=self.dhatu_repository,
+        )
+
+        self.morphological_service = (
+            DefaultMorphologicalService(
+                repository=self.morphological_repository,
+            )
+        )
+
+        self.sandhi_service = DefaultSandhiService(
+            repository=self.sandhi_repository,
+        )
+
+        self.samasa_service = DefaultSamasaService(
+            repository=self.samasa_repository,
+        )
+
+        self.semantic_service = DefaultSemanticService(
+            repository=self.semantic_repository,
+        )
+
+        # -------------------------------------------------
+        # Registry
+        # -------------------------------------------------
+
+        self.registry = KnowledgeServiceRegistry(
+
+            # repositories
+
+            lexical_repository=self.lexical_repository,
+
+            dhatu_repository=self.dhatu_repository,
+
+            morphological_repository=self.morphological_repository,
+
+            sandhi_repository=self.sandhi_repository,
+
+            samasa_repository=self.samasa_repository,
+
+            semantic_repository=self.semantic_repository,
+
+            # services
+
+            lexical_service=self.lexical_service,
+
+            dhatu_service=self.dhatu_service,
+
+            morphological_service=self.morphological_service,
+
+            sandhi_service=self.sandhi_service,
+
+            samasa_service=self.samasa_service,
+
+            semantic_service=self.semantic_service,
+        )
+
+    # =====================================================
+    # Registry Shortcut
+    # =====================================================
 
     @property
-    def registries(
+    def services(
         self,
-    ) -> tuple:
+    ) -> KnowledgeServiceRegistry:
+        """
+        Preferred access point.
 
-        return (
+        Example
 
-            self.lexical_registry,
+            repository.services.lexical
 
-            self.lemma_registry,
+            repository.services.morphology
 
-            self.source_registry,
+            repository.services.semantic
+        """
+        return self.registry
 
-        )
+    # =====================================================
+    # Legacy Convenience Properties
+    # (Backward compatibility)
+    # =====================================================
 
-    # ---------------------------------------------------------
-    # Diagnostics
-    # ---------------------------------------------------------
+    @property
+    def lexical(self):
+        return self.registry.lexical
 
-    def summary(
-        self,
-    ) -> dict:
+    @property
+    def dhatu(self):
+        return self.registry.dhatu
 
-        return {
+    @property
+    def morphology(self):
+        return self.registry.morphology
 
-            "lexicons":
+    @property
+    def sandhi(self):
+        return self.registry.sandhi
 
-                len(self.lexical_registry),
+    @property
+    def samasa(self):
+        return self.registry.samasa
 
-            "lemmas":
+    @property
+    def semantic(self):
+        return self.registry.semantic
 
-                len(self.lemma_registry),
+    # =====================================================
 
-            "sources":
+    @property
+    def repository_count(self) -> int:
+        return self.registry.repository_count
 
-                len(self.source_registry),
+    @property
+    def service_count(self) -> int:
+        return self.registry.service_count
 
-            "indexes":
+    @property
+    def component_count(self) -> int:
+        return self.registry.component_count
 
-                self.knowledge_index.summary(),
-
-        }
-
-    # ---------------------------------------------------------
-
-    def __str__(
-        self,
-    ) -> str:
-
-        return (
-
-            "CanonicalKnowledgeRepository("
-
-            f"{self.summary()}"
-
-            ")"
-
-        )
+    def __len__(self) -> int:
+        return self.component_count

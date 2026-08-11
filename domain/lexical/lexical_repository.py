@@ -6,46 +6,64 @@ SanskritAI
 
 Lexical Repository
 
-Defines the repository abstraction for the Lexical Kernel.
+Adapter over the Canonical Knowledge Repository.
 
-The repository is responsible for retrieving complete
-LexicalEntry aggregate roots from one or more lexical
-knowledge sources.
+Purpose
+-------
+The Lexical Kernel no longer owns lexical persistence.
 
-It intentionally contains no implementation details regarding
-storage technology (JSON, SQL, PostgreSQL, Neo4j, RDF,
-Amarakośa, Wiktionary, etc.).
+Instead, it delegates all retrieval operations to the
+CanonicalKnowledgeRepository, which has become the single
+source of truth for Sanskrit lexical knowledge.
 
-Relationship
+Architecture
 ------------
 
 LexicalService
         │
         ▼
-LexicalRepository
+LexicalRepository (Adapter)
         │
         ▼
-LexicalEntryCollection
+CanonicalKnowledgeRepository
         │
-        ▼
-LexicalEntry
+        ├── Registries
+        ├── KnowledgeIndex
+        ├── CanonicalLexicons
+        ├── CanonicalDictionaryEntries
+        ├── CanonicalDictionarySenses
+        ├── CanonicalContexts
+        └── CanonicalSources
+
+Responsibilities
+----------------
+
+• Adapt the Domain Lexical Kernel to the Canonical Repository
+
+• Hide canonical storage implementation
+
+• Preserve a stable interface for LexicalService
 
 Version
 -------
-v1.0.0
+v2.0.0
 """
 
 from abc import ABC
 from abc import abstractmethod
 
-from SanskritAI.core.mixins.displayable import Displayable
-
-from SanskritAI.domain.lexical.lexical_entry import (
-    LexicalEntry,
+from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
+    CanonicalKnowledgeRepository,
 )
 
-from SanskritAI.domain.lexical.lexical_entry_collection import (
-    LexicalEntryCollection,
+from SanskritAI.core.mixins.displayable import Displayable
+
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
+    CanonicalDictionaryEntry,
+)
+
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
+    CanonicalDictionarySense,
 )
 
 
@@ -54,32 +72,19 @@ class LexicalRepository(
     Displayable,
 ):
     """
-    Repository abstraction for lexical knowledge.
+    Adapter over CanonicalKnowledgeRepository.
 
-    Concrete implementations may retrieve lexical information
-    from:
+    The Domain layer never accesses indices directly.
 
-        • Amarakośa
-
-        • Monier-Williams
-
-        • Vācaspatyam
-
-        • Śabdakalpadruma
-
-        • Apte
-
-        • PostgreSQL
-
-        • Graph databases
-
-        • JSON repositories
-
-        • AI semantic indexes
-
-    All implementations return immutable LexicalEntry
-    aggregate roots.
+    All lexical retrieval is delegated through this adapter.
     """
+
+    def __init__(
+        self,
+        repository: CanonicalKnowledgeRepository,
+    ) -> None:
+
+        self._repository = repository
 
     # ---------------------------------------------------------
     # Display
@@ -96,99 +101,112 @@ class LexicalRepository(
     @property
     def display_description(self) -> str:
         return (
-            "Abstract repository for lexical knowledge."
+            "Adapter over the Canonical Knowledge Repository."
         )
 
     # ---------------------------------------------------------
-    # Identity lookup
+    # Canonical Repository
+    # ---------------------------------------------------------
+
+    @property
+    def repository(
+        self,
+    ) -> CanonicalKnowledgeRepository:
+        """
+        Underlying canonical repository.
+        """
+        return self._repository
+
+    # ---------------------------------------------------------
+    # Identity Lookup
     # ---------------------------------------------------------
 
     @abstractmethod
-    def get(
+    def get_entry(
         self,
-        identifier: str,
-    ) -> LexicalEntry | None:
+        headword: str,
+    ) -> CanonicalDictionaryEntry | None:
         """
-        Retrieves a lexical entry by identifier.
-
-        Returns
-        -------
-        LexicalEntry | None
+        Retrieves a canonical dictionary entry by headword.
         """
-
         raise NotImplementedError
 
     # ---------------------------------------------------------
-    # Lemma lookup
+    # Lemma Lookup
     # ---------------------------------------------------------
 
     @abstractmethod
-    def find_by_lemma(
+    def find_entries_by_lemma(
         self,
         lemma: str,
-    ) -> LexicalEntryCollection:
+    ) -> tuple[
+        CanonicalDictionaryEntry,
+        ...,
+    ]:
         """
-        Finds lexical entries matching a canonical lemma.
+        Retrieves canonical entries matching a lemma.
         """
-
         raise NotImplementedError
 
     # ---------------------------------------------------------
-    # Word-form lookup
+    # Word-form Lookup
     # ---------------------------------------------------------
 
     @abstractmethod
-    def find_by_word_form(
+    def find_entries_by_word_form(
         self,
         word_form: str,
-    ) -> LexicalEntryCollection:
+    ) -> tuple[
+        CanonicalDictionaryEntry,
+        ...,
+    ]:
         """
-        Finds lexical entries matching an inflected word form.
+        Retrieves canonical entries matching a surface form.
         """
-
         raise NotImplementedError
 
     # ---------------------------------------------------------
-    # Root lookup
+    # Sense Lookup
     # ---------------------------------------------------------
 
     @abstractmethod
-    def find_by_root(
+    def find_senses(
         self,
-        root: str,
-    ) -> LexicalEntryCollection:
+        headword: str,
+    ) -> tuple[
+        CanonicalDictionarySense,
+        ...,
+    ]:
         """
-        Finds lexical entries belonging to a dhātu or lexical
-        root.
+        Retrieves all senses belonging to a headword.
         """
-
         raise NotImplementedError
 
     # ---------------------------------------------------------
-    # Full-text lookup
+    # Search
     # ---------------------------------------------------------
 
     @abstractmethod
     def search(
         self,
         query: str,
-    ) -> LexicalEntryCollection:
+    ) -> tuple[
+        CanonicalDictionaryEntry,
+        ...,
+    ]:
         """
         Performs lexical search.
 
-        Concrete implementations may support:
+        Implementations may use:
 
-            exact match
+            • HeadwordIndex
 
-            prefix search
+            • LemmaIndex
 
-            fuzzy search
+            • Full-text index
 
-            semantic search
-
-            hybrid retrieval
+            • Semantic index
         """
-
         raise NotImplementedError
 
     # ---------------------------------------------------------
@@ -196,28 +214,15 @@ class LexicalRepository(
     # ---------------------------------------------------------
 
     @abstractmethod
-    def all(
+    def all_entries(
         self,
-    ) -> LexicalEntryCollection:
+    ) -> tuple[
+        CanonicalDictionaryEntry,
+        ...,
+    ]:
         """
-        Returns every lexical entry known to the repository.
+        Returns every canonical dictionary entry.
         """
-
-        raise NotImplementedError
-
-    # ---------------------------------------------------------
-    # Existence
-    # ---------------------------------------------------------
-
-    @abstractmethod
-    def contains(
-        self,
-        identifier: str,
-    ) -> bool:
-        """
-        Determines whether a lexical entry exists.
-        """
-
         raise NotImplementedError
 
     # ---------------------------------------------------------
@@ -230,7 +235,6 @@ class LexicalRepository(
         self,
     ) -> int:
         """
-        Number of lexical entries.
+        Total number of canonical entries.
         """
-
         raise NotImplementedError

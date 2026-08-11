@@ -6,26 +6,58 @@ SanskritAI
 
 Resolution Result
 
-Defines the immutable outcome produced by every domain
-resolver.
+Canonical aggregate representing the complete linguistic
+resolution of a Sanskrit object.
 
-ResolutionResult is the central value object of the
-Resolution Kernel.
+Every ResolutionStage enriches this object.
 
-Every domain-specific resolver returns either this class or a
-specialized subclass.
+Pipeline
+
+Lexical
+    ↓
+Morphology
+    ↓
+Sandhi
+    ↓
+Samāsa
+    ↓
+Semantic
+    ↓
+Future:
+    Pragmatics
+    Commentary
+    AI Reasoning
 
 Version
 -------
-v1.0.0
+v2.0.0
 """
 
 from dataclasses import dataclass, field
-from typing import Any
 
 from SanskritAI.core.mixins.displayable import Displayable
 from SanskritAI.core.mixins.immutable import Immutable
 from SanskritAI.core.value_objects.value_object import ValueObject
+
+from SanskritAI.domain.lexical.lexical_resolution_result import (
+    LexicalResolutionResult,
+)
+
+from SanskritAI.domain.morphology.morphological_resolution_result import (
+    MorphologicalResolutionResult,
+)
+
+from SanskritAI.domain.sandhi.sandhi_resolution_result import (
+    SandhiResolutionResult,
+)
+
+from SanskritAI.domain.samasa.samasa_resolution_result import (
+    SamasaResolutionResult,
+)
+
+from SanskritAI.domain.semantic.semantic_resolution_result import (
+    SemanticResolutionResult,
+)
 
 from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
@@ -43,29 +75,32 @@ class ResolutionResult(
     Displayable,
 ):
     """
-    Immutable result produced by a domain resolver.
+    Aggregate linguistic resolution.
+
+    This object is progressively enriched by the
+    ResolutionPipeline.
     """
 
     context: ResolutionContext
 
-    payload: Any = None
+    lexical: LexicalResolutionResult | None = None
 
-    succeeded: bool = True
+    morphology: MorphologicalResolutionResult | None = None
 
-    confidence: float = 1.0
+    sandhi: SandhiResolutionResult | None = None
+
+    samasa: SamasaResolutionResult | None = None
+
+    semantic: SemanticResolutionResult | None = None
 
     diagnostics: tuple[
         ResolutionDiagnostic,
         ...
     ] = field(default_factory=tuple)
 
-    # ---------------------------------------------------------
-    # Identity
-    # ---------------------------------------------------------
+    confidence: float = 0.0
 
-    @property
-    def identifier(self) -> str:
-        return self.context.identifier
+    succeeded: bool = True
 
     # ---------------------------------------------------------
     # Display
@@ -77,66 +112,55 @@ class ResolutionResult(
 
     @property
     def display_text(self) -> str:
-
-        status = (
-            "Succeeded"
-            if self.succeeded
-            else "Failed"
-        )
-
-        return (
-            f"{self.display_name} "
-            f"[{status}]"
-        )
+        return self.display_name
 
     @property
     def display_description(self) -> str:
-
-        if self.has_diagnostics:
-            return self.first_diagnostic.message
-
-        return ""
+        return (
+            "Aggregate linguistic resolution."
+        )
 
     # ---------------------------------------------------------
-    # Context
+    # Subject
     # ---------------------------------------------------------
 
     @property
     def subject(self):
         return self.context.subject
 
-    @property
-    def source(self) -> str:
-        return self.context.source
-
-    @property
-    def language(self) -> str:
-        return self.context.language
-
-    @property
-    def script(self) -> str:
-        return self.context.script
-
     # ---------------------------------------------------------
-    # Payload
+    # Convenience
     # ---------------------------------------------------------
 
     @property
-    def result(self):
-        """
-        Domain object produced by the resolver.
-
-        Specialized subclasses may override this property.
-        """
-        return self.payload
+    def has_lexical(self) -> bool:
+        return self.lexical is not None
 
     @property
-    def has_payload(self) -> bool:
-        return self.payload is not None
+    def has_morphology(self) -> bool:
+        return self.morphology is not None
 
-    # ---------------------------------------------------------
-    # Diagnostics
-    # ---------------------------------------------------------
+    @property
+    def has_sandhi(self) -> bool:
+        return self.sandhi is not None
+
+    @property
+    def has_samasa(self) -> bool:
+        return self.samasa is not None
+
+    @property
+    def has_semantic(self) -> bool:
+        return self.semantic is not None
+
+    @property
+    def fully_resolved(self) -> bool:
+        return (
+            self.has_lexical
+            and self.has_morphology
+            and self.has_sandhi
+            and self.has_samasa
+            and self.has_semantic
+        )
 
     @property
     def has_diagnostics(self) -> bool:
@@ -146,50 +170,89 @@ class ResolutionResult(
     def diagnostic_count(self) -> int:
         return len(self.diagnostics)
 
-    @property
-    def first_diagnostic(
+    # ---------------------------------------------------------
+    # Immutable enrichment
+    # ---------------------------------------------------------
+
+    def with_lexical(
         self,
-    ) -> ResolutionDiagnostic | None:
-
-        if not self.diagnostics:
-            return None
-
-        return self.diagnostics[0]
-
-    @property
-    def has_errors(self) -> bool:
-        return any(
-            diagnostic.is_error
-            for diagnostic in self.diagnostics
+        result: LexicalResolutionResult,
+    ) -> "ResolutionResult":
+        return ResolutionResult(
+            context=self.context,
+            lexical=result,
+            morphology=self.morphology,
+            sandhi=self.sandhi,
+            samasa=self.samasa,
+            semantic=self.semantic,
+            diagnostics=self.diagnostics,
+            confidence=self.confidence,
+            succeeded=self.succeeded,
         )
 
-    @property
-    def has_warnings(self) -> bool:
-        return any(
-            diagnostic.is_warning
-            for diagnostic in self.diagnostics
+    def with_morphology(
+        self,
+        result: MorphologicalResolutionResult,
+    ) -> "ResolutionResult":
+        return ResolutionResult(
+            context=self.context,
+            lexical=self.lexical,
+            morphology=result,
+            sandhi=self.sandhi,
+            samasa=self.samasa,
+            semantic=self.semantic,
+            diagnostics=self.diagnostics,
+            confidence=self.confidence,
+            succeeded=self.succeeded,
         )
 
-    # ---------------------------------------------------------
-    # Resolution State
-    # ---------------------------------------------------------
-
-    @property
-    def resolved(self) -> bool:
-        return (
-            self.succeeded
-            and self.has_payload
+    def with_sandhi(
+        self,
+        result: SandhiResolutionResult,
+    ) -> "ResolutionResult":
+        return ResolutionResult(
+            context=self.context,
+            lexical=self.lexical,
+            morphology=self.morphology,
+            sandhi=result,
+            samasa=self.samasa,
+            semantic=self.semantic,
+            diagnostics=self.diagnostics,
+            confidence=self.confidence,
+            succeeded=self.succeeded,
         )
 
-    @property
-    def unresolved(self) -> bool:
-        return not self.resolved
+    def with_samasa(
+        self,
+        result: SamasaResolutionResult,
+    ) -> "ResolutionResult":
+        return ResolutionResult(
+            context=self.context,
+            lexical=self.lexical,
+            morphology=self.morphology,
+            sandhi=self.sandhi,
+            samasa=result,
+            semantic=self.semantic,
+            diagnostics=self.diagnostics,
+            confidence=self.confidence,
+            succeeded=self.succeeded,
+        )
 
-    @property
-    def is_confident(self) -> bool:
-        return self.confidence >= 0.80
-
-    # ---------------------------------------------------------
+    def with_semantic(
+        self,
+        result: SemanticResolutionResult,
+    ) -> "ResolutionResult":
+        return ResolutionResult(
+            context=self.context,
+            lexical=self.lexical,
+            morphology=self.morphology,
+            sandhi=self.sandhi,
+            samasa=self.samasa,
+            semantic=result,
+            diagnostics=self.diagnostics,
+            confidence=self.confidence,
+            succeeded=self.succeeded,
+        )
 
     def __str__(self) -> str:
         return self.display_text

@@ -6,63 +6,22 @@ SanskritAI
 
 Paninian Rule Metadata
 
-Canonical metadata shared by every Paninian grammatical rule.
+Canonical immutable metadata shared by every Paninian
+grammatical rule.
 
-This metadata intentionally separates two independent concepts.
+The metadata intentionally separates:
 
-1. CATEGORY
------------
+1. Classical rule classification
+2. Grammatical operation
+3. Rule semantics
+4. Canonical textual sūtra identity
 
-"What kind of sūtra is this?"
-
-Examples
-
-    • Saṃjñā
-    • Paribhāṣā
-    • Vidhi
-    • Niyama
-    • Atideśa
-    • Adhikāra
-
-This is the traditional classical classification.
-
-2. OPERATION
-------------
-
-"What grammatical operation does this rule perform?"
-
-Examples
-
-    • Āgama
-    • Lopa
-    • Ādeśa
-    • Sandhi
-    • Pratyaya
-    • Samāsa
-
-A Saṃjñā rule normally has
-
-    Operation = NONE
-
-whereas
-
-6.1.77
-
-Category
-
-    VIDHI
-
-Operation
-
-    ADESHA
-
-This orthogonal design mirrors the organization of the
-Aṣṭādhyāyī while remaining suitable for AI reasoning,
-rule indexing and explainable derivation.
+A PaninianRuleMetadata instance owns the canonical
+PaninianSutra referenced by the executable rule.
 
 Version
 -------
-v2.0.0
+v3.0.0
 """
 
 from dataclasses import dataclass, field
@@ -88,6 +47,10 @@ from SanskritAI.domain.panini.paninian_rule_type import (
     PaninianRuleType,
 )
 
+from SanskritAI.domain.panini.paninian_sutra import (
+    PaninianSutra,
+)
+
 
 @dataclass(
     frozen=True,
@@ -101,6 +64,12 @@ class PaninianRuleMetadata(
     """
     Canonical immutable metadata describing a Paninian rule.
     """
+
+    # ---------------------------------------------------------
+    # Canonical Sūtra
+    # ---------------------------------------------------------
+
+    sutra: PaninianSutra
 
     # ---------------------------------------------------------
     # Classical Classification
@@ -150,26 +119,26 @@ class PaninianRuleMetadata(
 
     @property
     def display_name(self) -> str:
-        return (
-            f"{self.category.name}"
-        )
+        return self.sutra.sutra_number
 
     @property
     def display_text(self) -> str:
+        return (
+            f"{self.sutra.sutra_number}"
+            " — "
+            f"{self.sutra.sutra_text}"
+        )
+
+    @property
+    def display_description(self) -> str:
         return (
             f"{self.category.name}"
             " / "
             f"{self.operation.name}"
         )
 
-    @property
-    def display_description(self) -> str:
-        return (
-            f"{self.rule_type.name}"
-        )
-
     # ---------------------------------------------------------
-    # Convenience
+    # Classical Classification Helpers
     # ---------------------------------------------------------
 
     @property
@@ -187,31 +156,47 @@ class PaninianRuleMetadata(
         )
 
     @property
-    def is_vidhi(self) -> bool:
+    def is_adhikara(self) -> bool:
         return (
             self.category
-            is PaninianRuleCategory.VIDHI
+            is PaninianRuleCategory.ADHIKARA
         )
+
+    # ---------------------------------------------------------
+    # Compatibility Helpers
+    # ---------------------------------------------------------
+
+    @property
+    def is_vidhi(self) -> bool:
+        """
+        Current PaninianRuleCategory does not expose a VIDHI
+        member. Vidhi rules are therefore represented through
+        their concrete operational category.
+
+        This property is retained as a compatibility hook.
+        """
+
+        return self.category in {
+            PaninianRuleCategory.ADESHA,
+            PaninianRuleCategory.AGAMA,
+            PaninianRuleCategory.LOPA,
+            PaninianRuleCategory.SANDHI,
+            PaninianRuleCategory.TRIPADI,
+            PaninianRuleCategory.GUNA_VRDDHI,
+        }
 
     @property
     def is_niyama(self) -> bool:
         return (
-            self.category
-            is PaninianRuleCategory.NIYAMA
+            self.rule_type
+            is PaninianRuleType.NIYAMA
         )
 
     @property
     def is_atidesha(self) -> bool:
         return (
-            self.category
-            is PaninianRuleCategory.ATIDESHA
-        )
-
-    @property
-    def is_adhikara(self) -> bool:
-        return (
-            self.category
-            is PaninianRuleCategory.ADHIKARA
+            self.rule_type
+            is PaninianRuleType.ATIDESHA
         )
 
     # ---------------------------------------------------------

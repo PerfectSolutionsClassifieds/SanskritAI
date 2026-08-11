@@ -4,32 +4,33 @@ from __future__ import annotations
 SanskritAI
 ==========
 
-Paninian Sutra Catalog
+Paninian Sūtra Catalog
 
 Public façade over the executable Paninian
 Sūtra infrastructure.
 
+The Catalog is the only public entry point
+for executable sūtra discovery and lookup.
+
 Architecture
 ------------
 
-Filesystem
-      │
-      ▼
+PaninianSutraManifest
+        │
+        ▼
 PaninianSutraLoader
-      │
-      ▼
+        │
+        ▼
 Registration Decorator
-      │
-      ▼
+        │
+        ▼
 PaninianSutraRegistry
-      │
-      ▼
+        │
+        ▼
 PaninianSutraIndex
-      │
-      ▼
+        │
+        ▼
 PaninianSutraCatalog
-
-The Catalog is the only public entry point.
 """
 
 from dataclasses import dataclass, field
@@ -51,7 +52,9 @@ from SanskritAI.domain.panini.paninian_sutra_registry import (
 )
 
 
-@dataclass(slots=True)
+@dataclass(
+    slots=True,
+)
 class PaninianSutraCatalog:
     """
     Public façade for executable Paninian Sūtras.
@@ -86,16 +89,18 @@ class PaninianSutraCatalog:
     ) -> None:
         """
         Loads all executable sūtras exactly once
-        and builds the immutable index.
+        and builds the index.
         """
 
         if self._loaded:
             return
 
-        # Import every sutra module
+        # Import every executable sūtra module declared
+        # by the canonical manifest.
         self.loader.load_all()
 
-        # Build immutable index
+        # Build the executable rule index only after all
+        # modules have registered themselves.
         self._index = PaninianSutraIndex(
             items=self.registry.instances(),
         )
@@ -132,7 +137,7 @@ class PaninianSutraCatalog:
         sutra_number: str,
     ) -> PaninianRule | None:
         """
-        Returns one executable sutra.
+        Returns one executable sūtra by canonical number.
         """
 
         return self.index.by_sutra_number(

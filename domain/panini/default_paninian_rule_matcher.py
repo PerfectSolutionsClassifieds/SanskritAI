@@ -11,7 +11,7 @@ Canonical implementation of the PaninianRuleMatcher.
 Responsibilities
 ----------------
 
-Evaluates a rule in the following order
+Evaluates one rule in the following order:
 
     1. Rule enabled?
     2. Rule.supports(context)
@@ -19,33 +19,14 @@ Evaluates a rule in the following order
     4. Every RuleCondition
     5. Produce PaninianRuleMatchResult
 
-This matcher intentionally performs NO grammatical
+The matcher intentionally performs NO grammatical
 transformation.
 
 Its sole responsibility is determining applicability.
 
-Architecture
-------------
-
-PaninianRule
-      │
-      ▼
-DefaultPaninianRuleMatcher
-      │
-      ▼
-PaninianRuleMatchResult
-
-Future implementations
-
-    ExplainableRuleMatcher
-
-    WeightedRuleMatcher
-
-    KnowledgeGraphRuleMatcher
-
 Version
 -------
-v1.0.0
+v1.1.0
 """
 
 from dataclasses import dataclass
@@ -54,23 +35,35 @@ from typing import Any
 from SanskritAI.domain.panini.paninian_rule import (
     PaninianRule,
 )
+
 from SanskritAI.domain.panini.paninian_rule_condition import (
     PaninianRuleCondition,
 )
+
 from SanskritAI.domain.panini.paninian_rule_match_result import (
     PaninianRuleMatchResult,
 )
+
 from SanskritAI.domain.panini.paninian_rule_matcher import (
     PaninianRuleMatcher,
 )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(
+    frozen=True,
+    slots=True,
+)
 class DefaultPaninianRuleMatcher(
     PaninianRuleMatcher,
 ):
     """
     Canonical Paninian rule matcher.
+
+    The public contract is:
+
+        match(rule, context)
+
+    One rule is evaluated at a time.
     """
 
     # ---------------------------------------------------------
@@ -83,8 +76,8 @@ class DefaultPaninianRuleMatcher(
         context: Any,
     ) -> PaninianRuleMatchResult:
         """
-        Evaluates a rule against the supplied derivation
-        context.
+        Evaluates one Paninian rule against the
+        supplied derivation context.
         """
 
         diagnostics: list[str] = []
@@ -93,14 +86,14 @@ class DefaultPaninianRuleMatcher(
 
         failed_conditions: list[str] = []
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # Enabled
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         if not rule.is_enabled:
 
             diagnostics.append(
-                "Rule disabled."
+                "Rule disabled.",
             )
 
             return PaninianRuleMatchResult(
@@ -109,18 +102,24 @@ class DefaultPaninianRuleMatcher(
                 score=0.0,
                 confidence=1.0,
                 matched_conditions=(),
-                failed_conditions=("enabled",),
-                diagnostics=tuple(diagnostics),
+                failed_conditions=(
+                    "enabled",
+                ),
+                diagnostics=tuple(
+                    diagnostics,
+                ),
             )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # supports()
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
-        if not rule.supports(context):
+        if not rule.supports(
+            context,
+        ):
 
             diagnostics.append(
-                "supports(context) returned False."
+                "supports(context) returned False.",
             )
 
             return PaninianRuleMatchResult(
@@ -129,45 +128,53 @@ class DefaultPaninianRuleMatcher(
                 score=0.0,
                 confidence=1.0,
                 matched_conditions=(),
-                failed_conditions=("supports",),
-                diagnostics=tuple(diagnostics),
+                failed_conditions=(
+                    "supports",
+                ),
+                diagnostics=tuple(
+                    diagnostics,
+                ),
             )
 
         matched_conditions.append(
-            "supports"
+            "supports",
         )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # validate()
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
-        if hasattr(rule, "validate"):
+        if not rule.validate(
+            context,
+        ):
 
-            if not rule.validate(context):
-
-                diagnostics.append(
-                    "validate(context) returned False."
-                )
-
-                return PaninianRuleMatchResult(
-                    rule=rule,
-                    matched=False,
-                    score=0.0,
-                    confidence=1.0,
-                    matched_conditions=tuple(
-                        matched_conditions
-                    ),
-                    failed_conditions=("validate",),
-                    diagnostics=tuple(diagnostics),
-                )
-
-            matched_conditions.append(
-                "validate"
+            diagnostics.append(
+                "validate(context) returned False.",
             )
 
-        # -------------------------------------------------
+            return PaninianRuleMatchResult(
+                rule=rule,
+                matched=False,
+                score=0.0,
+                confidence=1.0,
+                matched_conditions=tuple(
+                    matched_conditions,
+                ),
+                failed_conditions=(
+                    "validate",
+                ),
+                diagnostics=tuple(
+                    diagnostics,
+                ),
+            )
+
+        matched_conditions.append(
+            "validate",
+        )
+
+        # -----------------------------------------------------
         # Rule Conditions
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         conditions = getattr(
             rule,
@@ -181,35 +188,46 @@ class DefaultPaninianRuleMatcher(
                 condition,
                 PaninianRuleCondition,
             ):
+
                 diagnostics.append(
-                    f"Ignoring invalid condition "
-                    f"{condition!r}."
+                    "Ignoring invalid condition "
+                    f"{condition!r}.",
                 )
+
                 continue
 
-            if condition.evaluate(context):
+            if condition.evaluate(
+                context,
+            ):
 
                 matched_conditions.append(
-                    condition.name
+                    condition.name,
                 )
 
             else:
 
                 failed_conditions.append(
-                    condition.name
+                    condition.name,
                 )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # Final Decision
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         matched = (
-            len(failed_conditions) == 0
+            len(
+                failed_conditions,
+            )
+            == 0
         )
 
         total_conditions = (
-            len(matched_conditions)
-            + len(failed_conditions)
+            len(
+                matched_conditions,
+            )
+            + len(
+                failed_conditions,
+            )
         )
 
         if total_conditions == 0:
@@ -219,7 +237,9 @@ class DefaultPaninianRuleMatcher(
         else:
 
             score = (
-                len(matched_conditions)
+                len(
+                    matched_conditions,
+                )
                 / total_conditions
             )
 
@@ -228,13 +248,13 @@ class DefaultPaninianRuleMatcher(
         if matched:
 
             diagnostics.append(
-                "Rule successfully matched."
+                "Rule successfully matched.",
             )
 
         else:
 
             diagnostics.append(
-                "One or more conditions failed."
+                "One or more conditions failed.",
             )
 
         return PaninianRuleMatchResult(
@@ -243,12 +263,12 @@ class DefaultPaninianRuleMatcher(
             score=score,
             confidence=confidence,
             matched_conditions=tuple(
-                matched_conditions
+                matched_conditions,
             ),
             failed_conditions=tuple(
-                failed_conditions
+                failed_conditions,
             ),
             diagnostics=tuple(
-                diagnostics
+                diagnostics,
             ),
         )

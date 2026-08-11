@@ -1,15 +1,20 @@
+
 from __future__ import annotations
 
 """
 SanskritAI
+==========
 
 Mock Rule
 
-Simple executable rule used by unit tests.
+Minimal executable rule used by Paninian unit tests.
 
-It inherits the real Paninian hierarchy so that
-the execution engine is tested without
-modification.
+The mock inherits the real Paninian execution hierarchy
+and therefore exercises the canonical rule lifecycle.
+
+Version
+-------
+v4.0.0
 """
 
 from SanskritAI.domain.panini.rules.sutras.abstract_vidhi_sutra import (
@@ -24,8 +29,20 @@ from SanskritAI.domain.panini.paninian_rule_operation import (
     PaninianRuleOperation,
 )
 
-from SanskritAI.domain.panini.paninian_rule_behaviour import (
-    PaninianRuleBehaviour,
+from SanskritAI.domain.panini.paninian_rule_type import (
+    PaninianRuleType,
+)
+
+from SanskritAI.domain.panini.paninian_rule_priority import (
+    PaninianRulePriority,
+)
+
+from SanskritAI.domain.panini.paninian_rule_category import (
+    PaninianRuleCategory,
+)
+
+from SanskritAI.domain.panini.paninian_sutra import (
+    PaninianSutra,
 )
 
 
@@ -33,35 +50,83 @@ class MockRule(
     AbstractVidhiSutra,
 ):
     """
-    Minimal executable rule.
+    Minimal executable Paninian rule.
+
+    The mock:
+
+    • owns normal inherited metadata
+    • is always applicable
+    • performs no semantic modification
+    • uses the real AbstractSutra lifecycle
+    • implements only perform_transformation()
     """
 
-    @property
-    def metadata(
-        self,
-    ):
-        return PaninianRuleMetadata(
-            rule_name="MockRule",
+    def __init__(self) -> None:
+        """
+        Construct the mock using the canonical
+        PaninianRuleMetadata object.
+        """
+
+        sutra = PaninianSutra(
+            identifier="mock-0.0.0",
             sutra_number="0.0.0",
             sutra_text="mock",
-            operation=PaninianRuleOperation.VIDHI,
-            behaviour=PaninianRuleBehaviour.MANDATORY,
+            transliteration="mock",
+            translation="Mock Paninian rule",
             adhyaya=0,
             pada=0,
+            source="SanskritAI Test Suite",
         )
+
+        metadata = PaninianRuleMetadata(
+            sutra=sutra,
+            category=PaninianRuleCategory.ADESHA,
+            operation=PaninianRuleOperation.NONE,
+            rule_type=PaninianRuleType.MANDATORY,
+            priority=PaninianRulePriority.NORMAL,
+            source="SanskritAI Test Suite",
+            notes="Minimal executable mock rule.",
+            tags=(
+                "test",
+                "mock",
+                "panini",
+            ),
+        )
+
+        super().__init__(
+            metadata=metadata,
+        )
+
+    # ---------------------------------------------------------
+    # Applicability
+    # ---------------------------------------------------------
 
     def supports(
         self,
         context,
-    ):
+    ) -> bool:
+        """
+        The mock rule is always applicable.
+        """
+
         return True
 
-    def execute(
+    # ---------------------------------------------------------
+    # Semantic Transformation
+    # ---------------------------------------------------------
+
+    def perform_transformation(
         self,
         context,
     ):
         """
-        Returns the incoming context unchanged.
+        Minimal transformation used by the test fixture.
+
+        The semantic subject remains unchanged.
+
+        AbstractVidhiSutra._execute_rule() wraps the
+        returned context into the canonical execution
+        result tuple.
         """
 
-        return (context.next_iteration(),)
+        return context

@@ -6,10 +6,8 @@ SanskritAI
 
 Node Builder
 
-Intermediate generic builder for all canonical corpus nodes.
-
-This class extends BaseBuilder by providing common operations for
-objects derived from BaseNode.
+Intermediate generic builder for constructing all canonical corpus
+nodes derived from BaseNode.
 
 Responsibilities
 ----------------
@@ -29,7 +27,7 @@ Derived Builders
 
 Version
 -------
-v0.1.0
+v0.3.0
 """
 
 from typing import Generic, TypeVar
@@ -38,8 +36,8 @@ from SanskritAI.corpus.builders.base_builder import (
     BaseBuilder,
 )
 
-TNode = TypeVar("TNode")
 
+TNode = TypeVar("TNode")
 TMetadata = TypeVar("TMetadata")
 
 
@@ -83,6 +81,41 @@ class NodeBuilder(
     ) -> "NodeBuilder[TNode, TMetadata]":
 
         self._instance.metadata.description = description
+
+        return self
+
+    # ---------------------------------------------------------
+
+    def with_identifier(
+        self,
+        identifier: str,
+    ) -> "NodeBuilder[TNode, TMetadata]":
+
+        self._instance.metadata.identifier = identifier
+
+        return self
+
+    # ---------------------------------------------------------
+
+    def with_sequence_number(
+        self,
+        sequence_number: int | None,
+    ) -> "NodeBuilder[TNode, TMetadata]":
+
+        self._instance.metadata.sequence_number = sequence_number
+
+        return self
+
+    # ---------------------------------------------------------
+
+    def with_parent_identifier(
+        self,
+        parent_identifier: str,
+    ) -> "NodeBuilder[TNode, TMetadata]":
+
+        self._instance.metadata.parent_identifier = (
+            parent_identifier
+        )
 
         return self
 

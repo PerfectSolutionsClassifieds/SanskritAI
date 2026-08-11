@@ -73,9 +73,13 @@ class ParagraphMetadata(BaseNodeMetadata):
     def to_dict(self) -> dict[str, Any]:
         """
         Serialize metadata.
+
+        Explicit BaseNodeMetadata call is used instead of
+        zero-argument super() because this class uses
+        dataclass(slots=True).
         """
 
-        data = super().to_dict()
+        data = BaseNodeMetadata.to_dict(self)
 
         data.update(
 

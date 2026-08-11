@@ -10,7 +10,7 @@ Builder for constructing canonical Token objects.
 
 Version
 -------
-v0.1.0
+v0.3.0
 """
 
 from typing import Self
@@ -53,7 +53,7 @@ class TokenBuilder(
     def _create_instance(self) -> Token:
 
         return Token(
-            id=TokenId.generate(),
+            identifier=TokenId.generate(),
             metadata=TokenMetadata(),
         )
 
@@ -66,7 +66,7 @@ class TokenBuilder(
         text: str,
     ) -> Self:
 
-        self._instance.text = text
+        self._instance.metadata.text = text
 
         return self
 
@@ -78,6 +78,17 @@ class TokenBuilder(
     ) -> Self:
 
         self._instance.metadata.normalized_text = text
+
+        return self
+
+    # ---------------------------------------------------------
+
+    def with_position(
+        self,
+        position: int,
+    ) -> Self:
+
+        self._instance.metadata.position = position
 
         return self
 

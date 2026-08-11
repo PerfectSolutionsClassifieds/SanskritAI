@@ -58,12 +58,6 @@ class DocumentMetadata(BaseNodeMetadata):
     # Contributors
     # ---------------------------------------------------------
 
-    # authors: list[str] | None = None
-
-    # editors: list[str] | None = None
-
-    # translators: list[str] | None = None
-
     authors: list[str] = field(default_factory=list)
 
     editors: list[str] = field(default_factory=list)
@@ -114,9 +108,13 @@ class DocumentMetadata(BaseNodeMetadata):
     def to_dict(self) -> dict[str, Any]:
         """
         Serialize metadata.
+
+        Explicit BaseNodeMetadata call is used instead of
+        zero-argument super() because this class uses
+        dataclass(slots=True).
         """
 
-        data = super().to_dict()
+        data = BaseNodeMetadata.to_dict(self)
 
         data.update(
 

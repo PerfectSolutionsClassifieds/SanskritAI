@@ -1,34 +1,25 @@
-from __future__ import annotations
 
 """
 SanskritAI
 ==========
 
-Paninian Test Utility
+Module:
+    tests.panini.testing.panini_test_case
 
-Reusable helper for Paninian unit tests.
+Description:
+    Reusable testing utility for Paninian unit and integration tests.
 
-Purpose
--------
+    Provides common construction helpers and assertions for:
+        - Mock derivation contexts
+        - Mock executable rules
+        - Derivation engine
+        - Execution traces
 
-Provides common construction helpers for
-
-    • Mock derivation contexts
-
-    • Mock executable rules
-
-    • Derivation engine
-
-    • Assertions
-
-Every Paninian sūtra test should reuse this class.
-
-Version
--------
-v1.0.0
+Version:
+    v1.0.0
 """
 
-from dataclasses import dataclass
+from __future__ import annotations
 
 from SanskritAI.domain.panini.paninian_derivation_engine import (
     PaninianDerivationEngine,
@@ -51,10 +42,12 @@ from SanskritAI.tests.panini.mocks.mock_rule import (
 )
 
 
-@dataclass(slots=True)
 class PaninianTestCase:
     """
     Reusable testing utility.
+
+    This is intentionally a normal base class rather than a dataclass.
+    It contains behavior only and no dataclass-managed fields.
     """
 
     # ---------------------------------------------------------
@@ -175,8 +168,7 @@ class PaninianTestCase:
         sutra_number: str,
     ) -> None:
         """
-        Verifies that a sutra appears in
-        the execution trace.
+        Verifies that a sūtra appears in the execution trace.
         """
 
         found = any(
@@ -201,8 +193,10 @@ class PaninianTestCase:
         Pretty-prints the execution trace.
         """
 
-        for index, step in enumerate(trace, start=1):
-
+        for index, step in enumerate(
+            trace,
+            start=1,
+        ):
             print(
                 f"{index:02d}. "
                 f"{step.rule.sutra_number} "

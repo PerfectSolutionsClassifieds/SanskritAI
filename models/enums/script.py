@@ -1,26 +1,42 @@
+
 """
-Supported writing systems.
+SanskritAI
+==========
+
+Module:
+    models.enums.script
+
+Description:
+    Supported writing systems and transliteration scripts.
+
+Version:
+    v0.3.0 Final
 """
 
 from enum import Enum
 
 
 class Script(Enum):
+    """
+    Supported writing systems and transliteration schemes.
 
-    UNKNOWN = "unknown"
+    The enum values are canonical human-readable identifiers.
+    """
 
-    DEVANAGARI = "devanagari"
+    UNKNOWN = "Unknown"
 
-    TELUGU = "telugu"
+    DEVANAGARI = "Devanagari"
 
-    IAST = "iast"
+    TELUGU = "Telugu"
 
-    ITRANS = "itrans"
+    IAST = "IAST"
 
-    HK = "harvard_kyoto"
+    ITRANS = "ITRANS"
 
-    SLP1 = "slp1"
+    HK = "Harvard-Kyoto"
 
-    WX = "wx"
+    SLP1 = "SLP1"
 
-    ISO15919 = "iso15919"
+    WX = "WX"
+
+    ISO15919 = "ISO 15919"

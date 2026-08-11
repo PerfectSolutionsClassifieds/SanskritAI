@@ -12,54 +12,52 @@ Paninian grammatical rule.
 Architecture
 ------------
 
-                 PaninianRule
-                      │
-      ┌───────────────┼────────────────┐
-      │               │                │
-  SamjnaRule      VidhiRule      SandhiRule
-      │               │                │
-      ▼               ▼                ▼
+             PaninianRule
+                  │
+      ┌───────────┼──────────────┐
+      │           │              │
+  SamjnaRule  VidhiRule     SandhiRule
+      │           │              │
+      ▼           ▼              ▼
  Concrete Sūtras  Concrete Sūtras  Concrete Sūtras
 
-Unlike previous revisions, this class no longer owns dozens of
-independent metadata fields.
+Every rule owns exactly one immutable
+PaninianRuleMetadata instance.
 
-Every rule instead owns exactly one immutable
-
-    PaninianRuleMetadata
-
-instance.
-
-The metadata itself now cleanly separates
+The metadata separates:
 
     • Classical Sūtra Category
 
-            Saṃjñā
-            Paribhāṣā
-            Vidhi
-            Niyama
-            Atideśa
-            Adhikāra
+          Saṃjñā
+          Paribhāṣā
+          Vidhi
+          Niyama
+          Atideśa
+          Adhikāra
 
-from
+    from
 
     • Operational Behaviour
 
-            Āgama
-            Lopa
-            Ādeśa
-            Sandhi
-            Tripādī
-            Pratyaya
-            Samāsa
-            ...
+          Āgama
+          Lopa
+          Ādeśa
+          Sandhi
+          Tripādī
+          Pratyaya
+          Samāsa
+          ...
 
-This faithfully models the architecture of the
-Aṣṭādhyāyī.
+PaninianRuleBehaviour is deliberately NOT stored as an
+independent field.
+
+It is derived from the canonical metadata so that the
+same grammatical classification is not duplicated in
+multiple places.
 
 Version
 -------
-v3.0.0
+v3.1.0
 """
 
 from abc import ABC
@@ -72,8 +70,20 @@ from SanskritAI.core.mixins.displayable import Displayable
 from SanskritAI.core.mixins.immutable import Immutable
 from SanskritAI.core.value_objects.value_object import ValueObject
 
+from SanskritAI.domain.panini.paninian_rule_behaviour import (
+    PaninianRuleBehaviour,
+)
+
 from SanskritAI.domain.panini.paninian_rule_metadata import (
     PaninianRuleMetadata,
+)
+
+from SanskritAI.domain.panini.paninian_rule_operation import (
+    PaninianRuleOperation,
+)
+
+from SanskritAI.domain.panini.paninian_rule_type import (
+    PaninianRuleType,
 )
 
 
@@ -128,11 +138,13 @@ class PaninianRule(
 
             SAMJNA
 
-            VIDHI
+            PARIBHASHA
 
             NIYAMA
 
-            PARIBHASHA
+            ATIDESHA
+
+            ADHIKARA
         """
         return self.metadata.category
 
@@ -158,6 +170,76 @@ class PaninianRule(
         return self.metadata.operation
 
     # ---------------------------------------------------------
+    # Derived Execution Behaviour
+    # ---------------------------------------------------------
+
+    @property
+    def behaviour(self) -> PaninianRuleBehaviour:
+        """
+        Derived execution behaviour of this rule.
+
+        PaninianRuleBehaviour is intentionally derived from
+        the canonical metadata rather than stored independently.
+
+        Mapping
+        -------
+
+        Saṃjñā      -> DESIGNATION
+        Niyama      -> RESTRICTION
+        Atideśa     -> EXTENSION
+        Paribhāṣā   -> INTERPRETATION
+        Adhikāra    -> SCOPE
+
+        Operational rules with an actual grammatical operation
+        are treated as TRANSFORMATION.
+
+        Rules with no operation and no special contextual
+        classification are treated as ORGANIZATIONAL.
+        """
+
+        category = self.category
+        rule_type = self.rule_type
+        operation = self.operation
+
+        # -----------------------------------------------------
+        # Classical semantic classifications take precedence.
+        # -----------------------------------------------------
+
+        if rule_type is PaninianRuleType.NIYAMA:
+            return PaninianRuleBehaviour.RESTRICTION
+
+        if rule_type is PaninianRuleType.ATIDESHA:
+            return PaninianRuleBehaviour.EXTENSION
+
+        category_name = getattr(
+            category,
+            "name",
+            "",
+        )
+
+        if category_name == "SAMJNA":
+            return PaninianRuleBehaviour.DESIGNATION
+
+        if category_name == "PARIBHASHA":
+            return PaninianRuleBehaviour.INTERPRETATION
+
+        if category_name == "ADHIKARA":
+            return PaninianRuleBehaviour.SCOPE
+
+        # -----------------------------------------------------
+        # Any actual grammatical operation is transformational.
+        # -----------------------------------------------------
+
+        if operation is not PaninianRuleOperation.NONE:
+            return PaninianRuleBehaviour.TRANSFORMATION
+
+        # -----------------------------------------------------
+        # No operation and no special semantic classification.
+        # -----------------------------------------------------
+
+        return PaninianRuleBehaviour.ORGANIZATIONAL
+
+    # ---------------------------------------------------------
     # Metadata
     # ---------------------------------------------------------
 
@@ -180,6 +262,42 @@ class PaninianRule(
     @property
     def tags(self) -> tuple[str, ...]:
         return self.metadata.tags
+
+    # ---------------------------------------------------------
+    # Canonical Sūtra convenience
+    # ---------------------------------------------------------
+
+    @property
+    def sutra(self):
+        return self.metadata.sutra
+
+    @property
+    def sutra_number(self) -> str:
+        return self.metadata.sutra.sutra_number
+
+    @property
+    def sutra_text(self) -> str:
+        return self.metadata.sutra.sutra_text
+
+    @property
+    def transliteration(self) -> str:
+        return self.metadata.sutra.transliteration
+
+    @property
+    def translation(self) -> str:
+        return self.metadata.sutra.translation
+
+    @property
+    def adhyaya(self) -> int:
+        return self.metadata.sutra.adhyaya
+
+    @property
+    def pada(self) -> int:
+        return self.metadata.sutra.pada
+
+    @property
+    def canonical_location(self) -> str:
+        return self.metadata.sutra.canonical_location
 
     # ---------------------------------------------------------
     # Classification Helpers
@@ -285,6 +403,7 @@ class PaninianRule(
             "category": self.category.value,
             "operation": self.operation.value,
             "rule_type": self.rule_type.value,
+            "behaviour": self.behaviour.value,
             "priority": self.priority.value,
             "source": self.source,
             "tags": self.tags,
@@ -299,6 +418,10 @@ class PaninianRule(
         other: "PaninianRule",
     ) -> bool:
         return self.priority.value < other.priority.value
+
+    # ---------------------------------------------------------
+    # Representation
+    # ---------------------------------------------------------
 
     def __str__(self) -> str:
         return self.display_text

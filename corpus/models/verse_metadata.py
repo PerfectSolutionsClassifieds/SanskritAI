@@ -119,7 +119,11 @@ class VerseMetadata(BaseNodeMetadata):
         Serialize metadata.
         """
 
-        data = super().to_dict()
+        # Explicit base-class call.
+        #
+        # Using BaseNodeMetadata.to_dict(self) avoids the
+        # zero-argument super() issue with dataclass(slots=True).
+        data = BaseNodeMetadata.to_dict(self)
 
         data.update(
 

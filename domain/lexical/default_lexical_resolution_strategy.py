@@ -6,32 +6,44 @@ SanskritAI
 
 Default Lexical Resolution Strategy
 
-Default implementation of the LexicalResolutionStrategy.
+Delegates lexical resolution entirely to the
+LexicalLookupEngine.
 
-This implementation performs direct lexical lookup using the
-configured LexicalRepository.
+Architecture
+------------
 
-It intentionally contains no morphology, Sandhi, Samāsa,
-Dhātu, or semantic reasoning. Those capabilities belong to
-future specialized strategies.
+ResolutionContext
+        │
+        ▼
+DefaultLexicalResolutionStrategy
+        │
+        ▼
+LexicalLookupEngine
+        │
+        ▼
+CanonicalKnowledgeRepository
+        │
+        ▼
+CanonicalDictionaryEntry
+CanonicalDictionarySense
 
 Version
 -------
-v1.0.0
+v2.0.0
 """
 
-from SanskritAI.domain.lexical.lexical_entry_collection import (
-    LexicalEntryCollection,
+from SanskritAI.domain.lexical.lexical_lookup_engine import (
+    LexicalLookupEngine,
 )
-from SanskritAI.domain.lexical.lexical_repository import (
-    LexicalRepository,
-)
+
 from SanskritAI.domain.lexical.lexical_resolution_result import (
     LexicalResolutionResult,
 )
+
 from SanskritAI.domain.lexical.lexical_resolution_strategy import (
     LexicalResolutionStrategy,
 )
+
 from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
 )
@@ -42,24 +54,29 @@ class DefaultLexicalResolutionStrategy(
 ):
     """
     Default lexical resolution strategy.
+
+    The strategy contains no repository logic.
+
+    It simply delegates lexical lookup to the
+    LexicalLookupEngine.
     """
 
     def __init__(
         self,
-        repository: LexicalRepository,
+        lookup_engine: LexicalLookupEngine,
     ) -> None:
 
-        self._repository = repository
+        self._lookup_engine = lookup_engine
 
     # ---------------------------------------------------------
-    # Repository
+    # Lookup Engine
     # ---------------------------------------------------------
 
     @property
-    def repository(
+    def lookup_engine(
         self,
-    ) -> LexicalRepository:
-        return self._repository
+    ) -> LexicalLookupEngine:
+        return self._lookup_engine
 
     # ---------------------------------------------------------
     # Resolution
@@ -70,31 +87,28 @@ class DefaultLexicalResolutionStrategy(
         context: ResolutionContext,
     ) -> LexicalResolutionResult:
         """
-        Performs direct lexical lookup.
+        Resolve lexical information.
+
+        Repository access, ranking, normalization,
+        canonical lookup, ambiguity handling, etc.
+        are delegated to the LexicalLookupEngine.
         """
 
-        subject = str(context.subject)
+        return self.lookup_engine.lookup(context)
 
-        entries: LexicalEntryCollection = (
-            self.repository.find_by_word_form(
-                subject
-            )
-        )
+    # ---------------------------------------------------------
 
-        confidence = (
-            1.0
-            if len(entries) == 1
-            else 0.75
-            if len(entries) > 1
-            else 0.0
-        )
+    @property
+    def display_name(
+        self,
+    ) -> str:
+        return "Default Lexical Resolution Strategy"
 
-        return LexicalResolutionResult(
-            context=context,
-            entries=entries,
-            normalized_word_form=subject,
-            matched_word_form=subject,
-            succeeded=len(entries) > 0,
-            confidence=confidence,
-            ambiguity_detected=len(entries) > 1,
+    @property
+    def display_description(
+        self,
+    ) -> str:
+        return (
+            "Delegates lexical resolution to the "
+            "LexicalLookupEngine."
         )

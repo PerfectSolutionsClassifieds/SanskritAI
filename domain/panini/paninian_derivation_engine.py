@@ -11,7 +11,7 @@ Canonical execution engine for the Paninian grammar.
 Responsibilities
 ----------------
 
-• accepts an immutable PaninianDerivationContext
+• accepts a PaninianDerivationContext
 
 • discovers applicable rules
 
@@ -20,7 +20,7 @@ Responsibilities
 
 • executes rules
 
-• produces a NEW immutable derivation context
+• produces a derivation context
 
 • records a complete PaninianExecutionTrace
 
@@ -28,31 +28,31 @@ Architecture
 ------------
 
 PaninianDerivationContext
-            │
-            ▼
+        │
+        ▼
 PaninianRuleMatcher
-            │
-            ▼
+        │
+        ▼
 PaninianRuleConflict
-            │
-            ▼
+        │
+        ▼
 DefaultPaninianConflictPipeline
-            │
-            ▼
+        │
+        ▼
 Selected Rule(s)
-            │
-            ▼
+        │
+        ▼
 Rule.apply()
-            │
-            ▼
+        │
+        ▼
 New PaninianDerivationContext
-            │
-            ▼
+        │
+        ▼
 PaninianExecutionTrace
 
 Version
 -------
-v2.0.0
+v2.1.0
 """
 
 from dataclasses import dataclass, field
@@ -90,7 +90,9 @@ from SanskritAI.domain.panini.paninian_sutra_catalog import (
 )
 
 
-@dataclass(slots=True)
+@dataclass(
+    slots=True,
+)
 class PaninianDerivationEngine:
     """
     Canonical Paninian derivation engine.
@@ -124,6 +126,7 @@ class PaninianDerivationEngine:
         """
         Hook executed before derivation.
         """
+
         return context
 
     def after_derivation(
@@ -133,6 +136,7 @@ class PaninianDerivationEngine:
         """
         Hook executed after derivation.
         """
+
         return context
 
     # ---------------------------------------------------------
@@ -193,7 +197,7 @@ class PaninianDerivationEngine:
         ):
             raise TypeError(
                 f"{rule.display_name} returned "
-                "an invalid derivation context."
+                "an invalid derivation context.",
             )
 
         self._record_step(
@@ -204,6 +208,42 @@ class PaninianDerivationEngine:
         )
 
         return new_context
+
+    # ---------------------------------------------------------
+    # Rule matching
+    # ---------------------------------------------------------
+
+    def _match_rules(
+        self,
+        context: PaninianDerivationContext,
+    ) -> tuple[PaninianRule, ...]:
+        """
+        Matches every rule in the canonical catalog.
+
+        The matcher operates on exactly one rule at
+        a time.
+
+        Returns only rules whose match result is
+        successful.
+        """
+
+        matched_rules: list[PaninianRule] = []
+
+        for rule in self.catalog.all():
+
+            result = self.matcher.match(
+                rule=rule,
+                context=context,
+            )
+
+            if result.matched:
+                matched_rules.append(
+                    result.rule,
+                )
+
+        return tuple(
+            matched_rules,
+        )
 
     # ---------------------------------------------------------
     # Canonical derivation
@@ -225,18 +265,12 @@ class PaninianDerivationEngine:
         # Rule matching
         # ---------------------------------------------
 
-        match_results = self.matcher.match(
-            context=context,
-            rules=self.catalog.all(),
-        )
-
-        matched_rules = tuple(
-            result.rule
-            for result in match_results
-            if result.matched
+        matched_rules = self._match_rules(
+            context,
         )
 
         if not matched_rules:
+
             return self.after_derivation(
                 context,
             )
@@ -245,7 +279,9 @@ class PaninianDerivationEngine:
         # Conflict resolution
         # ---------------------------------------------
 
-        if len(matched_rules) > 1:
+        if len(
+            matched_rules,
+        ) > 1:
 
             conflict = PaninianRuleConflict(
                 context=context,
@@ -268,9 +304,11 @@ class PaninianDerivationEngine:
 
         for rule in matched_rules:
 
-            current_context = self.execute_rule(
-                rule,
-                current_context,
+            current_context = (
+                self.execute_rule(
+                    rule,
+                    current_context,
+                )
             )
 
         return self.after_derivation(
@@ -299,6 +337,7 @@ class PaninianDerivationEngine:
         """
         Clears execution history.
         """
+
         self.trace = PaninianExecutionTrace()
 
     def summary(
@@ -316,6 +355,7 @@ class PaninianDerivationEngine:
     def __str__(
         self,
     ) -> str:
+
         return (
             "PaninianDerivationEngine("
             f"{self.executed_rule_count} executed rules)"
