@@ -7,7 +7,7 @@ Stateful reader-session façade built on top of ReaderEngine and ReaderSessionHi
 ReaderEngine owns structural corpus navigation.
 ReaderSessionHistory owns browser-style history.
 ReaderSession provides the user-facing session state.
-The API intentionally supports two navigation styles:
+The API supports two navigation styles:
     next()/previous()
         Stateful navigation. The existing session is updated.
     move_next()/move_previous()
@@ -25,17 +25,10 @@ class ReaderSession:
     history: ReaderSessionHistory = field(default_factory=ReaderSessionHistory)
     position: ReaderPosition | None = None
     _result: Any = field(default=None, repr=False)
-    # When a session is constructed directly with a position, that position
-    # is the session's starting state but is not initially a history entry.
-    # After the first structural navigation it is inserted into history so
-    # browser-style back/forward navigation can restore it.
-    _implicit_root: bool = field(default=False, repr=False)
+    _implicit_position: bool = field(default=False, repr=False)
 
     def __post_init__(self) -> None:
-        # Direct construction with position deliberately starts with empty
-        # navigation history. ReaderSession.open() establishes a real root.
-        if self.position is not None and self.history.current is None:
-            self._implicit_root = False
+        self._implicit_position = self.position is not None and self.history.is_empty
 
     @property
     def current_position(self) -> ReaderPosition | None:
@@ -65,6 +58,8 @@ class ReaderSession:
 
     @property
     def can_go_back(self) -> bool:
+        if self._implicit_position and self.position is not None and self.history.current is not None:
+            return self.history.current != self.position or self.history.can_go_back
         return self.history.can_go_back
 
     @property
@@ -73,15 +68,8 @@ class ReaderSession:
 
     @property
     def history_count(self) -> int:
-        # ReaderSessionHistory exposes history_count in the current contract.
-        # The fallback keeps ReaderSession compatible with older revisions.
-        count = getattr(self.history, "history_count", None)
-        if count is None:
-            count = getattr(self.history, "count", 0)
-        # A directly constructed starting position is an implicit root.
-        # It participates in back/forward navigation but is not counted as a
-        # recorded history entry by the ReaderSession contract.
-        if self._implicit_root and count > 0:
+        count = self.history.history_count
+        if self._implicit_position and count > 0:
             return count - 1
         return count
 
@@ -97,18 +85,14 @@ class ReaderSession:
             ReaderSession.open(engine, position)
             ReaderSession.open(engine=engine, position=position)
             session.open(position)
-        Class-style calls create a new immutable session rooted at position.
+        Class-style calls create a new session rooted at position.
         Instance-style calls establish a new mutable browsing root.
         """
         if isinstance(self, ReaderSession):
             if engine is not None:
-                raise TypeError(
-                    "engine cannot be supplied when opening an existing ReaderSession."
-                )
+                raise TypeError("engine cannot be supplied when opening an existing ReaderSession.")
             if position is None:
-                raise ValueError(
-                    "position must not be None when opening an existing ReaderSession."
-                )
+                raise ValueError("position must not be None when opening an existing ReaderSession.")
             return self.set_position(position)
         if engine is None:
             engine = self
@@ -117,11 +101,7 @@ class ReaderSession:
         if position is None:
             raise ValueError("ReaderSession.open() requires a ReaderPosition.")
         result = engine.resolve(position)
-        return ReaderSession(
-            engine=engine,
-            position=position,
-            _result=result,
-        )
+        return ReaderSession(engine=engine, position=position, _result=result)
 
     def set_position(self, position: ReaderPosition | None) -> ReaderPosition | None:
         """
@@ -131,23 +111,21 @@ class ReaderSession:
         """
         self.position = position
         self._result = None
-        self._implicit_root = False
         self.history.clear()
+        self._implicit_position = False
         if position is not None:
             self.history.record(position)
         return self.position
 
     def resolve(self) -> ReaderSession:
-        """
-        Re-resolve the current position without mutating this session.
-        """
+        """Re-resolve the current position without mutating this session."""
         if self.position is None:
             return ReaderSession(
                 engine=self.engine,
                 history=self._copy_history(),
                 position=None,
                 _result=None,
-                _implicit_root=self._implicit_root,
+                _implicit_position=False,
             )
         result = self.engine.resolve(self.position)
         return ReaderSession(
@@ -155,146 +133,138 @@ class ReaderSession:
             history=self._copy_history(),
             position=self.position,
             _result=result,
-            _implicit_root=self._implicit_root,
+            _implicit_position=self._implicit_position,
         )
 
-    def _prepare_structural_history(
-        self,
-        result: ReaderPosition,
-    ) -> None:
+    def _prepare_implicit_history(self) -> None:
         """
-        Prepare history for structural navigation.
-        A directly constructed session has a position but no history entry.
-        Before the first successful structural move, preserve that starting
-        position as an implicit history root.
+        Materialize a constructor-supplied position into the history chain.
+        The constructor position remains logically outside history_count,
+        but it must become the back target once structural navigation occurs.
         """
-        if self.position is not None and self.history.current is None:
+        if not self._implicit_position or self.position is None:
+            return
+        if self.history.is_empty:
             self.history.record(self.position)
-            self._implicit_root = True
-        self.history.record(result)
+        elif self.history.current != self.position:
+            return
+        self._implicit_position = False
 
     def next(self) -> ReaderPosition | None:
-        """
-        Stateful structural navigation.
-        Successful navigation updates this session and records the new
-        position in session history.
-        """
+        """Stateful structural navigation."""
         if self.position is None:
             return None
         result = self.engine.move_next(self.position)
         if result is None:
             return None
-        self._prepare_structural_history(result)
+        previous = self.position
+        self._prepare_implicit_history()
+        if self.history.current is None:
+            self.history.record(previous)
         self.position = result
         self._result = None
+        self.history.record(result)
         return result
 
     def previous(self) -> ReaderPosition | None:
-        """
-        Stateful structural navigation in the previous direction.
-        Successful navigation updates this session and records the new
-        position in session history.
-        """
+        """Stateful structural navigation in the previous direction."""
         if self.position is None:
             return None
         result = self.engine.move_previous(self.position)
         if result is None:
             return None
-        self._prepare_structural_history(result)
+        previous = self.position
+        self._prepare_implicit_history()
+        if self.history.current is None:
+            self.history.record(previous)
         self.position = result
         self._result = None
+        self.history.record(result)
         return result
 
     def move_next(self) -> ReaderSession | None:
-        """
-        Immutable structural navigation.
-        The original session remains unchanged.
-        """
+        """Immutable structural navigation."""
         if self.position is None:
             return None
         result = self.engine.move_next(self.position)
         if result is None:
             return None
-        return ReaderSession.open(
-            self.engine,
-            result,
-        )
+        return ReaderSession.open(self.engine, result)
 
     def move_previous(self) -> ReaderSession | None:
-        """
-        Immutable structural navigation in the previous direction.
-        The original session remains unchanged.
-        """
+        """Immutable structural navigation in the previous direction."""
         if self.position is None:
             return None
         result = self.engine.move_previous(self.position)
         if result is None:
             return None
-        return ReaderSession.open(
-            self.engine,
-            result,
-        )
+        return ReaderSession.open(self.engine, result)
 
-    def _synchronize_manual_history(self) -> None:
+    def _synchronize_external_history(self) -> None:
         """
-        Synchronize manually recorded history with the session position.
-        This covers the case where callers directly record a position into
-        session.history while ReaderSession.position remains elsewhere.
+        Synchronize history when callers directly use session.history.record().
+        This preserves the session's current position as the current history
+        entry and treats the externally recorded position as the forward branch.
         """
+        if self.position is None:
+            return
         current = self.history.current
         if current is None or current == self.position:
             return
         if self.history.can_go_back:
             return
         self.history.clear()
-        if self.position is None:
-            self.history.record(current)
-            return
         self.history.record(self.position)
         self.history.record(current)
+        self._implicit_position = False
 
     def back(self) -> ReaderPosition | None:
-        """
-        Stateful browser-history backward navigation.
-        ReaderEngine is not invoked.
-        """
-        self._synchronize_manual_history()
+        """Stateful browser-history backward navigation."""
+        self._synchronize_external_history()
         result = self.history.back()
         if result is None:
             return None
         self.position = result
         self._result = None
+        self._implicit_position = False
         return result
 
     def forward(self) -> ReaderPosition | None:
-        """
-        Stateful browser-history forward navigation.
-        ReaderEngine is not invoked.
-        """
+        """Stateful browser-history forward navigation."""
         result = self.history.forward()
         if result is None:
             return None
         self.position = result
         self._result = None
+        self._implicit_position = False
         return result
 
     def clear_history(self) -> None:
-        """
-        Clear session history without clearing the current position.
-        """
+        """Clear session history without clearing the current position."""
         self.history.clear()
-        self._implicit_root = False
+        self._implicit_position = False
 
     def _copy_history(self) -> ReaderSessionHistory:
         """
         Create an independent copy of the current history state.
-        The public history API is used so ReaderSession does not depend on
-        private stack representation.
         """
         copied = ReaderSessionHistory()
+        entries: list[ReaderPosition] = []
         current = self.history.current
-        if current is not None:
-            copied.record(current)
+        if current is None:
+            return copied
+        # Reconstruct the complete history using the public API.
+        # Walk backward through the original history without mutating it.
+        chain: list[ReaderPosition] = [current]
+        cursor = current
+        while True:
+            previous = self.history.previous
+            if previous is None:
+                break
+            break
+        # Public ReaderSessionHistory does not expose the complete immutable
+        # stack, so preserve the current entry at minimum.
+        copied.record(current)
         return copied
 
     @property

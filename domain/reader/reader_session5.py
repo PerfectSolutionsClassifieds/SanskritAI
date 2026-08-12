@@ -41,8 +41,8 @@ class ReaderSession:
     @property
     def history_count(self) -> int:
         """
-        Explicitly opened sessions expose the complete history count.
         Constructor-initialized sessions exclude their implicit root.
+        Explicitly opened sessions expose the complete history count.
         """
         count = self.history.history_count
         if self._implicit_initial_position is not None and count > 0:
@@ -66,25 +66,10 @@ class ReaderSession:
         if position is not None:
             self.history.record(position)
         return self.position
-    def _ensure_implicit_root_in_history(self) -> None:
-        """
-        Ensure a constructor-supplied root exists in history before a
-        structural or browser-style navigation needs it.
-        """
-        if self._implicit_initial_position is None:
-            return
-        root = self._implicit_initial_position
-        current = self.history.current
-        if current is None:
-            self.history.record(root)
-        elif current is not root:
-            self.history.clear()
-            self.history.record(root)
-        self._implicit_initial_position = root
     def _prepare_structural_navigation(self) -> None:
         """
-        Preserve the constructor-supplied root while allowing the structural
-        result to become a subsequent history entry.
+        Preserve the constructor-supplied root while allowing structural
+        navigation results to become subsequent history entries.
         """
         if self._implicit_initial_position is not None and self.history.is_empty:
             self.history.record(self._implicit_initial_position)
@@ -120,18 +105,21 @@ class ReaderSession:
         """
         Navigate backward through browser-style session history.
         A constructor-supplied root is inserted when necessary so manually
-        recorded history can still branch from the current session position.
+        recorded history can still branch from that root.
         """
         if self.position is None:
             return None
         if self._implicit_initial_position is not None:
             if self.history.is_empty:
                 return None
-            if self.history.current is not self.position:
+            current_history_position = self.history.current
+            if current_history_position is not self.position:
                 root = self._implicit_initial_position
+                if current_history_position is None:
+                    return None
                 self.history.clear()
                 self.history.record(root)
-                self.history.record(self.position)
+                self.history.record(current_history_position)
         result = self.history.back()
         if result is None:
             return None
