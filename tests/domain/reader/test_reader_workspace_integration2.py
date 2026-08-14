@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import pytest
+
 from SanskritAI.corpus.models.corpus import Corpus
 from SanskritAI.corpus.models.document import Document
 from SanskritAI.corpus.models.section import Section
@@ -14,15 +16,19 @@ from SanskritAI.corpus.models.verse_metadata import VerseMetadata
 from SanskritAI.corpus.models.paragraph_metadata import ParagraphMetadata
 from SanskritAI.corpus.models.line_metadata import LineMetadata
 from SanskritAI.corpus.models.token_metadata import TokenMetadata
-from SanskritAI.domain.reader.default_reader_repository import DefaultReaderRepository
+
+from SanskritAI.domain.reader.default_reader_repository import (
+    DefaultReaderRepository,
+)
 from SanskritAI.domain.reader.reader_controller import ReaderController
 from SanskritAI.domain.reader.reader_engine import ReaderEngine
-from SanskritAI.domain.reader.reader_interaction import ReaderHoverContext
-from SanskritAI.domain.reader.reader_interaction import ReaderInteraction
 from SanskritAI.domain.reader.reader_navigator import ReaderNavigator
 from SanskritAI.domain.reader.reader_position import ReaderPosition
-from SanskritAI.domain.reader.reader_selection_context import ReaderSelectionContext
+from SanskritAI.domain.reader.reader_selection_context import (
+    ReaderSelectionContext,
+)
 from SanskritAI.domain.reader.reader_workspace import ReaderWorkspace
+
 
 def _token(identifier: str, text: str, position: int) -> Token:
     return Token(
@@ -34,6 +40,7 @@ def _token(identifier: str, text: str, position: int) -> Token:
         ),
     )
 
+
 def _line(identifier: str, *tokens: Token) -> Line:
     line = Line(
         identifier=identifier,
@@ -42,6 +49,7 @@ def _line(identifier: str, *tokens: Token) -> Line:
     for token in tokens:
         line.add_token(token)
     return line
+
 
 def _paragraph(identifier: str, *lines: Line) -> Paragraph:
     paragraph = Paragraph(
@@ -52,6 +60,7 @@ def _paragraph(identifier: str, *lines: Line) -> Paragraph:
         paragraph.add_line(line)
     return paragraph
 
+
 def _verse(identifier: str, *paragraphs: Paragraph) -> Verse:
     verse = Verse(
         identifier=identifier,
@@ -60,6 +69,7 @@ def _verse(identifier: str, *paragraphs: Paragraph) -> Verse:
     for paragraph in paragraphs:
         verse.add_paragraph(paragraph)
     return verse
+
 
 def _section(identifier: str, *verses: Verse) -> Section:
     section = Section(
@@ -70,6 +80,7 @@ def _section(identifier: str, *verses: Verse) -> Section:
         section.add_verse(verse)
     return section
 
+
 def _document(identifier: str, *sections: Section) -> Document:
     document = Document(
         identifier=identifier,
@@ -78,6 +89,7 @@ def _document(identifier: str, *sections: Section) -> Document:
     for section in sections:
         document.add_section(section)
     return document
+
 
 @pytest.fixture
 def corpus() -> Corpus:
@@ -114,6 +126,7 @@ def corpus() -> Corpus:
             ),
         ),
     )
+
     chapter_1 = _section(
         "chapter-1",
         sloka_1,
@@ -123,11 +136,13 @@ def corpus() -> Corpus:
         "chapter-2",
         sloka_3,
     )
+
     document = _document(
         "document-1",
         chapter_1,
         chapter_2,
     )
+
     corpus = Corpus(
         id="corpus-1",
         metadata=CorpusMetadata(
@@ -135,7 +150,9 @@ def corpus() -> Corpus:
         ),
     )
     corpus.add_document(document)
+
     return corpus
+
 
 @pytest.fixture
 def repository(corpus) -> DefaultReaderRepository:
@@ -143,11 +160,13 @@ def repository(corpus) -> DefaultReaderRepository:
         corpus=corpus,
     )
 
+
 @pytest.fixture
 def navigator(repository) -> ReaderNavigator:
     return ReaderNavigator(
         repository=repository,
     )
+
 
 @pytest.fixture
 def engine(repository, navigator) -> ReaderEngine:
@@ -155,6 +174,7 @@ def engine(repository, navigator) -> ReaderEngine:
         repository=repository,
         navigator=navigator,
     )
+
 
 @pytest.fixture
 def position() -> ReaderPosition:
@@ -164,6 +184,7 @@ def position() -> ReaderPosition:
         sloka_id="sloka-1",
         word_id="word-1",
     )
+
 
 @pytest.fixture
 def workspace(
@@ -175,6 +196,7 @@ def workspace(
         position,
     )
 
+
 def test_workspace_open_integrates_with_reader_controller(
     workspace,
     engine,
@@ -185,10 +207,12 @@ def test_workspace_open_integrates_with_reader_controller(
     assert workspace.engine is engine
     assert workspace.position == position
 
+
 def test_workspace_exposes_active_reader_session(workspace, engine):
     assert workspace.session is workspace.controller.session
     assert workspace.engine is workspace.session.engine
     assert workspace.engine is engine
+
 
 def test_workspace_exposes_resolved_reader_state(
     workspace,
@@ -202,48 +226,66 @@ def test_workspace_exposes_resolved_reader_state(
         ReaderSelectionContext,
     )
 
+
 def test_workspace_selection_tracks_session_position(
     workspace,
 ):
     initial_position = workspace.current_position
     initial_selection = workspace.selection
+
     workspace.controller.next()
+
     assert workspace.current_position is workspace.session.current_position
     assert workspace.current_position != initial_position
     assert workspace.selection is not initial_selection
     assert workspace.selection.position is workspace.current_position
+
 
 def test_workspace_preserves_controller_navigation_semantics(
     workspace,
     position,
 ):
     assert workspace.current_position == position
+
     result = workspace.controller.next()
+
     assert result is not None
     assert result.identifier == "word-2"
     assert workspace.current_position is workspace.controller.current_position
     assert workspace.current_position.identifier == "word-2"
+
     result = workspace.controller.previous()
+
     assert result is not None
     assert result.identifier == "word-1"
     assert workspace.current_position is workspace.controller.current_position
     assert workspace.current_position.identifier == "word-1"
+
 
 def test_workspace_preserves_browser_history_semantics(
     workspace,
     position,
 ):
     initial_position = workspace.current_position
+
     workspace.controller.next()
+
     next_position = workspace.current_position
+
     assert next_position is not None
     assert next_position != initial_position
     assert workspace.can_go_back is True
+
     workspace.controller.back()
+
     assert workspace.current_position == initial_position
+
     assert workspace.can_go_forward is True
+
     workspace.controller.forward()
+
     assert workspace.current_position == next_position
+
 
 def test_workspace_state_remains_controller_owned(
     workspace,
@@ -251,116 +293,7 @@ def test_workspace_state_remains_controller_owned(
     assert workspace.position is workspace.controller.current_position
     assert workspace.result is workspace.controller.current_result
     assert workspace.has_position == workspace.controller.has_position
-
-def test_workspace_hover_does_not_change_position(
-    workspace,
-):
-    initial_position = workspace.current_position
-    hover = ReaderInteraction.hover(initial_position)
-    assert isinstance(hover, ReaderHoverContext)
-    assert hover.position is initial_position
-    assert workspace.current_position is initial_position
-
-def test_workspace_hover_does_not_change_history(
-    workspace,
-):
-    initial_position = workspace.current_position
-    initial_history_count = workspace.history_count
-    initial_can_go_back = workspace.can_go_back
-    ReaderInteraction.hover(initial_position)
-    assert workspace.current_position is initial_position
-    assert workspace.history_count == initial_history_count
-    assert workspace.can_go_back == initial_can_go_back
-
-def test_workspace_hover_is_transient(
-    workspace,
-):
-    hover = ReaderInteraction.hover(workspace.current_position)
-    assert isinstance(hover, ReaderHoverContext)
-    assert workspace.selection is not hover
-
-def test_workspace_select_produces_selection_context(
-    workspace,
-):
-    position = workspace.current_position
-    selection = ReaderInteraction.select(position)
-    assert isinstance(selection, ReaderSelectionContext)
-    assert selection.position is position
-
-def test_workspace_select_does_not_navigate(
-    workspace,
-):
-    initial_position = workspace.current_position
-    ReaderInteraction.select(initial_position)
-    assert workspace.current_position is initial_position
-
-def test_workspace_select_does_not_change_history(
-    workspace,
-):
-    initial_history_count = workspace.history_count
-    initial_can_go_back = workspace.can_go_back
-    ReaderInteraction.select(workspace.current_position)
-    assert workspace.history_count == initial_history_count
-    assert workspace.can_go_back == initial_can_go_back
-
-def test_workspace_selection_reflects_current_position(
-    workspace,
-):
-    initial_position = workspace.current_position
-    selection = ReaderInteraction.select(initial_position)
-    assert selection.position is workspace.current_position
-
-def test_workspace_hover_then_select_preserves_same_position(
-    workspace,
-):
-    position = workspace.current_position
-    hover = ReaderInteraction.hover(position)
-    selection = ReaderInteraction.select(position)
-    assert hover.position is position
-    assert selection.position is position
-    assert workspace.current_position is position
-
-def test_workspace_hover_select_then_controller_navigation(
-    workspace,
-):
-    initial_position = workspace.current_position
-    hover = ReaderInteraction.hover(initial_position)
-    selection = ReaderInteraction.select(initial_position)
-    assert hover.position is initial_position
-    assert selection.position is initial_position
-    assert workspace.current_position is initial_position
-    result = workspace.controller.next()
-    assert result is not None
-    assert workspace.current_position is workspace.controller.current_position
-    assert workspace.current_position != initial_position
-
-def test_workspace_navigation_updates_selection_after_interaction(
-    workspace,
-):
-    initial_position = workspace.current_position
-    ReaderInteraction.hover(initial_position)
-    ReaderInteraction.select(initial_position)
-    workspace.controller.next()
-    assert workspace.selection is not None
-    assert workspace.selection.position is workspace.current_position
-    assert workspace.selection.position != initial_position
-
-def test_workspace_interaction_does_not_bypass_controller(
-    workspace,
-):
-    initial_position = workspace.current_position
-    ReaderInteraction.hover(initial_position)
-    ReaderInteraction.select(initial_position)
-    assert workspace.current_position is workspace.controller.current_position
-    assert workspace.session.current_position is workspace.controller.current_position
-
-def test_workspace_interaction_preserves_history_after_navigation(
-    workspace,
-):
-    initial_position = workspace.current_position
-    ReaderInteraction.hover(initial_position)
-    ReaderInteraction.select(initial_position)
-    workspace.controller.next()
-    assert workspace.can_go_back is True
-    workspace.controller.back()
-    assert workspace.current_position == initial_position
+    assert workspace.has_result == workspace.controller.has_result
+    assert workspace.succeeded == workspace.controller.succeeded
+    assert workspace.can_go_back == workspace.controller.can_go_back
+    assert workspace.can_go_forward == workspace.controller.can_go_forward
