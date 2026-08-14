@@ -61,8 +61,7 @@ def repository():
 
 def test_document_property_returns_reader_document(repository):
     document = repository.document
-    # assert document.identifier == "purana-1"
-    assert document.identifier == "document-1"
+    assert document.identifier == "purana-1"
     assert document.title == "Test Purana"
     assert document.chapter_count == 3
 

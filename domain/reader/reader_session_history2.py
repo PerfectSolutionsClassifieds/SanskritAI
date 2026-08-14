@@ -128,11 +128,7 @@ class ReaderSessionHistory:
         Total number of positions represented by the history.
         Includes the current position when one exists.
         """
-        return (
-            len(self._back_stack)
-            + (1 if self._current is not None else 0)
-            + len(self._forward_stack)
-        )
+        return len(self._back_stack) + (1 if self._current is not None else 0) + len(self._forward_stack)
 
     def record(self, position: ReaderPosition) -> ReaderPosition:
         """
@@ -145,9 +141,7 @@ class ReaderSessionHistory:
             forward stack -> cleared
         """
         if not isinstance(position, ReaderPosition):
-            raise TypeError(
-                "ReaderSessionHistory accepts only ReaderPosition instances."
-            )
+            raise TypeError("ReaderSessionHistory accepts only ReaderPosition instances.")
         if self._current == position:
             return self._current
         if self._current is not None:
@@ -224,11 +218,7 @@ class ReaderSessionHistory:
     @property
     def is_empty(self) -> bool:
         """Return True when the history contains no position."""
-        return (
-            self._current is None
-            and not self._back_stack
-            and not self._forward_stack
-        )
+        return self._current is None and not self._back_stack and not self._forward_stack
 
     @property
     def display_name(self) -> str:
