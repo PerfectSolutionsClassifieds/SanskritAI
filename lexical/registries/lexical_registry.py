@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 """
 SanskritAI
 ==========
@@ -29,13 +28,8 @@ v0.3.0
 
 from typing import Iterable
 
-from SanskritAI.core.registries.base_registry import (
-    BaseRegistry,
-)
-
-from SanskritAI.lexical.models.base_lexical_node import (
-    BaseLexicalNode,
-)
+from SanskritAI.core.registries.base_registry import BaseRegistry
+from SanskritAI.lexical.models.base_lexical_node import BaseLexicalNode
 
 
 class LexicalRegistry(
@@ -55,17 +49,14 @@ class LexicalRegistry(
         """
         Register multiple lexical objects.
         """
-
         for obj in objects:
-            self.register(obj)
+            self.add(obj)
 
     # ---------------------------------------------------------
-
     def lexemes(self):
         """
         Iterate over registered Lexeme objects.
         """
-
         from SanskritAI.lexical.models.lexeme import Lexeme
 
         for obj in self.values():
@@ -73,12 +64,10 @@ class LexicalRegistry(
                 yield obj
 
     # ---------------------------------------------------------
-
     def dictionary_entries(self):
         """
         Iterate over registered DictionaryEntry objects.
         """
-
         from SanskritAI.lexical.models.dictionary_entry import (
             DictionaryEntry,
         )
@@ -88,12 +77,10 @@ class LexicalRegistry(
                 yield obj
 
     # ---------------------------------------------------------
-
     def dictionary_senses(self):
         """
         Iterate over registered DictionarySense objects.
         """
-
         from SanskritAI.lexical.models.dictionary_sense import (
             DictionarySense,
         )
@@ -103,12 +90,10 @@ class LexicalRegistry(
                 yield obj
 
     # ---------------------------------------------------------
-
     def lexical_relations(self):
         """
         Iterate over registered LexicalRelation objects.
         """
-
         from SanskritAI.lexical.models.lexical_relation import (
             LexicalRelation,
         )
