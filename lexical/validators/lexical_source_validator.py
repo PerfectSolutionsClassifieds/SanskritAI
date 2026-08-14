@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -17,8 +18,12 @@ LEX001
 LEX002
     Lexical source name must not be empty.
 
-LEX003
-    Lexical source metadata is required.
+Notes
+-----
+
+LexicalSource is intentionally a lightweight immutable value object.
+It does not expose a metadata object. Therefore this validator does
+not perform metadata validation.
 
 The validator deliberately reports all applicable issues rather
 than stopping at the first failure.
@@ -47,10 +52,6 @@ class LexicalSourceValidator(
 ):
     """
     Validator for LexicalSource objects.
-
-    The validator checks only the structural invariants owned by
-    LexicalSource itself. It does not attempt to validate nested
-    metadata fields.
     """
 
     def validate(
@@ -61,15 +62,21 @@ class LexicalSourceValidator(
         Validate a LexicalSource and return all applicable
         validation issues.
 
-        Validation is intentionally non-short-circuiting so that
-        callers receive all structural problems in one result.
+        Validation is intentionally non-short-circuiting:
+        identifier and name are validated independently so
+        callers receive the complete set of structural problems
+        in a single result.
+
+        Whitespace-only values are intentionally accepted.
+        The validation rule concerns emptiness, not whitespace
+        normalization.
         """
 
         issues: list[ValidationIssue] = []
 
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
         # LEX001 — Identifier
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
 
         if not obj.identifier:
             issues.append(
@@ -82,9 +89,9 @@ class LexicalSourceValidator(
                 )
             )
 
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
         # LEX002 — Name
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
 
         if not obj.name:
             issues.append(
@@ -97,38 +104,9 @@ class LexicalSourceValidator(
                 )
             )
 
-        # ---------------------------------------------------------
-        # LEX003 — Metadata
-        # ---------------------------------------------------------
-        #
-        # LexicalSource exposes metadata through its public
-        # interface, but the domain model permits the backing
-        # _metadata field to be explicitly set to None.
-        #
-        # Validate the backing state directly so a missing metadata
-        # object cannot be hidden by a property default/fallback.
-        # ---------------------------------------------------------
-
-        metadata = getattr(
-            obj,
-            "_metadata",
-            None,
-        )
-
-        if metadata is None:
-            issues.append(
-                ValidationIssue(
-                    code="LEX003",
-                    message=(
-                        "Lexical source metadata is required."
-                    ),
-                    field="metadata",
-                )
-            )
-
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
         # Result
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
 
         return ValidationResult.from_issues(issues)
 
