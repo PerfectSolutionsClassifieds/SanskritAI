@@ -1,31 +1,41 @@
 from __future__ import annotations
+
 """
 SanskritAI
 ==========
+
 Reader Workspace
+
 Application-level working environment for an active ReaderController.
+
 ReaderWorkspace coordinates access to the active ReaderController without
 duplicating navigation, resolution, session, or history state.
+
 Version
 -------
 v1.0.0
 """
+
 from dataclasses import dataclass
 from typing import Any
+
 from SanskritAI.domain.reader.reader_controller import ReaderController
 from SanskritAI.domain.reader.reader_engine import ReaderEngine
 from SanskritAI.domain.reader.reader_position import ReaderPosition
 from SanskritAI.domain.reader.reader_session import ReaderSession
 from SanskritAI.domain.reader.reader_selection_context import ReaderSelectionContext
 
+
 @dataclass(slots=True)
 class ReaderWorkspace:
     """
     Application-level workspace for an active ReaderController.
+
     ReaderWorkspace does not own an independent ReaderPosition,
     ReaderResult, navigation history, or resolution state. These remain
     owned by ReaderController and its underlying ReaderSession.
     """
+
     controller: ReaderController
 
     @classmethod
@@ -66,6 +76,7 @@ class ReaderWorkspace:
     def selection(self) -> ReaderSelectionContext | None:
         """
         Return the immutable selection context for the current position.
+
         The selection is derived from the controller's canonical position
         and is never maintained as duplicate workspace state.
         """
