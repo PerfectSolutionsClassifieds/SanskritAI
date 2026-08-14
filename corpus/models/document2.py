@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -9,26 +8,26 @@ Document
 
 Represents a canonical document within a corpus.
 
-A Document is a container of Sections.
-
 Examples
 --------
 
 Mahabharata
-└── Adi Parva
+    └── Adi Parva
 
 Rigveda
-└── Mandala 1
+    └── Mandala 1
 
 Ramayana
-└── Bala Kanda
+    └── Bala Kanda
+
+A Document is a container of Sections.
 
 Version
 -------
 v0.3.0
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from SanskritAI.corpus.models.container_node import (
     ContainerNode,
@@ -57,6 +56,7 @@ class Document(
         identifier: str,
         metadata: DocumentMetadata,
     ) -> None:
+
         super().__init__(
             identifier=identifier,
             metadata=metadata,
@@ -71,10 +71,9 @@ class Document(
         """
         Alias for children.
         """
+
         return self.children
 
-    # ---------------------------------------------------------
-    # Section management
     # ---------------------------------------------------------
 
     def add_section(
@@ -84,7 +83,10 @@ class Document(
         """
         Add a section.
         """
+
         self.add_child(section)
+
+    # ---------------------------------------------------------
 
     def remove_section(
         self,
@@ -93,10 +95,9 @@ class Document(
         """
         Remove a section.
         """
+
         self.remove_child(section)
 
-    # ---------------------------------------------------------
-    # Section information
     # ---------------------------------------------------------
 
     @property
@@ -106,7 +107,10 @@ class Document(
         """
         Number of sections.
         """
+
         return self.child_count
+
+    # ---------------------------------------------------------
 
     @property
     def first_section(
@@ -115,7 +119,10 @@ class Document(
         """
         First section.
         """
+
         return self.first_child
+
+    # ---------------------------------------------------------
 
     @property
     def last_section(
@@ -124,26 +131,5 @@ class Document(
         """
         Last section.
         """
+
         return self.last_child
-
-    # ---------------------------------------------------------
-    # Serialization
-    # ---------------------------------------------------------
-
-    def to_dict(
-        self,
-    ) -> dict[str, Any]:
-        """
-        Serialize the document and its sections.
-
-        Child sections are serialized recursively through their
-        own to_dict() implementations.
-        """
-        return {
-            "id": str(self.id),
-            "metadata": self.metadata.to_dict(),
-            "sections": [
-                section.to_dict()
-                for section in self.sections
-            ],
-        }

@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -13,14 +12,14 @@ A Line groups one or more Token objects.
 
 Depending on the source, a Line may represent:
 
-- a metrical pāda
-- a printed line
-- a wrapped display line
-- a prose line
+    • a metrical pāda
+    • a printed line
+    • a wrapped display line
+    • a prose line
 
 Version
 -------
-v0.3.0
+v0.1.0
 """
 
 from dataclasses import dataclass
@@ -36,12 +35,6 @@ class LineMetadata(BaseNodeMetadata):
     """
     Metadata describing a canonical line.
     """
-
-    # ---------------------------------------------------------
-    # Language
-    # ---------------------------------------------------------
-
-    language: str = "sanskrit"
 
     # ---------------------------------------------------------
     # Identification
@@ -74,61 +67,81 @@ class LineMetadata(BaseNodeMetadata):
     is_fragment: bool = False
 
     # ---------------------------------------------------------
-    # Derived Properties
-    # ---------------------------------------------------------
 
     @property
     def has_pada(self) -> bool:
         """
         True if this line corresponds to a metrical pāda.
         """
+
         return self.pada_number is not None
+
+    # ---------------------------------------------------------
 
     @property
     def is_indented(self) -> bool:
         """
         True if the line has indentation.
         """
+
         return self.indentation_level > 0
 
-    # ---------------------------------------------------------
-    # Serialization
     # ---------------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
         """
         Serialize metadata.
 
-        Explicit BaseNodeMetadata invocation is used instead of
+        Explicit BaseNodeMetadata call is used instead of
         zero-argument super() because this class uses
         dataclass(slots=True).
         """
+
         data = BaseNodeMetadata.to_dict(self)
 
         data.update(
+
             {
-                "language": self.language,
-                "line_number": self.line_number,
-                "visual_line_number": self.visual_line_number,
-                "indentation_level": self.indentation_level,
-                "pada_number": self.pada_number,
-                "is_continuation": self.is_continuation,
-                "is_refrain": self.is_refrain,
-                "is_fragment": self.is_fragment,
+
+                "line_number":
+                    self.line_number,
+
+                "visual_line_number":
+                    self.visual_line_number,
+
+                "indentation_level":
+                    self.indentation_level,
+
+                "pada_number":
+                    self.pada_number,
+
+                "is_continuation":
+                    self.is_continuation,
+
+                "is_refrain":
+                    self.is_refrain,
+
+                "is_fragment":
+                    self.is_fragment,
+
             }
+
         )
 
         return data
 
     # ---------------------------------------------------------
-    # Representation
-    # ---------------------------------------------------------
 
     def __repr__(self) -> str:
+
         return (
+
             f"LineMetadata("
-            f"language={self.language!r}, "
+
             f"line={self.line_number}, "
+
             f"pada={self.pada_number}, "
+
             f"continuation={self.is_continuation})"
+
         )

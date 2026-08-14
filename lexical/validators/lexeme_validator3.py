@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -20,26 +21,9 @@ LEX002
 The validator deliberately reports all applicable issues rather
 than stopping at the first failure.
 
-Metadata handling
------------------
-
-The current lexical node hierarchy exposes metadata through the
-public ``metadata`` attribute.
-
-During the transition of the domain model, some tests and legacy
-objects may also carry an internal ``_metadata`` attribute.
-
-The validator therefore resolves metadata as follows:
-
-1. If ``_metadata`` exists on the object, its value is authoritative.
-2. Otherwise, use the public ``metadata`` attribute.
-
-This allows explicit metadata-null validation without coupling
-the validator permanently to one internal storage representation.
-
 Version
 -------
-v0.4.1
+v0.4.0
 """
 
 from SanskritAI.core.validators.validation_issue import (
@@ -68,10 +52,11 @@ class LexemeValidator(
         """
         Validate a Lexeme and return all applicable issues.
 
-        Validation is intentionally non-short-circuiting:
-        identifier and metadata are validated independently so
-        that callers receive the complete set of structural
-        problems in a single result.
+        Validation is intentionally non-short-circuiting.
+
+        Identifier and metadata are validated independently so
+        callers receive the complete set of structural problems
+        in a single result.
         """
 
         issues: list[ValidationIssue] = []
@@ -90,31 +75,21 @@ class LexemeValidator(
             )
 
         # -----------------------------------------------------
-        # Metadata resolution
-        # -----------------------------------------------------
-        #
-        # The canonical public interface is ``metadata``.
-        #
-        # During the current domain-model transition, an explicit
-        # ``_metadata`` attribute may also be present. When it is
-        # present, it is treated as authoritative. This is
-        # important because the validator tests deliberately set
-        # ``obj._metadata = None`` to simulate missing metadata.
-        #
-        # For normal Lexeme instances, where ``_metadata`` does
-        # not exist, the public ``metadata`` attribute is used.
-        # -----------------------------------------------------
-
-        if hasattr(obj, "_metadata"):
-            metadata = getattr(obj, "_metadata")
-        else:
-            metadata = getattr(obj, "metadata", None)
-
-        # -----------------------------------------------------
         # LEX002 — Metadata
         # -----------------------------------------------------
+        #
+        # Validate the actual stored metadata object.
+        #
+        # The Lexeme test suite intentionally exercises the
+        # structural failure state by setting:
+        #
+        #     lexeme._metadata = None
+        #
+        # Therefore validation must not depend on a higher-level
+        # metadata accessor whose behavior may conceal that state.
+        # -----------------------------------------------------
 
-        if metadata is None:
+        if getattr(obj, "_metadata", None) is None:
             issues.append(
                 ValidationIssue(
                     code="LEX002",

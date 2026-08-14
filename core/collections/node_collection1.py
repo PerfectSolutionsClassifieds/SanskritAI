@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -13,8 +12,14 @@ The collection preserves insertion order while providing a
 lightweight abstraction over Python lists. It serves as the
 foundation for managing child nodes throughout the framework.
 
-The collection supports normal Python sequence-style behavior
-while retaining its own domain-specific abstraction.
+Future versions may extend this class with:
+
+- uniqueness constraints
+- indexed lookup
+- filtering
+- sorting
+- lazy evaluation
+- event notifications
 
 Version
 -------
@@ -36,11 +41,12 @@ class NodeCollection(Generic[T]):
         self,
         items: Iterable[T] | None = None,
     ) -> None:
+
         self._items: list[T] = list(items or [])
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Modification
-    # =========================================================
+    # ---------------------------------------------------------
 
     def add(
         self,
@@ -49,7 +55,10 @@ class NodeCollection(Generic[T]):
         """
         Append an item.
         """
+
         self._items.append(item)
+
+    # ---------------------------------------------------------
 
     def extend(
         self,
@@ -58,7 +67,10 @@ class NodeCollection(Generic[T]):
         """
         Append multiple items.
         """
+
         self._items.extend(items)
+
+    # ---------------------------------------------------------
 
     def remove(
         self,
@@ -66,13 +78,11 @@ class NodeCollection(Generic[T]):
     ) -> None:
         """
         Remove an item.
-
-        Raises
-        ------
-        ValueError
-            If the item is not present.
         """
+
         self._items.remove(item)
+
+    # ---------------------------------------------------------
 
     def clear(
         self,
@@ -80,11 +90,12 @@ class NodeCollection(Generic[T]):
         """
         Remove all items.
         """
+
         self._items.clear()
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Query
-    # =========================================================
+    # ---------------------------------------------------------
 
     def first(
         self,
@@ -92,7 +103,10 @@ class NodeCollection(Generic[T]):
         """
         Return the first item, if present.
         """
+
         return self._items[0] if self._items else None
+
+    # ---------------------------------------------------------
 
     def last(
         self,
@@ -100,7 +114,10 @@ class NodeCollection(Generic[T]):
         """
         Return the last item, if present.
         """
+
         return self._items[-1] if self._items else None
+
+    # ---------------------------------------------------------
 
     def to_list(
         self,
@@ -108,63 +125,59 @@ class NodeCollection(Generic[T]):
         """
         Return a shallow copy of the collection.
         """
+
         return list(self._items)
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Python Protocols
-    # =========================================================
+    # ---------------------------------------------------------
 
     def __iter__(
         self,
     ) -> Iterator[T]:
+
         return iter(self._items)
+
+    # ---------------------------------------------------------
 
     def __getitem__(
         self,
         index: int,
     ) -> T:
+
         return self._items[index]
+
+    # ---------------------------------------------------------
 
     def __contains__(
         self,
         item: T,
     ) -> bool:
+
         return item in self._items
+
+    # ---------------------------------------------------------
 
     def __len__(
         self,
     ) -> int:
+
         return len(self._items)
+
+    # ---------------------------------------------------------
 
     def __bool__(
         self,
     ) -> bool:
+
         return bool(self._items)
 
-    def __eq__(
-        self,
-        other: object,
-    ) -> bool:
-        """
-        Compare collections by ordered contents.
-
-        NodeCollection can be compared directly with another
-        NodeCollection or with a list/tuple. This preserves the
-        collection abstraction while allowing intuitive Python
-        sequence comparisons.
-        """
-
-        if isinstance(other, NodeCollection):
-            return self._items == other._items
-
-        if isinstance(other, (list, tuple)):
-            return self._items == list(other)
-
-        return NotImplemented
+    # ---------------------------------------------------------
 
     def __repr__(
         self,
     ) -> str:
+
         return (
             f"{self.__class__.__name__}"
             f"(count={len(self)})"
