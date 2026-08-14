@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """
 SanskritAI
 ==========
@@ -27,7 +28,7 @@ from SanskritAI.lexical.models.base_lexical_metadata import (
 )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class DictionarySenseMetadata(BaseLexicalMetadata):
     """
     Metadata describing a dictionary sense.
