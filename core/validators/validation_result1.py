@@ -32,13 +32,11 @@ class ValidationResult:
     Immutable validation report.
     """
 
-    issues: tuple[ValidationIssue, ...] = field(
-        default_factory=tuple,
-    )
+    issues: tuple[ValidationIssue, ...] = field(default_factory=tuple)
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Construction
-    # =========================================================
+    # ---------------------------------------------------------
 
     @classmethod
     def success(cls) -> "ValidationResult":
@@ -53,13 +51,13 @@ class ValidationResult:
         issues: Iterable[ValidationIssue],
     ) -> "ValidationResult":
         """
-        Construct a result from an iterable of validation issues.
+        Construct from an iterable of validation issues.
         """
         return cls(tuple(issues))
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Status
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
     def is_valid(self) -> bool:
@@ -73,34 +71,25 @@ class ValidationResult:
         """
         True if at least one error exists.
         """
-        return any(
-            issue.is_error
-            for issue in self.issues
-        )
+        return any(issue.is_error for issue in self.issues)
 
     @property
     def has_warnings(self) -> bool:
         """
         True if at least one warning exists.
         """
-        return any(
-            issue.is_warning
-            for issue in self.issues
-        )
+        return any(issue.is_warning for issue in self.issues)
 
     @property
     def has_info(self) -> bool:
         """
         True if at least one informational issue exists.
         """
-        return any(
-            issue.is_info
-            for issue in self.issues
-        )
+        return any(issue.is_info for issue in self.issues)
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Counts
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
     def error_count(self) -> int:
@@ -126,9 +115,9 @@ class ValidationResult:
             if issue.severity == ValidationSeverity.INFO
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Filtering
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
     def errors(self) -> tuple[ValidationIssue, ...]:
@@ -154,9 +143,9 @@ class ValidationResult:
             if issue.severity == ValidationSeverity.INFO
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Composition
-    # =========================================================
+    # ---------------------------------------------------------
 
     def merge(
         self,
@@ -170,9 +159,9 @@ class ValidationResult:
             issues=self.issues + other.issues,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Convenience
-    # =========================================================
+    # ---------------------------------------------------------
 
     def __bool__(self) -> bool:
         """

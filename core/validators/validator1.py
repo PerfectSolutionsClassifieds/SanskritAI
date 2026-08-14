@@ -31,8 +31,7 @@ v0.4.0
 """
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
-from typing import Generic
+from typing import Generic, Iterable
 
 from SanskritAI.core.typing import TObject
 from SanskritAI.core.validators.validation_result import (
@@ -46,15 +45,11 @@ class Validator(
 ):
     """
     Abstract validator.
-
-    Concrete validators implement ``validate()`` for a single
-    object. Batch validation and capability checks are provided
-    by the base class.
     """
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Single-object validation
-    # =========================================================
+    # ---------------------------------------------------------
 
     @abstractmethod
     def validate(
@@ -66,7 +61,7 @@ class Validator(
 
         Parameters
         ----------
-        obj:
+        obj
             Object to validate.
 
         Returns
@@ -76,9 +71,9 @@ class Validator(
         """
         raise NotImplementedError
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Batch validation
-    # =========================================================
+    # ---------------------------------------------------------
 
     def validate_many(
         self,
@@ -86,9 +81,8 @@ class Validator(
     ) -> ValidationResult:
         """
         Validate multiple objects and merge the results.
-
-        Validation order is preserved.
         """
+
         result = ValidationResult.success()
 
         for obj in objects:
@@ -98,9 +92,9 @@ class Validator(
 
         return result
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Capability
-    # =========================================================
+    # ---------------------------------------------------------
 
     @classmethod
     def supports(
@@ -108,7 +102,8 @@ class Validator(
         obj: object,
     ) -> bool:
         """
-        Indicate whether this validator supports the given object.
+        Indicates whether this validator supports the given
+        object.
 
         Concrete validators may override this method.
         """

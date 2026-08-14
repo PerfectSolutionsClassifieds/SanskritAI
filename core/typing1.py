@@ -47,14 +47,6 @@ TChild = TypeVar("TChild")
 TMetadata = TypeVar("TMetadata")
 TIdentifier = TypeVar("TIdentifier")
 
-# Generic object type used by core validators.
-#
-# This represents the object being validated and intentionally
-# remains unconstrained so that the validator kernel can be
-# reused by Reader, Lexical, Canonical Corpus, and future
-# domain layers.
-TObject = TypeVar("TObject")
-
 # ---------------------------------------------------------
 # Common Type Aliases
 # ---------------------------------------------------------
@@ -114,7 +106,6 @@ __all__ = [
     "TChild",
     "TMetadata",
     "TIdentifier",
-    "TObject",
     "JsonValue",
     "JsonDict",
     "PathLike",
