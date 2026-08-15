@@ -1,73 +1,30 @@
+
 from __future__ import annotations
 
-"""
-SanskritAI
-==========
+from dataclasses import dataclass
+from typing import Any
 
-Derivation Rule Set
-
-Defines an immutable collection of Derivation rules.
-
-A DerivationRuleSet evaluates every registered DerivationRule
-and collects candidate derivational outputs.
-
-Version
--------
-v1.0.0
-"""
-
-from dataclasses import dataclass, field
-from typing import Any, Iterator
-
-from SanskritAI.core.mixins.displayable import Displayable
-from SanskritAI.core.mixins.immutable import Immutable
-from SanskritAI.domain.derivation.derivation_context import (
+from SanskritAI.domain.derivation.derivation_rule import (
     DerivationContext,
+    DerivationRule,
 )
-from SanskritAI.domain.derivation.derivation_rule import DerivationRule
 
 
-@dataclass(frozen=True, slots=True)
-class DerivationRuleSet(
-    Immutable,
-    Displayable,
-):
+@dataclass(frozen=True)
+class DerivationRuleSet:
     """
-    Immutable collection of derivation rules.
+    Ordered collection of derivation rules.
+
+    A rule set evaluates every rule that applies to a given
+    derivation context and returns unique candidates while
+    preserving their insertion order.
+
+    Candidates are intentionally typed as ``Any`` because concrete
+    derivation rules may return different candidate representations,
+    including unhashable objects such as dictionaries.
     """
 
-    rules: tuple[DerivationRule, ...] = field(default_factory=tuple)
-
-    @property
-    def display_name(self) -> str:
-        return "Derivation Rule Set"
-
-    @property
-    def display_text(self) -> str:
-        return f"{len(self.rules)} Derivation Rules"
-
-    @property
-    def display_description(self) -> str:
-        return "Immutable collection of derivation rules."
-
-    @property
-    def is_empty(self) -> bool:
-        return len(self.rules) == 0
-
-    @property
-    def count(self) -> int:
-        return len(self.rules)
-
-    def add(
-        self,
-        rule: DerivationRule,
-    ) -> "DerivationRuleSet":
-        """
-        Returns a new rule set containing the supplied rule.
-        """
-        return DerivationRuleSet(
-            rules=self.rules + (rule,),
-        )
+    rules: tuple[DerivationRule, ...] = ()
 
     def apply(
         self,
@@ -76,6 +33,10 @@ class DerivationRuleSet(
         """
         Applies every matching derivation rule and returns
         unique candidates in insertion order.
+
+        Equality-based deduplication is used instead of
+        hash-based deduplication because derivation candidates
+        are not required to be hashable.
         """
         candidates: list[Any] = []
 
@@ -83,16 +44,10 @@ class DerivationRuleSet(
             if rule.applies_to(context):
                 candidates.extend(rule.apply(context))
 
-        return tuple(dict.fromkeys(candidates))
+        unique_candidates: list[Any] = []
 
-    def __len__(self) -> int:
-        return len(self.rules)
+        for candidate in candidates:
+            if candidate not in unique_candidates:
+                unique_candidates.append(candidate)
 
-    def __iter__(self) -> Iterator[DerivationRule]:
-        return iter(self.rules)
-
-    def __getitem__(self, index: int) -> DerivationRule:
-        return self.rules[index]
-
-    def __str__(self) -> str:
-        return self.display_text
+        return tuple(unique_candidates)
