@@ -10,14 +10,21 @@ from SanskritAI.domain.pratyaya.pratyaya_analysis import PratyayaAnalysis
 @dataclass(frozen=True)
 class PratyayaAnalysisCollection:
     """
-    Immutable collection of Pratyaya analyses.
+    Immutable collection of PratyayaAnalysis objects.
+
+    The collection provides value-oriented access to a sequence of
+    Pratyaya analyses while preserving immutability.
+
+    Compatibility:
+        ``has_analyses`` is the positive semantic counterpart of
+        ``is_empty`` and is used by the orchestration/strategy layer.
     """
 
     analyses: tuple[PratyayaAnalysis, ...] = ()
 
     @property
     def count(self) -> int:
-        """Return the number of analyses."""
+        """Return the number of analyses in the collection."""
         return len(self.analyses)
 
     @property
@@ -27,12 +34,18 @@ class PratyayaAnalysisCollection:
 
     @property
     def has_analyses(self) -> bool:
-        """Return True when at least one analysis is present."""
+        """
+        Return True when the collection contains at least one analysis.
+
+        This is the positive semantic counterpart of ``is_empty`` and
+        provides the compatibility API expected by Pratyaya strategies
+        and higher-level orchestration code.
+        """
         return not self.is_empty
 
     @property
     def first(self) -> Optional[PratyayaAnalysis]:
-        """Return the first analysis, or None when empty."""
+        """Return the first analysis, or None when the collection is empty."""
         if self.is_empty:
             return None
         return self.analyses[0]
@@ -42,7 +55,8 @@ class PratyayaAnalysisCollection:
         """
         Return the highest-confidence analysis.
 
-        Ties preserve the first occurrence.
+        When multiple analyses have equal confidence, the first
+        occurrence is retained.
         """
         if self.is_empty:
             return None
@@ -52,26 +66,15 @@ class PratyayaAnalysisCollection:
             key=lambda analysis: analysis.confidence,
         )
 
-    @property
-    def display_name(self) -> str:
-        """Human-readable name of this collection."""
-        return "Pratyaya Analyses"
-
-    @property
-    def display_text(self) -> str:
-        """Human-readable count representation."""
-        return f"{self.count} analyses"
-
-    @property
-    def display_description(self) -> str:
-        """Human-readable description of the collection."""
-        return "Immutable collection of Pratyaya analyses."
-
     def add(
         self,
         analysis: PratyayaAnalysis,
     ) -> PratyayaAnalysisCollection:
-        """Return a new collection with one additional analysis."""
+        """
+        Return a new collection containing the supplied analysis.
+
+        The current collection is never mutated.
+        """
         return PratyayaAnalysisCollection(
             analyses=self.analyses + (analysis,),
         )
@@ -80,7 +83,11 @@ class PratyayaAnalysisCollection:
         self,
         other: PratyayaAnalysisCollection,
     ) -> PratyayaAnalysisCollection:
-        """Return a new collection containing both collections."""
+        """
+        Return a new collection containing both collections.
+
+        The current and supplied collections remain unchanged.
+        """
         return PratyayaAnalysisCollection(
             analyses=self.analyses + other.analyses,
         )
@@ -93,6 +100,3 @@ class PratyayaAnalysisCollection:
 
     def __getitem__(self, index: int) -> PratyayaAnalysis:
         return self.analyses[index]
-
-    def __str__(self) -> str:
-        return self.display_text

@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -12,16 +11,9 @@ Defines an immutable collection of Pratyaya rules.
 A PratyayaRuleSet evaluates every registered PratyayaRule and
 collects candidate affix analyses.
 
-Candidate handling
-------------------
-Candidates may be either hashable or unhashable objects.
-
-The rule set therefore performs equality-based, insertion-order
-deduplication rather than relying on ``dict.fromkeys()``.
-
 Version
 -------
-v1.0.1
+v1.0.0
 """
 
 from dataclasses import dataclass, field
@@ -82,27 +74,14 @@ class PratyayaRuleSet(
         """
         Applies every matching Pratyaya rule and returns unique
         candidates in insertion order.
-
-        Candidate objects may be hashable or unhashable. Equality
-        comparison is therefore used for deduplication instead of
-        hash-based dictionary construction.
-
-        The first occurrence of every candidate is preserved.
         """
-
         candidates: list[Any] = []
 
         for rule in self.rules:
             if rule.applies_to(context):
                 candidates.extend(rule.apply(context))
 
-        unique_candidates: list[Any] = []
-
-        for candidate in candidates:
-            if not any(candidate == existing for existing in unique_candidates):
-                unique_candidates.append(candidate)
-
-        return tuple(unique_candidates)
+        return tuple(dict.fromkeys(candidates))
 
     def __len__(self) -> int:
         return len(self.rules)
