@@ -8,17 +8,9 @@ Vakya Rule Set
 
 Defines an immutable collection of Vakya rules.
 
-The rule set:
-    - preserves rule ordering,
-    - applies only matching rules,
-    - collects their candidates,
-    - removes duplicate candidates,
-    - supports both hashable and unhashable candidate values,
-    - preserves first-occurrence ordering.
-
 Version
 -------
-v1.0.1
+v1.0.0
 """
 
 from dataclasses import dataclass, field
@@ -62,45 +54,16 @@ class VakyaRuleSet(
         return len(self.rules)
 
     def add(self, rule: VakyaRule) -> "VakyaRuleSet":
-        """
-        Returns a new rule set containing the supplied rule.
+        return VakyaRuleSet(rules=self.rules + (rule,))
 
-        The existing rule set remains unchanged.
-        """
-        return VakyaRuleSet(
-            rules=self.rules + (rule,),
-        )
-
-    def apply(
-        self,
-        context: VakyaContext,
-    ) -> tuple[Any, ...]:
-        """
-        Apply every matching Vakya rule.
-
-        Results are returned as a tuple in rule/candidate order.
-
-        Duplicate candidates are removed while preserving the first
-        occurrence. Both hashable and unhashable candidate values are
-        supported.
-
-        Equality, rather than hashability, defines duplication.
-        This is important because concrete Vakya rules may return
-        dictionary-shaped candidates.
-        """
+    def apply(self, context: VakyaContext) -> tuple[Any, ...]:
         candidates: list[Any] = []
 
         for rule in self.rules:
             if rule.applies_to(context):
                 candidates.extend(rule.apply(context))
 
-        unique_candidates: list[Any] = []
-
-        for candidate in candidates:
-            if not any(candidate == existing for existing in unique_candidates):
-                unique_candidates.append(candidate)
-
-        return tuple(unique_candidates)
+        return tuple(dict.fromkeys(candidates))
 
     def __len__(self) -> int:
         return len(self.rules)

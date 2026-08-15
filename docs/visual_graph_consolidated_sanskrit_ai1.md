@@ -2241,6 +2241,7 @@
                 - __contains__(self, item)
                 - __len__(self)
                 - __bool__(self)
+                - __eq__(self, other)
                 - __repr__(self)
       📂 configuration/
         📄 __init__.py
@@ -4265,6 +4266,7 @@
                 - section_count(self)
                 - first_section(self)
                 - last_section(self)
+                - to_dict(self)
         📄 document_metadata.py
             🏗️ Classes:
               • class DocumentMetadata:
@@ -9164,6 +9166,53 @@
               • class BaseLexicalNode:
                 - __init__(self, identifier, metadata)
                 - label(self)
+        📄 dictionary_entry.py
+            🏗️ Classes:
+              • class DictionaryEntry:
+                - __init__(self, identifier, metadata, source)
+                - dictionary_name(self)
+                - dictionary_version(self)
+                - entry_identifier(self)
+                - headword(self)
+                - transliteration(self)
+                - volume(self)
+                - chapter(self)
+                - section(self)
+                - page(self)
+                - entry_number(self)
+                - editor(self)
+                - publisher(self)
+                - publication_year(self)
+                - is_primary(self)
+                - citation(self)
+                - display_title(self)
+        📄 dictionary_entry_metadata.py
+            🏗️ Classes:
+              • class DictionaryEntryMetadata:
+                - display_title(self)
+                - has_dictionary(self)
+                - has_headword(self)
+                - has_location(self)
+                - citation(self)
+        📄 dictionary_sense.py
+            🏗️ Classes:
+              • class DictionarySense:
+                - __init__(self, identifier, metadata)
+                - sense_number(self)
+                - definition(self)
+                - short_definition(self)
+                - gloss(self)
+                - semantic_domain(self)
+                - usage_label(self)
+                - register(self)
+                - grammatical_note(self)
+                - etymology(self)
+                - examples(self)
+                - citations(self)
+                - cross_references(self)
+        📄 dictionary_sense_metadata.py
+            🏗️ Classes:
+              • class DictionarySenseMetadata:
         📄 lexeme.py
             🏗️ Classes:
               • class Lexeme:
@@ -9205,6 +9254,20 @@
         📄 lexical_relation_metadata.py
             🏗️ Classes:
               • class LexicalRelationMetadata:
+        📄 lexical_source.py
+            🏗️ Classes:
+              • class LexicalSource:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - has_version(self)
+                - has_publisher(self)
+                - has_editor(self)
+                - has_website(self)
+                - __str__(self)
+        📄 lexical_source_metadata.py
+            🏗️ Classes:
+              • class LexicalSourceMetadata:
       📂 parsers/
         📄 base_lexical_parser.py
             🏗️ Classes:
@@ -9228,13 +9291,81 @@
                 - dictionary_entries(self)
                 - dictionary_senses(self)
                 - lexical_relations(self)
+        📄 lexical_source_catalog.py
+            🏗️ Classes:
+              • class LexicalSourceCatalog:
+                - __init__(self, sources)
+                - register(self, source)
+                - register_many(self, sources)
+                - get(self, identifier)
+                - require(self, identifier)
+                - exists(self, identifier)
+                - remove(self, identifier)
+                - clear(self)
+                - identifiers(self)
+                - sources(self)
+                - count(self)
+                - __contains__(self, identifier)
+                - __len__(self)
+                - __iter__(self)
+                - _normalize_identifier(identifier)
+      📂 repositories/
+        📄 in_memory_lexical_repository.py
+            🏗️ Classes:
+              • class InMemoryLexicalRepository:
+                - __init__(self, source)
+                - source(self)
+                - add(self, lexical_object)
+                - add_many(self, lexical_objects)
+                - get_lexeme(self, identifier)
+                - get_entry(self, identifier)
+                - get_sense(self, identifier)
+                - find_by_lemma(self, lemma)
+                - find_by_transliteration(self, transliteration)
+                - contains(self, identifier)
+                - search(self, query)
+                - _matches_lexeme(lexeme, query)
+                - _matches_entry(entry, query)
+                - _matches_sense(sense, query)
+                - lexeme_count(self)
+                - entry_count(self)
+                - sense_count(self)
+                - count(self)
+                - clear(self)
+        📄 lexical_repository.py
+            🏗️ Classes:
+              • class LexicalRepository:
+                - source(self)
+                - get_lexeme(self, identifier)
+                - get_entry(self, identifier)
+                - get_sense(self, identifier)
+                - find_by_lemma(self, lemma)
+                - find_by_transliteration(self, transliteration)
+                - contains(self, identifier)
+                - search(self, query)
       📂 validators/
         📄 base_lexical_validator.py
             🏗️ Classes:
               • class BaseLexicalValidator:
+        📄 dictionary_entry_validator.py
+            🏗️ Classes:
+              • class DictionaryEntryValidator:
+                - validate(self, obj)
+        📄 dictionary_sense_validator.py
+            🏗️ Classes:
+              • class DictionarySenseValidator:
+                - validate(self, obj)
         📄 lexeme_validator.py
             🏗️ Classes:
               • class LexemeValidator:
+                - validate(self, obj)
+        📄 lexical_relation_validator.py
+            🏗️ Classes:
+              • class LexicalRelationValidator:
+                - validate(self, obj)
+        📄 lexical_source_validator.py
+            🏗️ Classes:
+              • class LexicalSourceValidator:
                 - validate(self, obj)
     📂 models/
       📄 __init__.py
@@ -9934,12 +10065,275 @@
                 - test_unknown(self)
                 - test_is_reference(self)
                 - test_string(self)
+      📂 core/
+        📄 test_typing.py
+            ⚙️ Functions:
+              • test_generic_type_variables_exist()
+              • test_tobject_is_exported()
+              • test_tobject_is_unconstrained()
+              • test_json_aliases_exist()
+              • test_path_like_accepts_string_and_path()
+              • test_attributes_is_dictionary()
+              • test_collection_aliases_are_available()
+              • test_callable_aliases_are_available()
+              • test_all_expected_symbols_are_exported()
+              • test_json_dict_accepts_json_compatible_values()
+        📂 validators/
+          📄 test_validation_issue.py
+              ⚙️ Functions:
+                • test_validation_severity_defines_expected_values()
+                • test_validation_severity_is_string_enum()
+                • test_validation_issue_can_be_created_with_required_fields()
+                • test_validation_issue_defaults_to_error()
+                • test_validation_issue_accepts_warning()
+                • test_validation_issue_accepts_info()
+                • test_validation_issue_supports_field()
+                • test_validation_issue_supports_location()
+                • test_validation_issue_supports_suggestion()
+                • test_validation_issue_optional_fields_default_to_empty_strings()
+                • test_validation_issue_is_frozen()
+                • test_validation_issue_is_hashable()
+                • test_validation_issues_with_same_values_are_equal()
+                • test_validation_issues_with_different_codes_are_not_equal()
+                • test_validation_issue_severity_predicates_are_mutually_consistent()
+          📄 test_validation_result.py
+              ⚙️ Functions:
+                • make_info_issue()
+                • make_warning_issue()
+                • make_error_issue()
+                • test_default_result_is_successful()
+                • test_success_creates_empty_result()
+                • test_from_issues_accepts_iterable()
+                • test_from_issues_accepts_generator()
+                • test_result_with_info_only_is_valid()
+                • test_result_with_warning_only_is_valid()
+                • test_result_with_error_is_invalid()
+                • test_result_detects_all_severities()
+                • test_error_count()
+                • test_warning_count()
+                • test_info_count()
+                • test_counts_are_zero_when_no_matching_issue_exists()
+                • test_errors_returns_only_errors()
+                • test_warnings_returns_only_warnings()
+                • test_info_returns_only_info_issues()
+                • test_filtering_preserves_original_order()
+                • test_merge_combines_issues()
+                • test_merge_preserves_order()
+                • test_merge_does_not_modify_original_results()
+                • test_bool_is_true_for_valid_result()
+                • test_bool_is_false_for_invalid_result()
+                • test_len_returns_number_of_issues()
+                • test_validation_result_is_frozen()
+                • test_issues_are_stored_as_tuple()
+                • test_equal_results_are_equal()
+                • test_results_with_different_issues_are_not_equal()
+          📄 test_validator.py
+              ⚙️ Functions:
+                • test_validator_is_abstract()
+                • test_validator_cannot_be_instantiated_directly()
+                • test_validate_is_abstract()
+                • test_concrete_validator_can_be_instantiated()
+                • test_validate_returns_validation_result()
+                • test_valid_object_returns_success()
+                • test_invalid_object_returns_error()
+                • test_validate_many_with_empty_iterable_returns_success()
+                • test_validate_many_validates_all_objects()
+                • test_validate_many_accepts_generator()
+                • test_validate_many_merges_validation_results()
+                • test_validate_many_preserves_validation_order()
+                • test_validate_many_calls_validate_once_per_object()
+                • test_validate_many_returns_single_merged_result()
+                • test_validate_many_preserves_issue_order()
+                • test_default_supports_returns_true()
+                • test_supports_is_class_method()
+                • test_supports_accepts_arbitrary_object()
+                • test_concrete_validator_inherits_default_supports()
+                • test_supports_can_be_overridden()
+                • test_validator_generic_contract_accepts_typed_objects()
+              🏗️ Classes:
+                • class StubValidator:
+                  - validate(self, obj)
+                • class RecordingValidator:
+                  - __init__(self)
+                  - validate(self, obj)
+                • class SelectiveValidator:
+                  - validate(self, obj)
       📂 corpus/
         📄 __init__.py
         📄 test_corpus_navigation_structure.py
             ⚙️ Functions:
               • test_canonical_corpus_hierarchy_navigation()
               • test_canonical_order_is_preserved()
+        📂 models/
+          📄 test_base_node.py
+              ⚙️ Functions:
+                • test_base_node_can_be_used_through_concrete_subclass()
+                • test_identifier_is_stored()
+                • test_identifier_property_is_alias_for_id()
+                • test_metadata_is_stored()
+                • test_base_node_supports_non_string_identifier()
+                • test_base_node_preserves_identifier_value()
+                • test_nodes_with_same_type_and_identifier_are_equal()
+                • test_nodes_with_different_identifiers_are_not_equal()
+                • test_nodes_with_same_identifier_but_different_types_are_not_equal()
+                • test_node_is_not_equal_to_unrelated_object()
+                • test_nodes_with_same_type_and_identifier_have_same_hash()
+                • test_nodes_with_different_identifiers_have_different_hashes()
+                • test_node_can_be_used_as_set_member()
+                • test_equal_nodes_resolve_to_same_set_member()
+                • test_repr_contains_class_name()
+                • test_repr_contains_identifier()
+                • test_repr_follows_expected_base_node_format()
+                • test_metadata_does_not_participate_in_equality()
+                • test_metadata_does_not_participate_in_hash()
+                • test_id_and_identifier_are_consistent()
+                • test_identifier_is_read_only_property()
+                • test_id_is_read_only_property()
+                • test_base_node_contract_is_stable()
+              🏗️ Classes:
+                • class NodeMetadata:
+                • class ConcreteNode:
+                • class OtherConcreteNode:
+          📄 test_corpus.py
+              ⚙️ Functions:
+                • make_corpus(identifier)
+                • make_document(identifier)
+                • test_corpus_stores_identifier()
+                • test_corpus_stores_metadata()
+                • test_corpus_starts_without_documents()
+                • test_add_document()
+                • test_add_documents_preserves_order()
+                • test_remove_document()
+                • test_clear_documents()
+                • test_iteration_returns_documents()
+                • test_index_access_returns_document()
+                • test_negative_index_access()
+                • test_to_dict_contains_identifier()
+                • test_to_dict_contains_metadata()
+                • test_to_dict_contains_documents()
+                • test_repr_contains_corpus_information()
+          📄 test_corpus_metadata.py
+              ⚙️ Functions:
+                • test_default_construction()
+                • test_to_dict_returns_dict()
+                • test_to_dict_contains_metadata_fields()
+                • test_repr_is_available()
+          📄 test_document.py
+              ⚙️ Functions:
+                • make_document(identifier)
+                • make_section(identifier)
+                • test_document_stores_identifier()
+                • test_document_stores_metadata()
+                • test_document_starts_without_sections()
+                • test_sections_alias_children()
+                • test_add_section()
+                • test_remove_section()
+                • test_first_section()
+                • test_last_section()
+                • test_sections_preserve_insertion_order()
+          📄 test_document_metadata.py
+              ⚙️ Functions:
+                • test_default_construction()
+                • test_to_dict_returns_dict()
+                • test_to_dict_contains_metadata_fields()
+                • test_repr_is_available()
+          📄 test_line.py
+              ⚙️ Functions:
+                • make_line(identifier)
+                • make_token(identifier, text)
+                • test_line_stores_identifier()
+                • test_line_stores_metadata()
+                • test_line_starts_without_tokens()
+                • test_tokens_alias_children()
+                • test_add_token()
+                • test_remove_token()
+                • test_first_token()
+                • test_last_token()
+                • test_tokens_preserve_insertion_order()
+                • test_line_number_aliases_metadata()
+                • test_language_aliases_metadata()
+          📄 test_line_metadata.py
+              ⚙️ Functions:
+                • test_default_construction()
+                • test_default_language_is_sanskrit()
+                • test_language_can_be_specified()
+                • test_to_dict_returns_dict()
+                • test_to_dict_contains_language()
+                • test_repr_is_available()
+          📄 test_paragraph.py
+              ⚙️ Functions:
+                • make_paragraph(identifier)
+                • make_line(identifier)
+                • test_paragraph_stores_identifier()
+                • test_paragraph_stores_metadata()
+                • test_paragraph_starts_without_lines()
+                • test_lines_alias_children()
+                • test_add_line()
+                • test_remove_line()
+                • test_first_line()
+                • test_last_line()
+                • test_lines_preserve_insertion_order()
+          📄 test_paragraph_metadata.py
+              ⚙️ Functions:
+                • test_default_construction()
+                • test_to_dict_returns_dict()
+                • test_to_dict_contains_metadata_fields()
+                • test_repr_is_available()
+          📄 test_section.py
+              ⚙️ Functions:
+                • make_section(identifier)
+                • make_verse(identifier)
+                • test_section_stores_identifier()
+                • test_section_stores_metadata()
+                • test_section_starts_without_verses()
+                • test_verses_alias_children()
+                • test_add_verse()
+                • test_remove_verse()
+                • test_first_verse()
+                • test_last_verse()
+                • test_verses_preserve_insertion_order()
+          📄 test_section_metadata.py
+              ⚙️ Functions:
+                • test_default_construction()
+                • test_to_dict_returns_dict()
+                • test_to_dict_contains_metadata_fields()
+                • test_repr_is_available()
+          📄 test_token.py
+              ⚙️ Functions:
+                • make_token(identifier, text, normalized_text)
+                • test_token_stores_identifier()
+                • test_token_stores_metadata()
+                • test_token_is_a_base_node()
+                • test_token_is_leaf_node()
+                • test_token_text_aliases_metadata()
+                • test_token_normalized_text_aliases_metadata()
+                • test_token_preserves_original_and_normalized_text()
+                • test_token_metadata_is_accessible()
+          📄 test_token_metadata.py
+              ⚙️ Functions:
+                • test_default_construction()
+                • test_to_dict_returns_dict()
+                • test_to_dict_contains_metadata_fields()
+                • test_repr_is_available()
+          📄 test_verse.py
+              ⚙️ Functions:
+                • make_verse(identifier)
+                • make_paragraph(identifier)
+                • test_verse_stores_identifier()
+                • test_verse_stores_metadata()
+                • test_verse_starts_without_paragraphs()
+                • test_paragraphs_alias_children()
+                • test_add_paragraph()
+                • test_remove_paragraph()
+                • test_first_paragraph()
+                • test_last_paragraph()
+                • test_paragraphs_preserve_insertion_order()
+          📄 test_verse_metadata.py
+              ⚙️ Functions:
+                • test_default_construction()
+                • test_to_dict_returns_dict()
+                • test_to_dict_contains_metadata_fields()
+                • test_repr_is_available()
       📂 domain/
         📄 __init__.py
         📂 reader/
@@ -10668,6 +11062,375 @@
         📄 test_serialization.py
             ⚙️ Functions:
               • test()
+        📂 models/
+          📄 test_dictionary_entry.py
+              ⚙️ Functions:
+                • make_source()
+                • make_metadata()
+                • make_entry()
+                • test_dictionary_entry_stores_identifier()
+                • test_dictionary_entry_exposes_source()
+                • test_dictionary_entry_exposes_source_name()
+                • test_dictionary_entry_exposes_source_identifier()
+                • test_dictionary_entry_exposes_dictionary_name()
+                • test_dictionary_entry_exposes_dictionary_version()
+                • test_dictionary_entry_exposes_entry_identifier()
+                • test_dictionary_entry_exposes_headword()
+                • test_dictionary_entry_exposes_transliteration()
+                • test_dictionary_entry_exposes_volume()
+                • test_dictionary_entry_exposes_page()
+                • test_dictionary_entry_exposes_entry_number()
+                • test_dictionary_entry_exposes_editor()
+                • test_dictionary_entry_exposes_publisher()
+                • test_dictionary_entry_exposes_publication_year()
+                • test_dictionary_entry_exposes_primary_status()
+                • test_dictionary_entry_exposes_citation()
+                • test_dictionary_entry_exposes_display_title()
+          📄 test_dictionary_entry_metadata.py
+              ⚙️ Functions:
+                • test_dictionary_entry_metadata_defaults()
+                • test_dictionary_entry_metadata_stores_dictionary_information()
+                • test_dictionary_entry_metadata_stores_headword()
+                • test_dictionary_entry_metadata_display_title_prefers_headword()
+                • test_dictionary_entry_metadata_display_title_falls_back_to_lemma()
+                • test_dictionary_entry_metadata_display_title_falls_back_to_dictionary()
+                • test_dictionary_entry_metadata_has_dictionary()
+                • test_dictionary_entry_metadata_has_headword()
+                • test_dictionary_entry_metadata_has_location()
+                • test_dictionary_entry_metadata_has_no_location_by_default()
+                • test_dictionary_entry_metadata_citation_dictionary_only()
+                • test_dictionary_entry_metadata_citation_with_volume_and_page()
+                • test_dictionary_entry_metadata_is_immutable()
+          📄 test_dictionary_sense.py
+              ⚙️ Functions:
+                • make_metadata()
+                • make_sense()
+                • test_dictionary_sense_stores_identifier()
+                • test_dictionary_sense_exposes_sense_number()
+                • test_dictionary_sense_exposes_definition()
+                • test_dictionary_sense_exposes_short_definition()
+                • test_dictionary_sense_exposes_gloss()
+                • test_dictionary_sense_exposes_semantic_domain()
+                • test_dictionary_sense_exposes_usage_label()
+                • test_dictionary_sense_exposes_register()
+                • test_dictionary_sense_exposes_grammatical_note()
+                • test_dictionary_sense_exposes_etymology()
+                • test_dictionary_sense_exposes_examples()
+                • test_dictionary_sense_exposes_citations()
+                • test_dictionary_sense_exposes_cross_references()
+                • test_dictionary_sense_is_a_leaf_node()
+          📄 test_dictionary_sense_metadata.py
+              ⚙️ Functions:
+                • test_dictionary_sense_metadata_defaults()
+                • test_dictionary_sense_metadata_stores_meaning()
+                • test_dictionary_sense_metadata_stores_classification()
+                • test_dictionary_sense_metadata_stores_linguistic_notes()
+                • test_dictionary_sense_metadata_examples_default_to_empty_list()
+                • test_dictionary_sense_metadata_citations_default_to_empty_list()
+                • test_dictionary_sense_metadata_cross_references_default_to_empty_list()
+                • test_dictionary_sense_metadata_stores_supporting_material()
+                • test_dictionary_sense_metadata_stores_notes()
+                • test_dictionary_sense_metadata_inherits_lemma()
+          📄 test_lexeme.py
+              ⚙️ Functions:
+                • make_metadata()
+                • make_lexeme()
+                • test_lexeme_stores_identifier()
+                • test_lexeme_exposes_lemma()
+                • test_lexeme_exposes_transliteration()
+                • test_lexeme_exposes_part_of_speech()
+                • test_lexeme_exposes_root()
+                • test_lexeme_exposes_frequency()
+                • test_lexeme_exposes_language()
+                • test_lexeme_exposes_script()
+                • test_lexeme_exposes_status()
+                • test_lexeme_metadata_is_preserved()
+                • test_lexeme_uses_canonical_identifier()
+                • test_lexeme_is_known_when_lemma_exists()
+                • test_lexeme_metadata_display_title_defaults_to_lemma()
+                • test_lexeme_metadata_can_have_explicit_title()
+                • test_lexeme_metadata_has_title()
+          📄 test_lexical_record.py
+              ⚙️ Functions:
+                • source()
+                • metadata()
+                • record(source, metadata)
+                • test_lexical_record_is_constructed(record)
+                • test_lexical_record_exposes_source(record, source)
+                • test_lexical_record_exposes_source_name(record)
+                • test_lexical_record_exposes_source_identifier(record)
+                • test_lexical_record_preserves_metadata(record, metadata)
+                • test_lexical_record_requires_source(metadata)
+              🏗️ Classes:
+                • class ConcreteLexicalRecord:
+          📄 test_lexical_relation.py
+              ⚙️ Functions:
+                • make_metadata()
+                • make_relation()
+                • test_lexical_relation_stores_identifier()
+                • test_lexical_relation_exposes_relation_type()
+                • test_lexical_relation_exposes_source_identifier()
+                • test_lexical_relation_exposes_target_identifier()
+                • test_lexical_relation_exposes_directed()
+                • test_lexical_relation_exposes_weight()
+                • test_lexical_relation_exposes_confidence()
+                • test_lexical_relation_exposes_source_dictionary()
+                • test_lexical_relation_preserves_metadata()
+                • test_lexical_relation_can_be_undirected()
+                • test_lexical_relation_default_weight()
+                • test_lexical_relation_default_confidence()
+          📄 test_lexical_source.py
+              ⚙️ Functions:
+                • test_lexical_source_stores_identifier_and_name()
+                • test_lexical_source_default_optional_fields()
+                • test_lexical_source_preserves_full_source_information()
+                • test_display_name_returns_name()
+                • test_display_text_without_version()
+                • test_display_text_with_version()
+                • test_display_description_returns_description()
+                • test_has_version()
+                • test_has_publisher()
+                • test_has_editor()
+                • test_has_website()
+                • test_lexical_source_is_immutable()
+                • test_string_representation_without_version()
+                • test_string_representation_with_version()
+        📂 registries/
+          📄 test_lexical_registry.py
+              ⚙️ Functions:
+                • make_source()
+                • make_lexeme(identifier)
+                • make_dictionary_entry(identifier)
+                • make_dictionary_sense(identifier)
+                • make_lexical_relation(identifier)
+                • test_registry_starts_empty()
+                • test_add_registers_lexical_object()
+                • test_register_many_registers_all_objects()
+                • test_lookup_unknown_identifier_returns_none()
+                • test_exists_reports_registered_identifier()
+                • test_remove_removes_registered_object()
+                • test_clear_removes_all_objects()
+                • test_identifiers_returns_registered_identifiers()
+                • test_items_returns_identifier_object_pairs()
+                • test_iteration_returns_registered_objects()
+                • test_lexemes_returns_only_lexemes()
+                • test_dictionary_entries_returns_only_dictionary_entries()
+                • test_dictionary_senses_returns_only_dictionary_senses()
+                • test_lexical_relations_returns_only_lexical_relations()
+                • test_typed_projections_are_empty_when_no_matching_objects_exist()
+          📄 test_lexical_source_catalog.py
+              ⚙️ Functions:
+                • make_source(identifier, name)
+                • test_empty_catalog_has_no_sources()
+                • test_register_returns_source()
+                • test_register_stores_source_by_identifier()
+                • test_get_returns_none_for_unknown_source()
+                • test_require_returns_registered_source()
+                • test_require_unknown_source_raises_key_error()
+                • test_exists_reports_registered_source()
+                • test_contains_supports_identifier_membership()
+                • test_register_many_registers_all_sources()
+                • test_constructor_accepts_sources()
+                • test_duplicate_identifier_is_rejected()
+                • test_empty_identifier_is_rejected()
+                • test_whitespace_identifier_is_rejected()
+                • test_identifier_lookup_is_trimmed()
+                • test_non_string_identifier_is_rejected()
+                • test_non_lexical_source_is_rejected()
+                • test_identifiers_preserve_registration_order()
+                • test_sources_preserve_registration_order()
+                • test_iteration_returns_registered_sources()
+                • test_len_returns_source_count()
+                • test_remove_returns_removed_source()
+                • test_remove_unknown_source_raises_key_error()
+                • test_clear_removes_all_sources()
+        📂 repositories/
+          📄 test_in_memory_lexical_repository.py
+              ⚙️ Functions:
+                • source()
+                • repository(source)
+                • lexeme()
+                • entry()
+                • sense()
+                • test_repository_requires_lexical_source()
+                • test_repository_exposes_source(repository, source)
+                • test_repository_starts_empty(repository)
+                • test_add_registers_lexeme(repository, lexeme)
+                • test_add_registers_dictionary_entry(repository, entry)
+                • test_add_registers_dictionary_sense(repository, sense)
+                • test_add_rejects_unknown_object(repository)
+                • test_add_many_registers_all_objects(repository, lexeme, entry, sense)
+                • test_lookup_returns_none_for_unknown_identifier(repository)
+                • test_identifier_is_normalized_to_string(repository, lexeme)
+                • test_find_by_lemma_returns_matching_lexeme(repository, lexeme)
+                • test_find_by_lemma_returns_matching_entry(repository, entry)
+                • test_find_by_lemma_returns_both_matching_objects(repository, lexeme, entry)
+                • test_find_by_lemma_returns_empty_tuple_when_missing(repository)
+                • test_find_by_transliteration_returns_matching_objects(repository, lexeme, entry)
+                • test_find_by_transliteration_returns_empty_tuple_when_missing(repository)
+                • test_contains_checks_all_lexical_object_types(repository, lexeme, entry, sense)
+                • test_general_search_finds_lexeme(repository, lexeme)
+                • test_general_search_finds_entry(repository, entry)
+                • test_general_search_finds_sense(repository, sense)
+                • test_general_search_finds_by_identifier(repository, lexeme)
+                • test_general_search_returns_empty_tuple_when_missing(repository)
+                • test_counts_track_registered_objects(repository, lexeme, entry, sense)
+                • test_readding_same_identifier_replaces_object(repository, lexeme)
+                • test_clear_removes_all_objects(repository, lexeme, entry, sense)
+          📄 test_lexical_repository.py
+              ⚙️ Functions:
+                • test_lexical_repository_is_abstract()
+                • test_repository_cannot_be_instantiated_directly()
+                • test_repository_exposes_source()
+                • test_get_lexeme_contract()
+                • test_get_entry_contract()
+                • test_get_sense_contract()
+                • test_find_by_lemma_contract()
+                • test_find_by_transliteration_contract()
+                • test_contains_contract()
+                • test_search_contract()
+                • test_repository_source_is_lexical_source()
+                • test_repository_lookup_return_annotations_are_domain_objects()
+                • test_repository_defines_all_required_operations()
+              🏗️ Classes:
+                • class StubLexicalRepository:
+                  - __init__(self)
+                  - source(self)
+                  - get_lexeme(self, identifier)
+                  - get_entry(self, identifier)
+                  - get_sense(self, identifier)
+                  - find_by_lemma(self, lemma)
+                  - find_by_transliteration(self, transliteration)
+                  - contains(self, identifier)
+                  - search(self, query)
+        📂 validators/
+          📄 test_dictionary_entry_validator.py
+              🔹 Constants:
+                • _UNSET
+              ⚙️ Functions:
+                • make_source()
+                • make_metadata()
+                • make_dictionary_entry(identifier, source, metadata)
+                • test_valid_dictionary_entry_passes_validation()
+                • test_valid_dictionary_entry_has_no_errors()
+                • test_empty_identifier_produces_lex001()
+                • test_empty_identifier_issue_has_identifier_field()
+                • test_empty_identifier_issue_has_message()
+                • test_missing_source_produces_lex002()
+                • test_missing_source_issue_has_source_field()
+                • test_missing_source_issue_has_message()
+                • test_missing_metadata_produces_lex003()
+                • test_missing_metadata_issue_has_metadata_field()
+                • test_missing_metadata_issue_has_message()
+                • test_empty_identifier_and_missing_metadata_report_both()
+                • test_empty_identifier_and_missing_source_report_both()
+                • test_missing_source_and_metadata_report_both()
+                • test_all_invalid_conditions_report_all_issues()
+                • test_validator_can_be_reused()
+                • test_validator_does_not_retain_previous_issues()
+          📄 test_dictionary_sense_validator.py
+              ⚙️ Functions:
+                • make_metadata()
+                • make_dictionary_sense()
+                • test_valid_dictionary_sense_passes_validation()
+                • test_valid_dictionary_sense_has_no_validation_errors()
+                • test_valid_dictionary_sense_has_no_issues()
+                • test_empty_identifier_produces_lex001()
+                • test_empty_identifier_issue_has_identifier_field()
+                • test_empty_identifier_issue_has_message()
+                • test_whitespace_identifier_is_not_treated_as_empty()
+                • test_missing_metadata_produces_lex002()
+                • test_missing_metadata_issue_has_metadata_field()
+                • test_missing_metadata_issue_has_message()
+                • test_empty_identifier_and_missing_metadata_report_both_issues()
+                • test_all_invalid_conditions_report_all_issues()
+                • test_validator_accepts_sense_with_metadata_values()
+                • test_metadata_object_itself_is_not_validated_for_empty_definition()
+                • test_metadata_object_itself_is_not_validated_for_empty_gloss()
+                • test_validator_can_be_reused()
+                • test_validator_does_not_retain_previous_issues()
+                • test_valid_result_contains_no_errors()
+                • test_invalid_result_contains_errors()
+          📄 test_lexeme_validator.py
+              ⚙️ Functions:
+                • make_lexeme(identifier, metadata)
+                • test_valid_lexeme_passes_validation()
+                • test_valid_lexeme_has_no_validation_errors()
+                • test_empty_identifier_produces_lex001()
+                • test_empty_identifier_issue_has_identifier_field()
+                • test_empty_identifier_issue_has_message()
+                • test_missing_metadata_produces_lex002()
+                • test_missing_metadata_issue_has_metadata_field()
+                • test_missing_metadata_issue_has_message()
+                • test_empty_identifier_and_missing_metadata_report_both_issues()
+                • test_validation_returns_validation_result()
+                • test_validator_can_be_reused()
+                • test_validator_accepts_lexeme_with_metadata_values()
+                • test_validation_does_not_modify_valid_lexeme()
+                • test_validation_does_not_modify_invalid_lexeme()
+          📄 test_lexical_relation_validator.py
+              ⚙️ Functions:
+                • make_metadata()
+                • make_lexical_relation()
+                • test_valid_lexical_relation_passes_validation()
+                • test_valid_lexical_relation_has_no_validation_errors()
+                • test_valid_lexical_relation_has_no_issues()
+                • test_whitespace_identifier_is_not_treated_as_empty()
+                • test_missing_identifier_produces_lex001()
+                • test_missing_identifier_issue_has_identifier_field()
+                • test_missing_identifier_issue_has_message()
+                • test_missing_source_identifier_produces_lex002()
+                • test_missing_source_identifier_issue_has_source_field()
+                • test_missing_source_identifier_issue_has_message()
+                • test_missing_target_identifier_produces_lex003()
+                • test_missing_target_identifier_issue_has_target_field()
+                • test_missing_target_identifier_issue_has_message()
+                • test_missing_metadata_produces_lex004()
+                • test_missing_metadata_issue_has_metadata_field()
+                • test_missing_metadata_issue_has_message()
+                • test_empty_identifier_and_missing_source_report_both()
+                • test_empty_identifier_and_missing_target_report_both()
+                • test_missing_source_and_target_report_both()
+                • test_empty_identifier_and_missing_metadata_report_both()
+                • test_all_invalid_conditions_report_all_issues()
+                • test_missing_metadata_does_not_attempt_child_metadata_validation()
+                • test_validator_accepts_relation_with_metadata_values()
+                • test_validator_can_be_reused()
+                • test_validator_does_not_retain_previous_issues()
+                • test_valid_result_contains_no_errors()
+          📄 test_lexical_source_validator.py
+              ⚙️ Functions:
+                • make_lexical_source()
+                • test_valid_lexical_source_passes_validation()
+                • test_valid_lexical_source_has_no_validation_errors()
+                • test_valid_lexical_source_has_no_issues()
+                • test_whitespace_identifier_is_not_treated_as_empty()
+                • test_whitespace_name_is_not_treated_as_empty()
+                • test_missing_identifier_produces_lex001()
+                • test_missing_identifier_issue_has_identifier_field()
+                • test_missing_identifier_issue_has_message()
+                • test_missing_name_produces_lex002()
+                • test_missing_name_issue_has_name_field()
+                • test_missing_name_issue_has_message()
+                • test_empty_identifier_and_missing_name_report_both()
+                • test_all_invalid_conditions_report_all_issues()
+                • test_optional_source_information_does_not_affect_validation()
+                • test_empty_optional_source_information_is_valid()
+                • test_display_name_returns_source_name()
+                • test_display_text_without_version_returns_name()
+                • test_display_text_with_version_includes_version()
+                • test_display_description_returns_description()
+                • test_has_version_is_false_when_version_is_empty()
+                • test_has_version_is_true_when_version_is_present()
+                • test_has_publisher_is_false_when_publisher_is_empty()
+                • test_has_publisher_is_true_when_publisher_is_present()
+                • test_has_editor_is_false_when_editor_is_empty()
+                • test_has_editor_is_true_when_editor_is_present()
+                • test_has_website_is_false_when_website_is_empty()
+                • test_has_website_is_true_when_website_is_present()
+                • test_validator_can_be_reused()
+                • test_validator_does_not_retain_previous_issues()
+                • test_valid_result_contains_no_errors()
       📂 panini/
         📄 test_conflict_pipeline.py
             🏗️ Classes:

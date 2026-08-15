@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -75,9 +74,6 @@ class SamasaRuleSet(
         """
         Applies every matching Samasa rule and returns
         unique candidates in insertion order.
-
-        Candidate values may be hashable or unhashable.
-        Equality, rather than hashing, defines uniqueness.
         """
         candidates: list[Any] = []
 
@@ -85,13 +81,7 @@ class SamasaRuleSet(
             if rule.applies_to(context):
                 candidates.extend(rule.apply(context))
 
-        unique_candidates: list[Any] = []
-
-        for candidate in candidates:
-            if candidate not in unique_candidates:
-                unique_candidates.append(candidate)
-
-        return tuple(unique_candidates)
+        return tuple(dict.fromkeys(candidates))
 
     def __len__(self) -> int:
         return len(self.rules)

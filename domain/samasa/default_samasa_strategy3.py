@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -10,20 +9,15 @@ Default Samasa Strategy
 Canonical Samasa strategy built on top of a SamasaRuleSet.
 
 This implementation delegates Samasa analysis to the canonical
-rule bundle and returns a typed SamasaResult containing a
-SamasaAnalysisCollection.
+rule bundle and returns a SamasaResult.
 
 Version
 -------
-v1.2.0
+v1.1.0
 """
 
 from SanskritAI.domain.samasa.default_samasa_rule_set import (
     default_samasa_rule_set,
-)
-from SanskritAI.domain.samasa.samasa_analysis import SamasaAnalysis
-from SanskritAI.domain.samasa.samasa_analysis_collection import (
-    SamasaAnalysisCollection,
 )
 from SanskritAI.domain.samasa.samasa_context import SamasaContext
 from SanskritAI.domain.samasa.samasa_diagnostic import SamasaDiagnostic
@@ -75,20 +69,13 @@ class DefaultSamasaStrategy(
         """
         Analyzes the supplied Samasa context using the
         configured rule set.
-
-        Rule candidates are converted into the canonical
-        SamasaAnalysis / SamasaAnalysisCollection model
-        before being wrapped in SamasaResult.
         """
         candidates = self.rule_set.apply(context)
 
-        # ---------------------------------------------------------
-        # No candidates
-        # ---------------------------------------------------------
         if not candidates:
             return SamasaResult(
                 context=context,
-                analyses=SamasaAnalysisCollection(),
+                value=tuple(),
                 succeeded=False,
                 confidence=0.0,
                 diagnostics=(
@@ -104,36 +91,12 @@ class DefaultSamasaStrategy(
                 ),
             )
 
-        # ---------------------------------------------------------
-        # Convert rule candidates into canonical analysis object.
-        #
-        # A single rule-set application represents one analysis
-        # operation for the supplied subject. The produced rule
-        # candidates therefore become the outputs of that analysis.
-        # ---------------------------------------------------------
-        analysis = SamasaAnalysis(
-            identifier=context.identifier,
-            subject=context.subject,
-            outputs=tuple(candidates),
-            analyzer=self.display_name,
-            confidence=(
-                1.0
-                if len(candidates) == 1
-                else 0.75
-            ),
-        )
+        confidence = 1.0 if len(candidates) == 1 else 0.75
 
-        analyses = SamasaAnalysisCollection(
-            analyses=(analysis,),
-        )
-
-        # ---------------------------------------------------------
-        # Return the canonical typed SamasaResult.
-        # ---------------------------------------------------------
         return SamasaResult(
             context=context,
-            analyses=analyses,
+            value=candidates,
             succeeded=True,
-            confidence=analysis.confidence,
+            confidence=confidence,
             diagnostics=tuple(),
         )

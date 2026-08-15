@@ -1,5 +1,5 @@
 # Excluded Files
-Generated: 2026-08-14T23:20:30.003722Z
+Generated: 2026-08-15T18:24:17.696951Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - application/execution_context1.py  — stem_ends_with_digits
@@ -53,6 +53,7 @@ Generated: 2026-08-14T23:20:30.003722Z
 - domain/vakya/upstream_vakya_rules1.py  — stem_ends_with_digits
 - domain/vakya/vakya_resolver1.py  — stem_ends_with_digits
 - domain/vakya/vakya_result1.py  — stem_ends_with_digits
+- domain/vakya/vakya_rule_set1.py  — stem_ends_with_digits
 - domain/resolution/default_resolution_pipeline1.py  — stem_ends_with_digits
 - domain/resolution/default_resolution_pipeline2.py  — stem_ends_with_digits
 - domain/resolution/default_resolution_pipeline3.py  — stem_ends_with_digits
@@ -146,7 +147,9 @@ Generated: 2026-08-14T23:20:30.003722Z
 - domain/samasa/default_samasa_rule_set2.py  — stem_ends_with_digits
 - domain/samasa/default_samasa_strategy1.py  — stem_ends_with_digits
 - domain/samasa/default_samasa_strategy2.py  — stem_ends_with_digits
+- domain/samasa/default_samasa_strategy3.py  — stem_ends_with_digits
 - domain/samasa/samasa_result1.py  — stem_ends_with_digits
+- domain/samasa/samasa_rule_set1.py  — stem_ends_with_digits
 - domain/samasa/samasa_service1.py  — stem_ends_with_digits
 - domain/grammar/default_grammar_analyzer1.py  — stem_ends_with_digits
 - domain/grammar/default_grammar_analyzer2.py  — stem_ends_with_digits
@@ -161,13 +164,17 @@ Generated: 2026-08-14T23:20:30.003722Z
 - domain/derivation/default_derivation_strategy4.py  — stem_ends_with_digits
 - domain/derivation/derivation_result1.py  — stem_ends_with_digits
 - domain/derivation/derivation_result2.py  — stem_ends_with_digits
+- domain/derivation/derivation_rule_set1.py  — stem_ends_with_digits
 - domain/pratyaya/default_pratyaya_repository1.py  — stem_ends_with_digits
 - domain/pratyaya/default_pratyaya_rule_set1.py  — stem_ends_with_digits
 - domain/pratyaya/default_pratyaya_rule_set2.py  — stem_ends_with_digits
 - domain/pratyaya/default_pratyaya_strategy1.py  — stem_ends_with_digits
 - domain/pratyaya/default_pratyaya_strategy2.py  — stem_ends_with_digits
 - domain/pratyaya/default_pratyaya_strategy3.py  — stem_ends_with_digits
+- domain/pratyaya/pratyaya_analysis_collection1.py  — stem_ends_with_digits
+- domain/pratyaya/pratyaya_analysis_collection2.py  — stem_ends_with_digits
 - domain/pratyaya/pratyaya_result1.py  — stem_ends_with_digits
+- domain/pratyaya/pratyaya_rule_set1.py  — stem_ends_with_digits
 - domain/pratyaya/specific_pratyaya_rules1.py  — stem_ends_with_digits
 - domain/pipeline/default_derivation_pipeline1.py  — stem_ends_with_digits
 - domain/lexical/default_lexical_resolution_strategy1.py  — stem_ends_with_digits
@@ -228,6 +235,7 @@ Generated: 2026-08-14T23:20:30.003722Z
 - tests/domain/reader/test_reader_workspace1.py  — stem_ends_with_digits
 - tests/domain/reader/test_reader_workspace_integration1.py  — stem_ends_with_digits
 - tests/domain/reader/test_reader_workspace_integration2.py  — stem_ends_with_digits
+- tests/domain/pratyaya/test_pratyaya_analysis_collection1.py  — stem_ends_with_digits
 - tests/panini/testing/panini_test_case1.py  — stem_ends_with_digits
 - tests/panini/mocks/mock_rule1.py  — stem_ends_with_digits
 - tests/panini/mocks/mock_rule2.py  — stem_ends_with_digits
@@ -259,6 +267,7 @@ Generated: 2026-08-14T23:20:30.003722Z
 - lexical/models/lexical_relation_metadata1.py  — stem_ends_with_digits
 - lexical/models/x1_dictionary_entry1.py  — starts_with_x1_
 - lexical/models/x1_dictionary_entry_metadata1.py  — starts_with_x1_
+- models/word1.py  — stem_ends_with_digits
 - models/enums/script1.py  — stem_ends_with_digits
 - corpus/builders/node_builder1.py  — stem_ends_with_digits
 - corpus/builders/token_builder1.py  — stem_ends_with_digits
