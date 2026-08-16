@@ -1,5 +1,5 @@
 # Excluded Files
-Generated: 2026-08-15T18:24:17.696951Z
+Generated: 2026-08-16T06:02:37.620701Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - application/execution_context1.py  — stem_ends_with_digits
@@ -187,6 +187,7 @@ Generated: 2026-08-15T18:24:17.696951Z
 - domain/lexical/lexical_service1.py  — stem_ends_with_digits
 - domain/lexical/lexical_service2.py  — stem_ends_with_digits
 - domain/lexical/lexical_service3.py  — stem_ends_with_digits
+- domain/lexical/validators/lexical_relation_validator1.py  — stem_ends_with_digits
 - ai/agent1.py  — stem_ends_with_digits
 - ai/default_agent1.py  — stem_ends_with_digits
 - ai/default_reasoner1.py  — stem_ends_with_digits
@@ -244,6 +245,7 @@ Generated: 2026-08-15T18:24:17.696951Z
 - tests/panini/mocks/mock_rule5.py  — stem_ends_with_digits
 - tests/lexical/sample_lexemes1.py  — stem_ends_with_digits
 - tests/lexical/validators/test_dictionary_entry_validator1.py  — stem_ends_with_digits
+- tests/lexical/validators/test_lexeme_validator1.py  — stem_ends_with_digits
 - tests/lexical/validators/test_lexical_source_validator1.py  — stem_ends_with_digits
 - tests/lexical/registries/test_lexical_registry1.py  — stem_ends_with_digits
 - tests/lexical/models/test_lexical_source1.py  — stem_ends_with_digits

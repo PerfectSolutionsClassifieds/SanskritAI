@@ -5609,6 +5609,25 @@
                 - display_text(self)
                 - display_description(self)
                 - resolve(self, state)
+        📄 dictionary_entry.py
+            🏗️ Classes:
+              • class DictionaryEntry:
+                - __post_init__(self)
+                - has_senses(self)
+                - sense_count(self)
+                - is_empty(self)
+        📄 dictionary_sense.py
+            🏗️ Classes:
+              • class DictionarySense:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - example_count(self)
+                - has_examples(self)
+                - has_source(self)
+                - has_grammatical_label(self)
+                - has_transliteration(self)
+                - __str__(self)
         📄 lemma.py
             🏗️ Classes:
               • class Lemma:
@@ -5671,6 +5690,17 @@
                 - repository(self)
                 - ranking_policy(self)
                 - lookup(self, context)
+        📄 lexical_relation.py
+            🏗️ Classes:
+              • class LexicalRelation:
+                - __post_init__(self)
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - identity(self)
+                - has_notes(self)
+                - to_dict(self)
+                - __str__(self)
         📄 lexical_repository.py
             🏗️ Classes:
               • class LexicalRepository:
@@ -5741,6 +5771,19 @@
                 - all_entries(self)
                 - count(self)
                 - __str__(self)
+        📄 lexical_source.py
+            🏗️ Classes:
+              • class LexicalSource:
+                - __post_init__(self)
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - has_version(self)
+                - has_description(self)
+                - has_url(self)
+                - canonical_name(self)
+                - to_dict(self)
+                - __str__(self)
         📄 lookup_candidate.py
             🏗️ Classes:
               • class LookupCandidate:
@@ -5774,6 +5817,43 @@
                 - canonical_form(self)
                 - is_lemma(self)
                 - __str__(self)
+        📂 validators/
+          📄 base_lexical_validator.py
+              🏗️ Classes:
+                • class BaseLexicalValidator:
+                  - validate(self, obj)
+                  - success()
+                  - result_from_issues(*issues)
+                  - error()
+                  - warning()
+                  - info()
+                  - is_blank(value)
+                  - text_error()
+          📄 dictionary_entry_validator.py
+              🏗️ Classes:
+                • class DictionaryEntryValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
+          📄 dictionary_sense_validator.py
+              🏗️ Classes:
+                • class DictionarySenseValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
+          📄 lexeme_validator.py
+              🏗️ Classes:
+                • class LexemeValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
+          📄 lexical_relation_validator.py
+              🏗️ Classes:
+                • class LexicalRelationValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
+          📄 lexical_source_validator.py
+              🏗️ Classes:
+                • class LexicalSourceValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
       📂 morphology/
         📄 default_morphological_analyzer.py
             🏗️ Classes:
@@ -10412,6 +10492,144 @@
                   - identifier(self)
                   - applies_to(self, context)
                   - apply(self, context)
+          📂 validators/
+            📄 test_dictionary_entry_validator.py
+                ⚙️ Functions:
+                  • make_entry()
+                  • test_valid_dictionary_entry_passes_validation()
+                  • test_validator_supports_dictionary_entry()
+                  • test_validator_rejects_arbitrary_object()
+                  • test_empty_identifier_is_invalid()
+                  • test_whitespace_identifier_is_invalid()
+                  • test_empty_lemma_is_invalid()
+                  • test_whitespace_lemma_is_invalid()
+                  • test_empty_language_is_invalid()
+                  • test_empty_source_produces_warning()
+                  • test_source_is_not_required_for_structural_validity()
+                  • test_empty_transliteration_is_allowed()
+                  • test_empty_description_is_allowed()
+                  • test_empty_senses_are_allowed()
+                  • test_valid_sense_identifiers_are_accepted()
+                  • test_multiple_invalid_required_fields_are_reported()
+                  • test_invalid_object_returns_validation_result()
+                  • test_invalid_object_produces_dic001()
+                  • test_validator_can_be_reused()
+                  • test_dictionary_entry_is_immutable()
+                  • test_dictionary_entry_reports_senses()
+                  • test_dictionary_entry_without_senses_reports_no_senses()
+                  • test_validator_does_not_mutate_entry()
+            📄 test_dictionary_sense_validator.py
+                ⚙️ Functions:
+                  • make_sense()
+                  • test_valid_dictionary_sense_passes_validation()
+                  • test_validator_supports_dictionary_sense()
+                  • test_validator_rejects_arbitrary_object()
+                  • test_empty_identifier_is_invalid()
+                  • test_whitespace_identifier_is_invalid()
+                  • test_empty_entry_id_is_invalid()
+                  • test_whitespace_entry_id_is_invalid()
+                  • test_empty_meaning_is_invalid()
+                  • test_whitespace_meaning_is_invalid()
+                  • test_empty_language_is_invalid()
+                  • test_empty_source_produces_warning()
+                  • test_empty_source_does_not_make_sense_invalid()
+                  • test_empty_transliteration_is_allowed()
+                  • test_empty_grammatical_label_is_allowed()
+                  • test_empty_usage_is_allowed()
+                  • test_empty_examples_are_allowed()
+                  • test_valid_examples_are_accepted()
+                  • test_multiple_required_fields_are_reported()
+                  • test_invalid_object_returns_validation_result()
+                  • test_invalid_object_produces_ds001()
+                  • test_validator_can_be_reused()
+                  • test_dictionary_sense_is_immutable()
+                  • test_dictionary_sense_reports_examples()
+                  • test_dictionary_sense_without_examples_reports_no_examples()
+                  • test_dictionary_sense_reports_source()
+                  • test_dictionary_sense_reports_grammatical_label()
+                  • test_dictionary_sense_reports_transliteration()
+                  • test_dictionary_sense_display_name_is_meaning()
+                  • test_dictionary_sense_display_text_uses_transliteration()
+                  • test_dictionary_sense_string_uses_display_text()
+            📄 test_lexeme_validator.py
+                ⚙️ Functions:
+                  • make_lexeme()
+                  • test_valid_lexeme_passes_validation()
+                  • test_valid_lexeme_has_no_errors()
+                  • test_validator_supports_lexeme()
+                  • test_validator_does_not_support_arbitrary_object()
+                  • test_empty_identifier_produces_lex001()
+                  • test_whitespace_identifier_produces_lex001()
+                  • test_identifier_issue_targets_identifier_field()
+                  • test_empty_lemma_produces_lex002()
+                  • test_whitespace_lemma_produces_lex002()
+                  • test_lemma_issue_targets_lemma_field()
+                  • test_empty_language_produces_lex003()
+                  • test_empty_script_produces_lex004()
+                  • test_default_language_and_script_are_valid()
+                  • test_empty_transliteration_is_not_fatal()
+                  • test_whitespace_transliteration_produces_warning()
+                  • test_description_is_optional()
+                  • test_empty_alias_set_is_valid()
+                  • test_valid_aliases_are_accepted()
+                  • test_multiple_invalid_required_fields_report_multiple_issues()
+                  • test_validator_can_be_reused()
+                  • test_validation_does_not_mutate_lexeme()
+                  • test_invalid_object_returns_validation_result()
+                  • test_invalid_object_produces_lex000()
+            📄 test_lexical_relation_validator.py
+                ⚙️ Functions:
+                  • make_relation()
+                  • issue_codes(result)
+                  • test_supports_lexical_relation()
+                  • test_does_not_support_unrelated_object()
+                  • test_valid_relation_passes()
+                  • test_empty_relation_id_is_invalid()
+                  • test_blank_relation_id_is_invalid()
+                  • test_empty_source_lexeme_id_is_invalid()
+                  • test_blank_source_lexeme_id_is_invalid()
+                  • test_empty_target_lexeme_id_is_invalid()
+                  • test_blank_target_lexeme_id_is_invalid()
+                  • test_self_relation_produces_warning()
+                  • test_notes_are_optional()
+                  • test_relation_type_is_preserved()
+                  • test_relation_identity_is_stable()
+                  • test_relation_to_dict_is_json_compatible()
+                  • test_display_name_uses_relation_type()
+                  • test_display_text_contains_relation()
+                  • test_string_representation_uses_display_text()
+                  • test_relation_is_immutable()
+                  • test_relation_normalizes_text_fields()
+            📄 test_lexical_source_validator.py
+                ⚙️ Functions:
+                  • make_source()
+                  • issue_codes(result)
+                  • test_supports_lexical_source()
+                  • test_does_not_support_unrelated_object()
+                  • test_valid_source_passes()
+                  • test_empty_source_id_is_invalid()
+                  • test_blank_source_id_is_invalid()
+                  • test_empty_name_is_invalid()
+                  • test_blank_name_is_invalid()
+                  • test_source_type_is_preserved()
+                  • test_language_is_required()
+                  • test_script_is_required()
+                  • test_version_is_optional()
+                  • test_description_is_optional()
+                  • test_https_url_is_valid()
+                  • test_http_url_is_valid()
+                  • test_non_http_url_produces_warning()
+                  • test_display_name_uses_source_name()
+                  • test_display_text_without_version()
+                  • test_display_text_with_version()
+                  • test_canonical_name_uses_dictionary_source()
+                  • test_to_dict_serializes_source()
+                  • test_source_is_immutable()
+                  • test_source_normalizes_text_fields()
+                  • test_has_version()
+                  • test_has_description()
+                  • test_has_url()
+                  • test_string_representation_uses_display_text()
         📂 pratyaya/
           📄 test_pratyaya_analysis_collection.py
               ⚙️ Functions:
@@ -11488,23 +11706,6 @@
                 • test_validator_does_not_retain_previous_issues()
                 • test_valid_result_contains_no_errors()
                 • test_invalid_result_contains_errors()
-          📄 test_lexeme_validator.py
-              ⚙️ Functions:
-                • make_lexeme(identifier, metadata)
-                • test_valid_lexeme_passes_validation()
-                • test_valid_lexeme_has_no_validation_errors()
-                • test_empty_identifier_produces_lex001()
-                • test_empty_identifier_issue_has_identifier_field()
-                • test_empty_identifier_issue_has_message()
-                • test_missing_metadata_produces_lex002()
-                • test_missing_metadata_issue_has_metadata_field()
-                • test_missing_metadata_issue_has_message()
-                • test_empty_identifier_and_missing_metadata_report_both_issues()
-                • test_validation_returns_validation_result()
-                • test_validator_can_be_reused()
-                • test_validator_accepts_lexeme_with_metadata_values()
-                • test_validation_does_not_modify_valid_lexeme()
-                • test_validation_does_not_modify_invalid_lexeme()
           📄 test_lexical_relation_validator.py
               ⚙️ Functions:
                 • make_metadata()

@@ -1,4 +1,4 @@
-"SanskritAI as on ::::: 15-08-2026 04:50:15"
+"SanskritAI as on ::::: 15-08-2026 23:54:06"
 SanskritAI/
 ├── .git
 │   ├── COMMIT_EDITMSG
@@ -40,6 +40,7 @@ SanskritAI/
 │   │   │   └── c9f138d711caef7e79320e5dfa1be7447e6f8f
 │   │   ├── 01
 │   │   │   ├── 1ca5e54bb3646716eac0e9ca5671b4746c2333
+│   │   │   ├── 65aa21855341951d6e57632d37c16b88904252
 │   │   │   ├── b248d6b5061b3630e3bde19cd3e3fe97ef6ffa
 │   │   │   ├── ddc120a813c2131e698141d7c37ba5a9f1d94b
 │   │   │   └── e5ff1b15b062cb0067c700166b9ee966e78559
@@ -119,13 +120,15 @@ SanskritAI/
 │   │   │   ├── 9cc472fc3b17fa55e7596b5962b491499be47b
 │   │   │   ├── 9ebc434923edb9c66e8fe68eea3c9beeba8018
 │   │   │   ├── c19f1cc1faf759742f24313bae69af4d8f4a19
-│   │   │   └── f0660efc3202a15eab91eaca38fe7002c49e18
+│   │   │   ├── f0660efc3202a15eab91eaca38fe7002c49e18
+│   │   │   └── f1c0f4965c655332524835d35bf117f474a6da
 │   │   ├── 0e
 │   │   │   ├── 4d43c581c75fb3b5e733bebcac1f567c4c2d5b
 │   │   │   ├── 5f1be489440666497352a43b89dd8461b0fd20
 │   │   │   ├── 5f51a29a274b32a2f46d078c29dfd643b4698e
 │   │   │   ├── 705dfba902ceb4252b060a2618d6199b5677c7
 │   │   │   ├── 88c53b8fea1b92f403feb81964d0b9a2310031
+│   │   │   ├── 9f6e0cd40f5f222ec0b32243c1e07169865f4d
 │   │   │   ├── a3a944b399d25f7e1b8fe684d754eb8da9fe7f
 │   │   │   ├── b08f1d74cfe249d671ebaec33bb5e4f0022761
 │   │   │   ├── bcc37e355a1fb31eb854cdb8a897524ff7a16b
@@ -182,6 +185,7 @@ SanskritAI/
 │   │   │   └── c3795aa48c2a57b0a31cdfca76a5d6ce065c1e
 │   │   ├── 18
 │   │   │   ├── 06b04a3391bbaa145dfae604d7e9c712dced82
+│   │   │   ├── 37cdea96f63db54ee018cc7808cd3db12d9ced
 │   │   │   ├── c2a59d074296f3ce2f2c906031f3eb0e7550e6
 │   │   │   ├── cce04e9a9433db913a0c436d9efc69c911a0ea
 │   │   │   └── d2828b0f170311c7ffcfcb69041e2ce226d1c0
@@ -241,12 +245,14 @@ SanskritAI/
 │   │   │   ├── 31c331a1c4bef80117620ee03dd9e056d27a7a
 │   │   │   ├── 5b85ad67875a367f8446d09966ab3f267c2c5b
 │   │   │   ├── 6b31e3f24849ac6503fe27ae58820f1569d53b
-│   │   │   └── b91a9da924075cad6b5fc24cea95b07d85485e
+│   │   │   ├── b91a9da924075cad6b5fc24cea95b07d85485e
+│   │   │   └── f814633629d9c53753fa843475215be30e6cdd
 │   │   ├── 23
 │   │   │   ├── 107343cce33bdb0eb36db450a6ebeffe49ae3c
 │   │   │   ├── 2fcc208c5da4855d5b8cac66da959fe2434206
 │   │   │   ├── 359307415f9adb1fb12020750ef86183582668
 │   │   │   ├── 45d91c895f47a8721b50fe2fd9fb94ed86f1a4
+│   │   │   ├── 8dfd96922ca4f840f985d8999bae82d0878125
 │   │   │   ├── 92641ba517531078acc0cc4d1c8169133e2c63
 │   │   │   ├── b363896d0adfc7064febc0ad0eedc142228b33
 │   │   │   ├── ce42769317313bfbad32b2b8155c4de7a154f4
@@ -314,7 +320,8 @@ SanskritAI/
 │   │   │   ├── 8683f82dc8526097358689410588a09300a232
 │   │   │   ├── ad8c26a59c01f76209379a8a986f85dae8a48e
 │   │   │   ├── d9d2276c9f5db2ee31c0259203c951e3849590
-│   │   │   └── db84d3180a1b0c316c4844f6090043e56fd8a2
+│   │   │   ├── db84d3180a1b0c316c4844f6090043e56fd8a2
+│   │   │   └── f6427138dba5a5fc52eb02a30136170829abf1
 │   │   ├── 30
 │   │   │   ├── 0475fa4721d509105d5c911cf1156efe4f49de
 │   │   │   ├── 28789cc59692d0828823349bce48c8370662f6
@@ -334,6 +341,7 @@ SanskritAI/
 │   │   │   ├── 6509d239e588813df0d371327533c3141e24f2
 │   │   │   ├── 66e9be9fda80805bf7aa38142875605e909f7e
 │   │   │   ├── 98d9453c06e4643d02cc2483e402594245025f
+│   │   │   ├── ddc77d4e99e93cd4d6822436094b36fa898a3b
 │   │   │   ├── f24e4046090345fe4a895a18b897fbddde554d
 │   │   │   └── f4b19b1d275b9ba73bbdb2531f6bddb7668154
 │   │   ├── 34
@@ -378,7 +386,8 @@ SanskritAI/
 │   │   │   ├── 5edb3418066e176a3a76b8b67674a1e92c54a9
 │   │   │   ├── a6aec0195592bcc528eba607cbecb4865cd229
 │   │   │   ├── cf790f5c2834c58b744184c8bd6074da5cd5b4
-│   │   │   └── ef7fd1a82be15545fe69262fb8d1966e50d62a
+│   │   │   ├── ef7fd1a82be15545fe69262fb8d1966e50d62a
+│   │   │   └── f4ea556561798d6ae3bfc698c5e2bedced6243
 │   │   ├── 3d
 │   │   │   ├── 19cbd0a7f1ee2987c613667bf014cbabd89628
 │   │   │   ├── 628e5abd8c713609926706d4b5d4d9cbbc5470
@@ -390,7 +399,8 @@ SanskritAI/
 │   │   │   ├── 4b5c6a3d79a5f72b7c4ddddb8855f8867507d6
 │   │   │   ├── 55e68972e29492eeb9a63c744f046684728cfa
 │   │   │   ├── b5343715bbea96690e8022936ebb90125c5d8d
-│   │   │   └── c237e568ae8d093e8d2a42e85d5a0a7eda2103
+│   │   │   ├── c237e568ae8d093e8d2a42e85d5a0a7eda2103
+│   │   │   └── d373497fc1961bd576cd4a908fec611e5ebd4f
 │   │   ├── 3f
 │   │   │   ├── 19c30ab2e4129029ee1e14e9e42d5b7ebab127
 │   │   │   ├── 277c7a8798e494ee506a89cda57e28193bca03
@@ -441,7 +451,9 @@ SanskritAI/
 │   │   │   ├── 0658b7ef7f1f79b90d4ffd564053dc86ed0eb2
 │   │   │   ├── 14f11238a485de542728ce726f20d3bdf913e1
 │   │   │   ├── 254a699b182644579ad0c8a7df1cff51c9db49
+│   │   │   ├── 8d00343b315ccb262058ff789ad1a9d47253e9
 │   │   │   ├── 93c3abcf8bf9cdf955c05c62ab4ad682ee761a
+│   │   │   ├── a5442bfead68ef772cda46db193b34f5d46fa6
 │   │   │   ├── aa28594bddb7ed0ed548dca0cf9a849d86ed67
 │   │   │   ├── b21b658ecc8626812629ab2a453e9c90607e07
 │   │   │   └── e4c105a4ce708fe46929bb77b3ce0af5765ea7
@@ -453,7 +465,8 @@ SanskritAI/
 │   │   ├── 47
 │   │   │   ├── 0ea463b7d2f34f5f549877ea76aabfc1b9912c
 │   │   │   ├── 16c50d0297e3d5be757e3f6f36f3c962f5fe89
-│   │   │   └── 4d7d938c9e39b63b65e0f019d048e8ef33fab1
+│   │   │   ├── 4d7d938c9e39b63b65e0f019d048e8ef33fab1
+│   │   │   └── 5d6b4a51346636975afb871745fb60926a1f60
 │   │   ├── 48
 │   │   │   ├── 0b91e907ef1bda0b705f6724d1b1c1c6a4207c
 │   │   │   ├── 74af7709c9554f26de90ee8e2ee95ad0a40af2
@@ -468,8 +481,10 @@ SanskritAI/
 │   │   ├── 4a
 │   │   │   ├── 17ae79ba5fd06dd2afd58edc4684fbfbffa41b
 │   │   │   ├── 1b5fd21a11e7627d14a13d281a7a14e4cd6eaf
+│   │   │   ├── 1e3e16e90661c3057a4a42130f3cd22f6e1fb0
 │   │   │   ├── 64fccb99ab8b268e25f77ccf07c94937786007
-│   │   │   └── 7396c0684630029ed0e9a2069cedf592ab0301
+│   │   │   ├── 7396c0684630029ed0e9a2069cedf592ab0301
+│   │   │   └── f47d60c52ec9d0e545ec939667001c0c997c4b
 │   │   ├── 4b
 │   │   │   ├── 325e94b3a1902b1fd8ddf48e84b04a56f5a493
 │   │   │   ├── 3f06b187d389f5bd9e35da46b576e202ed3aaf
@@ -562,7 +577,8 @@ SanskritAI/
 │   │   │   ├── b569b490d33a639c05116d9c2d8c2f50419395
 │   │   │   ├── bcd60c3a6c68586fb9e9374d46a835e14b648e
 │   │   │   ├── d5f693bda1131f32876c360f16f149638e470d
-│   │   │   └── f1586a4cbc2cfd6c195c9c7f72d853026691a1
+│   │   │   ├── f1586a4cbc2cfd6c195c9c7f72d853026691a1
+│   │   │   └── f738f5b76fd6b0a259c77b7dd3872ed494e1d0
 │   │   ├── 5c
 │   │   │   ├── 12bad207d237433c4a8e9628d1e757dc2ab920
 │   │   │   ├── 1aa99a3a76526c593b246ec2acf9945f12a2d0
@@ -671,11 +687,13 @@ SanskritAI/
 │   │   │   ├── 3c33f957737b061b27daf56a89c2df5de50087
 │   │   │   ├── 4f6f382cd339ae5f120cf484a26187ab75ab7b
 │   │   │   ├── b07437c7b4a80135d2d0312c86af2ca9e50cff
-│   │   │   └── d17e92461b79b5301ecad2413e8cde4911c495
+│   │   │   ├── d17e92461b79b5301ecad2413e8cde4911c495
+│   │   │   └── daea8e21501e6bf805845202321519862925aa
 │   │   ├── 6e
 │   │   │   ├── 432c40c65afc025240272d6529590b88ca5d33
 │   │   │   └── 78e78864e87398259a10a7ebcbbb4f598fe17a
 │   │   ├── 6f
+│   │   │   ├── 7741eea4cfe69ad515401a185bcd6390336272
 │   │   │   ├── 7a101a3f626a789e120337fb12323ef4b03644
 │   │   │   ├── 8014f5ab7ddb07ef0664e6699c5d970479b1ea
 │   │   │   ├── 8febb0b85f98f54d5ec2dc4ac5b2f9c6dac2ff
@@ -690,6 +708,7 @@ SanskritAI/
 │   │   │   ├── 01d8c699d4e6a5d5ce75b266cceb664db88938
 │   │   │   ├── 358ac9af480a38a3f48aa499346e37ef6520c7
 │   │   │   ├── 86922438bba3b5d92961d704f9cc05ff8fa16b
+│   │   │   ├── 8f187faf5056363ce5d2d729ba109621e316be
 │   │   │   └── d08818a02844154f64b1cf61075ca8804b3846
 │   │   ├── 73
 │   │   │   ├── 90be5e02350a8cc702d54f6d664d069f7d50f3
@@ -740,7 +759,8 @@ SanskritAI/
 │   │   │   ├── e4395ff8225b274af78fd504d4d99a390a3502
 │   │   │   └── fa2305530b7824dd657cfe2782315a56720410
 │   │   ├── 7d
-│   │   │   └── 5a9d17394b1ada8e7db0d68bd8f1e0a7e8354b
+│   │   │   ├── 5a9d17394b1ada8e7db0d68bd8f1e0a7e8354b
+│   │   │   └── c7f68182825b5ac7b74fcfbde0132ec48ce404
 │   │   ├── 7e
 │   │   │   ├── 7966d42a7290c46e556151e690f03db8fed877
 │   │   │   ├── a7ec74609769cf6f26f557a1844a47fbb62aee
@@ -770,6 +790,7 @@ SanskritAI/
 │   │   │   ├── 57416ad9456f22d8094b3ef02a8370dc1184aa
 │   │   │   └── dee74b2c6a3201d4f5b0d0d6c4357c45912dba
 │   │   ├── 84
+│   │   │   ├── 55a8dd4fb4e313f2a53593d8c726df4c110eef
 │   │   │   ├── 6edf484ae9ff697671c17ce4adca9aab13ba1f
 │   │   │   ├── a4160dbe776469cb76072103e7a2721d6c486a
 │   │   │   └── c1ee079c1af13830e26e98494461cf633bac9f
@@ -837,7 +858,9 @@ SanskritAI/
 │   │   ├── 8f
 │   │   │   └── d916522ef54b08b6b9d8048c1c8ddb766576dc
 │   │   ├── 90
+│   │   │   ├── 5a59e967a55037c5586866aff4a1b5d9d4d8af
 │   │   │   ├── 6f19eb627ff22d42f9e30a51415d7739563187
+│   │   │   ├── 7fcf96d750926fd041fdd30efc9c2e0c3458be
 │   │   │   ├── 93d80c517e923497b215683374fc2f58be3b03
 │   │   │   └── 9b6e3a68cee16b148126817cd08fdac6b14742
 │   │   ├── 91
@@ -860,6 +883,7 @@ SanskritAI/
 │   │   │   ├── 93a1b6bf6b1b2f3ce0c03a8e458cd9e80e0819
 │   │   │   └── e7d15079eb50d8aecb5bc7c3c83c8832cab619
 │   │   ├── 94
+│   │   │   ├── 18d61b85659540bc9007104c76864be88bd18d
 │   │   │   ├── 1c05dc26e1845212613ea130296cc1456faa40
 │   │   │   ├── 586deb912edddabd9812dd977a1ce1e25c8b79
 │   │   │   ├── 6ab56e8a097671655f4768be748d2cc0516170
@@ -873,6 +897,7 @@ SanskritAI/
 │   │   │   └── 67b84eb2c8fadfb8110634eed2178db8409601
 │   │   ├── 96
 │   │   │   ├── 22e28beaeca82d2b5c1472e8bc682e0e82a2ad
+│   │   │   ├── 332d37fe4f99ea16c5531248263089de976e3d
 │   │   │   ├── 88e64352c34bd3b810ffe189ba0e48506a4fdc
 │   │   │   └── e887b5c02152b665b80bbf9933cb8e815c508c
 │   │   ├── 97
@@ -890,6 +915,7 @@ SanskritAI/
 │   │   │   ├── 68ace6cc267044a4d85cb2d56faf1221c74871
 │   │   │   ├── 6d13cb2ac518876676086679f21adbb1c6f145
 │   │   │   ├── 7eb1531334bc025f998d8daad8677ffae52076
+│   │   │   ├── 8f4952e2ab1bdb60909dcc4db558b41b38b010
 │   │   │   ├── 9937ad552b690512717d0c422b8e7d7b75852e
 │   │   │   ├── a595478c980af52255673cd5d33a2887ab74c4
 │   │   │   ├── d07e89b6de36c4c0a3bff381576251157893e2
@@ -913,6 +939,7 @@ SanskritAI/
 │   │   │   ├── 04092064d990e948ca2f495d3b628677df452c
 │   │   │   ├── 079a9f9b5e30e98879fabc5b0cec1ddeb25edd
 │   │   │   ├── 1d077861869b942862a92758ab751ad209faeb
+│   │   │   ├── 81eba8d4b06ddedb3218e9dd25f5f5562fadc3
 │   │   │   ├── a05bdba4e4c327eb1da04b4b355b34ad94afa2
 │   │   │   └── db266c5ae545490c859e5faa34928750ac6df3
 │   │   ├── 9d
@@ -992,7 +1019,8 @@ SanskritAI/
 │   │   │   ├── 273a1597a4c6d5d4a55af33ba6f542bf8dcc6f
 │   │   │   ├── 8e08bd96f05ecca039d687dfcf2e394f7b0757
 │   │   │   ├── 8e55d3bac0f586c305776cadd1798fff4d4f34
-│   │   │   └── a36077992c591a91c48d90479e1ee95afba433
+│   │   │   ├── a36077992c591a91c48d90479e1ee95afba433
+│   │   │   └── b5ec4836f66f8a4e5a7a8b93532c36b62b58d6
 │   │   ├── ab
 │   │   │   ├── 3fc2875fbbbcb8e050493db14edf0c6976cac1
 │   │   │   ├── 5672a3c3886e1269552310d68170585a326974
@@ -1034,7 +1062,9 @@ SanskritAI/
 │   │   │   ├── 74bf7754f2ff5c8a885b27ab5f94d5a65b0554
 │   │   │   └── c6119553010c591b29a25f8e7d9f8750dd620c
 │   │   ├── b0
+│   │   │   ├── 37ce6760541976006375e62bc20a2f46bee3dd
 │   │   │   ├── 8bd79583f2d251b773c5d98f4922bc1448e991
+│   │   │   ├── d58ff5a460df3a52d5e98420fde88b5029ea31
 │   │   │   ├── d896110342d40195023fe8343916976657887a
 │   │   │   └── e287551d28c46ca69a7ad959c9125df8931af8
 │   │   ├── b1
@@ -1112,6 +1142,7 @@ SanskritAI/
 │   │   │   ├── d878c565e6cef8fbba97136057ddb176bf0361
 │   │   │   ├── ec585eb390424a227f66e755cc070ab781f24e
 │   │   │   ├── f4bcdc04d22fd8100b47c3d240ffaca576505c
+│   │   │   ├── f8127a5f50d0d933fe04dcb9778c1088722c14
 │   │   │   └── fc3937f2a989318fce519c9e369573531ce81a
 │   │   ├── be
 │   │   │   ├── 4d548015cec96e19a1a148845d94d83b8e39a6
@@ -1123,6 +1154,7 @@ SanskritAI/
 │   │   │   ├── 26c2360fb8b3b3a3b78bd32884cf2a19c7f435
 │   │   │   ├── 3b6c642e9bc9edd2422a04a0c37c825ffac167
 │   │   │   ├── 64dcf1234e5fe71417a4247ec8f387b939f840
+│   │   │   ├── 9f44fb334e0dabccabac20a3f025d83f83dc56
 │   │   │   └── f78bf6ea4839aac706762c9a614ffd4af5e034
 │   │   ├── c0
 │   │   │   ├── 5fd1aad41adc71c741d48402eec45587eb9dc5
@@ -1203,6 +1235,7 @@ SanskritAI/
 │   │   │   ├── c25b417e543f84cd8919aa28bc9194d809aa2a
 │   │   │   └── ffa8ee645296e35598b8969ef0767294b2a183
 │   │   ├── ce
+│   │   │   ├── 09bd0a73d4528cf1f3f912f3c1e14b7db5f128
 │   │   │   └── bea826a621945ccaefabc4422e769f80da6d70
 │   │   ├── cf
 │   │   │   ├── 1d0a321a7ff5a31f10f0582dd20180d69645ec
@@ -1240,15 +1273,18 @@ SanskritAI/
 │   │   │   └── ee1fcf3bd13ef77f5924ae3a7cb94aa31608f9
 │   │   ├── d5
 │   │   │   ├── ab726c7573a68f0386b52a2958f6b3553bfb77
+│   │   │   ├── b11fd18b832df75facd6e005ebf3bf8f226788
 │   │   │   ├── be19272086aa7b0ab4f9b57f6e24fd159b8558
 │   │   │   ├── d1e9d06737f3977618e6e3e55cd31c5ac161a6
 │   │   │   ├── d52efbcf032f42ccd38c1a71356365da327c92
 │   │   │   └── d9374f6e2dafc73b7f735f3d35c13d7bd314ef
 │   │   ├── d6
-│   │   │   └── 589b07399f70c9adb107bc497031bcbc4d7e20
+│   │   │   ├── 589b07399f70c9adb107bc497031bcbc4d7e20
+│   │   │   └── c8f0864a3ca63221a90ecdef01c4a9b2f312f3
 │   │   ├── d7
 │   │   │   ├── 63bdab1e3d8750cc1f58bd4b29ab76948fc7d8
 │   │   │   ├── 66bb65985d820f8c81b14d67400e0adac272ed
+│   │   │   ├── 96d683f41ec6e689cce9f3a859454d4393003f
 │   │   │   ├── 9cf529a86abd6bb5a460337fb92de262f652fc
 │   │   │   └── afec06eeb6191282dd03832246f773d149fd41
 │   │   ├── d8
@@ -1259,7 +1295,8 @@ SanskritAI/
 │   │   │   ├── 1092d70fd3b7226d360fa30def0db2350c2a92
 │   │   │   ├── 58e11155b765b489215fd66d4215ec708f4272
 │   │   │   ├── 6a21eda083a4d9561108eabd800e95c7ad13d5
-│   │   │   └── 9939729cc13e347e0a391ad845ca90f740a230
+│   │   │   ├── 9939729cc13e347e0a391ad845ca90f740a230
+│   │   │   └── aa79bbfff0a358b7a6a152d0dd0c7fcdb4250d
 │   │   ├── da
 │   │   │   ├── 21f513cc8d894aeb1bcf0fe80d48e339282727
 │   │   │   ├── 31158d62c04d19e6f72a59b8b793da72e6e2c7
@@ -1283,6 +1320,7 @@ SanskritAI/
 │   │   │   ├── 16b898fa3105642bec4cb843f9a231db5b7049
 │   │   │   ├── 3ffe1105ab7f944dd145a0d30eaa30f493780f
 │   │   │   ├── 8168e71643dc493f91f7d2b4eda07fc69ea104
+│   │   │   ├── 93856e435387f6b3f51ba9c0c7b1f657d348c2
 │   │   │   ├── b09280eaab7369befa4763cf05d50d20dad2e9
 │   │   │   ├── c45878e27c3702b658e6014cae47e91425e9d6
 │   │   │   ├── c8a24e8a9f20400feb7e5af529ad316a90753a
@@ -1319,6 +1357,7 @@ SanskritAI/
 │   │   │   └── 9de29bb2d1d6434b8b29ae775ad8c2e48c5391
 │   │   ├── e7
 │   │   │   ├── 4c85e7a6ce9f4f81bb62d2571a20bc870bf61a
+│   │   │   ├── 7722a339c44afcf880f1a797e39e10de3be9de
 │   │   │   └── 7d6f668f9db25e2a927f9d971ab3392fbe64e4
 │   │   ├── e8
 │   │   │   ├── 121312540cd67121ae9d4eab126161af38d9ce
@@ -1327,6 +1366,7 @@ SanskritAI/
 │   │   │   ├── dc3c6f13e4a06909bd2c7c47dd6c113f361785
 │   │   │   └── f8016cc4f8782a49e4e8f4ee27a9add9c1eaa7
 │   │   ├── e9
+│   │   │   ├── 4722bc623fed4545333860d3cf6a239822def2
 │   │   │   ├── 628b84360802123ca58424082a65e399ba0483
 │   │   │   ├── 87df08f37bf729a60aa99bee1deb46a581f018
 │   │   │   ├── 8a39f265c08961491e18bd4d589c0cdddc5d00
@@ -1335,15 +1375,18 @@ SanskritAI/
 │   │   │   ├── 097216e38978a24c8b41a675b652eaee04b080
 │   │   │   ├── 14f4870c28c4775da9d85f6b4becbb50e4946a
 │   │   │   ├── 20ff4aa6b56fb22199cc00afbf8710296b8c14
+│   │   │   ├── 42d70c487073efed28e563ec6ae5727372bd56
 │   │   │   ├── 4be165c9c3d53872c225f6b7c6cc93a2a0b4de
 │   │   │   ├── 90ccb93495c678315adc26faaf695132d5eebe
 │   │   │   └── c11ab87dbad19fc1e1a3f5a2fb3e00a2c17771
 │   │   ├── eb
 │   │   │   ├── 2f2167a9058554fb95dc194ec469fec38098b0
+│   │   │   ├── 6f9d1c938e4bc5c927f6af2ecd859e00821418
 │   │   │   ├── ba147c27b0d4451fcc0d7ff1260d730a14ec70
 │   │   │   └── fb6c2a44186e0e401e9a17fd01d35d97da1840
 │   │   ├── ec
 │   │   │   ├── 39dd32d2b978083f24f56bfa992e752163ecd5
+│   │   │   ├── 82400799919d2858763e2777dc1bca13b4f62a
 │   │   │   ├── a96bc064b95ee0eea2f748701e38ab34e98d2e
 │   │   │   ├── c0943224cd45ec0e8e7bf8cf15718a0ddafa85
 │   │   │   └── c1f15c00266f66686c1bb22e94bdee04def220
@@ -1366,6 +1409,7 @@ SanskritAI/
 │   │   ├── f0
 │   │   │   ├── 1d4297379ce1cf5579579f095e0ce116aa3499
 │   │   │   ├── 67461a0060aa8ddd76b3ce38a30803fa76bf7a
+│   │   │   ├── 88216b207eb36c33e4a289e2fbc129fbe293de
 │   │   │   ├── ba72408ccf3e3feea657a213a1c9a274f7802f
 │   │   │   └── bf99332616341c1f5a6fead0aa759c23b0a319
 │   │   ├── f1
@@ -1414,7 +1458,8 @@ SanskritAI/
 │   │   │   ├── 65739d97282b9467938f539f81c7326945577d
 │   │   │   ├── 6ba6b84f8228278766c4f6cc6c2501fad2e853
 │   │   │   ├── abce7551a43230b2be3ad0eb94d67c9f545f5e
-│   │   │   └── aec6a961373ee63b687fd372039622833b1378
+│   │   │   ├── aec6a961373ee63b687fd372039622833b1378
+│   │   │   └── e9ef99f9c484db3aa25a5f7fd9a7876c98b6ab
 │   │   ├── f9
 │   │   │   ├── 4038ab5eefedde1b5d241d669ec1f9e55a5128
 │   │   │   ├── 643f8f8aa4de59999621e80ab1ace41b448168
@@ -1425,6 +1470,7 @@ SanskritAI/
 │   │   │   ├── 4b3fed7dc240c20df2a00735b8a72ffcee111c
 │   │   │   ├── 6b6891aab3a4fe146f0614a541f62425c6cfba
 │   │   │   ├── 8e2996d9f2d27d5f0608e48d0bb06d7e1a9b18
+│   │   │   ├── aca99ad094d0afb126176675ed5592dfbfd6cc
 │   │   │   └── f9e96e7135f6e3732a441913494ab1e00ef2fa
 │   │   ├── fb
 │   │   │   ├── 20d90c5f9a6f9b260787ce228a6c6a4749a486
@@ -1980,9 +2026,11 @@ SanskritAI/
 │   ├── typing.py
 │   ├── validators
 │   │   ├── __init__.py
+│   │   ├── composite_validator.py
 │   │   ├── validation_issue.py
 │   │   ├── validation_result.py
-│   │   └── validator.py
+│   │   ├── validator.py
+│   │   └── validator_registry.py
 │   ├── value_objects
 │   │   ├── __init__.py
 │   │   ├── comparable_value.py
@@ -2733,9 +2781,11 @@ SanskritAI/
 │   ├── core
 │   │   ├── test_typing.py
 │   │   └── validators
+│   │       ├── test_composite_validator.py
 │   │       ├── test_validation_issue.py
 │   │       ├── test_validation_result.py
-│   │       └── test_validator.py
+│   │       ├── test_validator.py
+│   │       └── test_validator_registry.py
 │   ├── corpus
 │   │   ├── __init__.py
 │   │   ├── models
@@ -2757,29 +2807,36 @@ SanskritAI/
 │   │   └── test_corpus_navigation_structure.py
 │   ├── domain
 │   │   ├── __init__.py
-│   │   └── reader
-│   │       ├── __init__.py
-│   │       ├── test_chapter_view.py
-│   │       ├── test_default_reader_repository_navigation.py
-│   │       ├── test_reader_controller.py
-│   │       ├── test_reader_controller_integration.py
-│   │       ├── test_reader_document.py
-│   │       ├── test_reader_engine.py
-│   │       ├── test_reader_engine_integration.py
-│   │       ├── test_reader_interaction.py
-│   │       ├── test_reader_navigator.py
-│   │       ├── test_reader_position.py
-│   │       ├── test_reader_position_factory.py
-│   │       ├── test_reader_result.py
-│   │       ├── test_reader_selection_context.py
-│   │       ├── test_reader_session.py
-│   │       ├── test_reader_session_history.py
-│   │       ├── test_reader_session_history_integration.py
-│   │       ├── test_reader_session_integration.py
-│   │       ├── test_reader_workspace.py
-│   │       ├── test_reader_workspace_integration.py
-│   │       ├── test_sloka_view.py
-│   │       └── test_word_view.py
+│   │   ├── derivation
+│   │   │   └── test_derivation_rule_set.py
+│   │   ├── pratyaya
+│   │   │   ├── test_pratyaya_analysis_collection.py
+│   │   │   └── test_pratyaya_rule_set.py
+│   │   ├── reader
+│   │   │   ├── __init__.py
+│   │   │   ├── test_chapter_view.py
+│   │   │   ├── test_default_reader_repository_navigation.py
+│   │   │   ├── test_reader_controller.py
+│   │   │   ├── test_reader_controller_integration.py
+│   │   │   ├── test_reader_document.py
+│   │   │   ├── test_reader_engine.py
+│   │   │   ├── test_reader_engine_integration.py
+│   │   │   ├── test_reader_interaction.py
+│   │   │   ├── test_reader_navigator.py
+│   │   │   ├── test_reader_position.py
+│   │   │   ├── test_reader_position_factory.py
+│   │   │   ├── test_reader_result.py
+│   │   │   ├── test_reader_selection_context.py
+│   │   │   ├── test_reader_session.py
+│   │   │   ├── test_reader_session_history.py
+│   │   │   ├── test_reader_session_history_integration.py
+│   │   │   ├── test_reader_session_integration.py
+│   │   │   ├── test_reader_workspace.py
+│   │   │   ├── test_reader_workspace_integration.py
+│   │   │   ├── test_sloka_view.py
+│   │   │   └── test_word_view.py
+│   │   └── samasa
+│   │       └── test_samasa_rule_set.py
 │   ├── importers
 │   │   └── run_all_tests.py
 │   ├── integration

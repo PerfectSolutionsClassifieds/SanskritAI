@@ -3921,6 +3921,15 @@
                 - __str__(self)
       📂 validators/
         📄 __init__.py
+        📄 composite_validator.py
+            🏗️ Classes:
+              • class CompositeValidator:
+                - __init__(self, validators)
+                - validators(self)
+                - __len__(self)
+                - __iter__(self)
+                - validate(self, obj)
+                - validate_many(self, objects)
         📄 validation_issue.py
             🏗️ Classes:
               • class ValidationSeverity:
@@ -3952,6 +3961,13 @@
                 - validate(self, obj)
                 - validate_many(self, objects)
                 - supports(cls, obj)
+        📄 validator_registry.py
+            🏗️ Classes:
+              • class ValidatorRegistry:
+                - __init__(self)
+                - register_validator(self, name, validator)
+                - get_validator(self, name)
+                - supporting(self, obj)
       📂 value_objects/
         📄 __init__.py
         📄 comparable_value.py
@@ -4996,17 +5012,7 @@
         📄 derivation_rule_set.py
             🏗️ Classes:
               • class DerivationRuleSet:
-                - display_name(self)
-                - display_text(self)
-                - display_description(self)
-                - is_empty(self)
-                - count(self)
-                - add(self, rule)
                 - apply(self, context)
-                - __len__(self)
-                - __iter__(self)
-                - __getitem__(self, index)
-                - __str__(self)
         📄 derivation_strategy.py
             🏗️ Classes:
               • class DerivationStrategy:
@@ -7225,16 +7231,18 @@
         📄 pratyaya_analysis_collection.py
             🏗️ Classes:
               • class PratyayaAnalysisCollection:
+                - count(self)
+                - is_empty(self)
+                - has_analyses(self)
+                - first(self)
+                - best(self)
                 - display_name(self)
                 - display_text(self)
                 - display_description(self)
-                - count(self)
-                - is_empty(self)
-                - first(self)
                 - add(self, analysis)
                 - extend(self, other)
-                - __iter__(self)
                 - __len__(self)
+                - __iter__(self)
                 - __getitem__(self, index)
                 - __str__(self)
         📄 pratyaya_context.py
@@ -9436,10 +9444,13 @@
       📄 word.py
           🏗️ Classes:
             • class Word:
+              - __post_init__(self)
               - normalize(self, text)
               - add_meaning(self, meaning)
               - add_lexeme(self, lexeme_id)
               - add_concept(self, concept_id)
+              - set_feature(self, name, value)
+              - get_feature(self, name, default)
               - summary(self)
       📂 amarakosha/
         📄 __init__.py
@@ -10079,6 +10090,26 @@
               • test_all_expected_symbols_are_exported()
               • test_json_dict_accepts_json_compatible_values()
         📂 validators/
+          📄 test_composite_validator.py
+              ⚙️ Functions:
+                • test_empty_composite_is_valid()
+                • test_valid_object_passes_all_validators()
+                • test_invalid_object_reports_issue()
+                • test_multiple_validators_are_aggregated()
+                • test_unsupported_validator_is_not_executed()
+                • test_validator_order_is_preserved()
+                • test_validate_many_aggregates_results()
+              🏗️ Classes:
+                • class DummyObject:
+                • class IdentifierValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
+                • class AlwaysErrorValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
+                • class UnsupportedValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
           📄 test_validation_issue.py
               ⚙️ Functions:
                 • test_validation_severity_defines_expected_values()
@@ -10157,6 +10188,26 @@
                   - __init__(self)
                   - validate(self, obj)
                 • class SelectiveValidator:
+                  - validate(self, obj)
+          📄 test_validator_registry.py
+              ⚙️ Functions:
+                • test_empty_registry_is_empty()
+                • test_register_validator()
+                • test_registered_validator_can_be_retrieved()
+                • test_missing_validator_returns_none()
+                • test_supporting_returns_matching_validators()
+                • test_supporting_preserves_registration_order()
+                • test_duplicate_registration_is_rejected()
+              🏗️ Classes:
+                • class DummyValidator:
+                  - __init__(self, supported_type)
+                  - supports(cls, obj)
+                  - validate(self, obj)
+                • class StringValidator:
+                  - supports(cls, obj)
+                  - validate(self, obj)
+                • class IntegerValidator:
+                  - supports(cls, obj)
                   - validate(self, obj)
       📂 corpus/
         📄 __init__.py
@@ -10336,6 +10387,68 @@
                 • test_repr_is_available()
       📂 domain/
         📄 __init__.py
+        📂 derivation/
+          📄 test_derivation_rule_set.py
+              ⚙️ Functions:
+                • test_empty_rule_set_has_no_rules()
+                • test_rule_set_accepts_rules()
+                • test_apply_returns_no_candidates_for_empty_rule_set()
+                • test_apply_checks_every_rule()
+                • test_apply_only_applies_matching_rules()
+                • test_apply_preserves_rule_order()
+                • test_apply_preserves_candidate_order_within_rules()
+                • test_apply_removes_duplicate_hashable_candidates()
+                • test_apply_supports_unhashable_candidates()
+                • test_apply_preserves_first_occurrence_of_unhashable_candidates()
+                • test_apply_does_not_duplicate_identical_candidates_from_multiple_rules()
+                • test_apply_does_not_mutate_rule_set()
+                • test_apply_can_be_called_multiple_times()
+                • test_apply_does_not_retain_previous_candidates()
+                • test_non_matching_rules_are_not_applied_even_when_other_rules_match()
+              🏗️ Classes:
+                • class FakeContext:
+                • class FakeRule:
+                  - __init__(self)
+                  - identifier(self)
+                  - applies_to(self, context)
+                  - apply(self, context)
+        📂 pratyaya/
+          📄 test_pratyaya_analysis_collection.py
+              ⚙️ Functions:
+                • make_analysis(identifier, pratyaya, confidence)
+                • test_empty_collection_has_no_analyses()
+                • test_non_empty_collection_has_analyses()
+                • test_has_analyses_is_consistent_with_is_empty()
+                • test_has_analyses_is_read_only_semantic_alias()
+                • test_add_does_not_mutate_original_collection()
+                • test_extend_combines_two_collections()
+          📄 test_pratyaya_rule_set.py
+              ⚙️ Functions:
+                • make_context()
+                • test_empty_rule_set_is_empty()
+                • test_rule_set_stores_rules()
+                • test_iteration_preserves_rule_order()
+                • test_index_access_preserves_rule_order()
+                • test_add_returns_new_rule_set()
+                • test_add_preserves_existing_rule_order()
+                • test_rule_set_is_immutable()
+                • test_apply_returns_empty_tuple_for_empty_rule_set()
+                • test_apply_invokes_matching_rules()
+                • test_apply_skips_non_matching_rules()
+                • test_apply_preserves_candidate_insertion_order()
+                • test_apply_deduplicates_hashable_candidates()
+                • test_apply_supports_unhashable_candidates()
+                • test_apply_preserves_first_occurrence_of_unhashable_candidates()
+                • test_apply_does_not_duplicate_identical_dictionary_candidates()
+                • test_apply_returns_tuple()
+                • test_apply_does_not_retain_previous_results()
+              🏗️ Classes:
+                • class FakeContext:
+                • class FakePratyayaRule:
+                  - __init__(self, identifier, candidates, applies)
+                  - identifier(self)
+                  - applies_to(self, context)
+                  - apply(self, context)
         📂 reader/
           📄 __init__.py
           📄 test_chapter_view.py
@@ -11003,6 +11116,30 @@
                 • test_lexical_key_falls_back_to_surface()
                 • test_word_position_helpers_are_inherited()
                 • test_word_is_immutable()
+        📂 samasa/
+          📄 test_samasa_rule_set.py
+              ⚙️ Functions:
+                • make_context()
+                • test_empty_rule_set()
+                • test_rule_set_preserves_rule_order()
+                • test_add_returns_new_rule_set()
+                • test_add_does_not_mutate_original_rule_set()
+                • test_apply_ignores_non_matching_rules()
+                • test_apply_supports_unhashable_candidates()
+                • test_apply_preserves_first_occurrence_of_unhashable_candidates()
+                • test_apply_does_not_duplicate_identical_dictionary_candidates()
+                • test_apply_preserves_candidate_insertion_order()
+                • test_apply_returns_tuple()
+                • test_apply_does_not_retain_previous_results()
+                • test_display_name()
+                • test_display_text()
+                • test_display_description()
+                • test_str_uses_display_text()
+              🏗️ Classes:
+                • class FakeSamasaRule:
+                  - display_name(self)
+                  - applies_to(self, context)
+                  - apply(self, context)
       📂 importers/
         📄 run_all_tests.py
             🔹 Constants:
