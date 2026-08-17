@@ -1,5 +1,5 @@
 # Excluded Files
-Generated: 2026-08-17T00:42:18.872368Z
+Generated: 2026-08-17T03:34:33.159933Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - application/execution_context1.py  — stem_ends_with_digits
@@ -75,6 +75,8 @@ Generated: 2026-08-17T00:42:18.872368Z
 - domain/morphology/default_morphological_analyzer3.py  — stem_ends_with_digits
 - domain/morphology/grammatical_category1.py  — stem_ends_with_digits
 - domain/morphology/grammatical_category_collection1.py  — stem_ends_with_digits
+- domain/morphology/morphological_context1.py  — stem_ends_with_digits
+- domain/morphology/morphological_context2.py  — stem_ends_with_digits
 - domain/morphology/morphological_features1.py  — stem_ends_with_digits
 - domain/morphology/morphological_service1.py  — stem_ends_with_digits
 - domain/morphology/vacana1.py  — stem_ends_with_digits
@@ -143,6 +145,7 @@ Generated: 2026-08-17T00:42:18.872368Z
 - domain/sandhi/default_sandhi_rule_set3.py  — stem_ends_with_digits
 - domain/sandhi/default_sandhi_rule_set4.py  — stem_ends_with_digits
 - domain/sandhi/sandhi_service1.py  — stem_ends_with_digits
+- domain/sandhi/sandhi_service2.py  — stem_ends_with_digits
 - domain/samasa/default_samasa_resolver1.py  — stem_ends_with_digits
 - domain/samasa/default_samasa_rule_set1.py  — stem_ends_with_digits
 - domain/samasa/default_samasa_rule_set2.py  — stem_ends_with_digits
@@ -243,6 +246,7 @@ Generated: 2026-08-17T00:42:18.872368Z
 - tests/domain/reader/test_reader_workspace1.py  — stem_ends_with_digits
 - tests/domain/reader/test_reader_workspace_integration1.py  — stem_ends_with_digits
 - tests/domain/reader/test_reader_workspace_integration2.py  — stem_ends_with_digits
+- tests/domain/sandhi/test_sandhi_resolution_kernel1.py  — stem_ends_with_digits
 - tests/domain/pratyaya/test_pratyaya_analysis_collection1.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator1.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator2.py  — stem_ends_with_digits

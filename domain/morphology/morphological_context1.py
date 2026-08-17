@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -27,13 +26,7 @@ ResolutionContext
 LexicalResolutionResult
         │
         ▼
-DhatuResult
-        │
-        ▼
-DhatuAnalysis
-        │
-        ▼
-Dhatu
+DhatuResolutionResult
         │
         ▼
 MorphologicalContext
@@ -41,34 +34,12 @@ MorphologicalContext
         ▼
 MorphologicalAnalyzer
 
-Architecture Note
------------------
-
-CanonicalKnowledgeRepository is a composition-root object.
-It must not be imported at runtime by this domain context.
-
-The repository type is therefore imported only under
-TYPE_CHECKING to avoid a circular dependency:
-
-MorphologicalContext
-        ↓
-CanonicalKnowledgeRepository
-        ↓
-KnowledgeServiceRegistry
-        ↓
-MorphologicalService
-        ↓
-MorphologicalResolutionContext
-        ↓
-MorphologicalContext
-
 Version
 -------
-v2.0.1
+v2.0.0
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from SanskritAI.core.mixins.displayable import Displayable
 from SanskritAI.core.mixins.immutable import Immutable
@@ -80,23 +51,21 @@ from SanskritAI.domain.lexical.lexical_resolution_result import (
     LexicalResolutionResult,
 )
 
-from SanskritAI.domain.dhatu.dhatu_result import (
-    DhatuResult,
+from SanskritAI.domain.dhatu.dhatu_resolution_result import (
+    DhatuResolutionResult,
 )
 
 from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
 )
 
+from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
+    CanonicalKnowledgeRepository,
+)
+
 from SanskritAI.domain.dhatu.dhatu_repository import (
     DhatuRepository,
 )
-
-
-if TYPE_CHECKING:
-    from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
-        CanonicalKnowledgeRepository,
-    )
 
 
 @dataclass(
@@ -118,7 +87,7 @@ class MorphologicalContext(
 
     lexical_result: LexicalResolutionResult | None = None
 
-    dhatu_result: DhatuResult | None = None
+    dhatu_result: DhatuResolutionResult | None = None
 
     canonical_repository: CanonicalKnowledgeRepository | None = None
 
@@ -209,30 +178,10 @@ class MorphologicalContext(
     def dhatu(
         self,
     ):
-        """
-        Return the Dhatu represented by the best available
-        DhatuAnalysis.
-
-        Canonical traversal:
-
-            DhatuResult
-                ↓
-            best_analysis
-                ↓
-            DhatuAnalysis
-                ↓
-            Dhatu
-        """
-
         if self.dhatu_result is None:
             return None
 
-        analysis = self.dhatu_result.best_analysis
-
-        if analysis is None:
-            return None
-
-        return analysis.dhatu
+        return self.dhatu_result.dhatu
 
     @property
     def root(

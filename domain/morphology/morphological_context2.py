@@ -41,26 +41,13 @@ MorphologicalContext
         ▼
 MorphologicalAnalyzer
 
-Architecture Note
------------------
+Notes
+-----
 
-CanonicalKnowledgeRepository is a composition-root object.
-It must not be imported at runtime by this domain context.
+DhatuResult is the canonical result object of the Dhatu domain.
 
-The repository type is therefore imported only under
-TYPE_CHECKING to avoid a circular dependency:
-
-MorphologicalContext
-        ↓
-CanonicalKnowledgeRepository
-        ↓
-KnowledgeServiceRegistry
-        ↓
-MorphologicalService
-        ↓
-MorphologicalResolutionContext
-        ↓
-MorphologicalContext
+The Dhatu itself is obtained through the selected/best
+DhatuAnalysis rather than directly from DhatuResult.
 
 Version
 -------
@@ -68,7 +55,6 @@ v2.0.1
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from SanskritAI.core.mixins.displayable import Displayable
 from SanskritAI.core.mixins.immutable import Immutable
@@ -88,15 +74,13 @@ from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
 )
 
+from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
+    CanonicalKnowledgeRepository,
+)
+
 from SanskritAI.domain.dhatu.dhatu_repository import (
     DhatuRepository,
 )
-
-
-if TYPE_CHECKING:
-    from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
-        CanonicalKnowledgeRepository,
-    )
 
 
 @dataclass(
@@ -213,15 +197,13 @@ class MorphologicalContext(
         Return the Dhatu represented by the best available
         DhatuAnalysis.
 
-        Canonical traversal:
+        DhatuResult does not expose Dhatu directly. The canonical
+        traversal is:
 
             DhatuResult
-                ↓
-            best_analysis
-                ↓
-            DhatuAnalysis
-                ↓
-            Dhatu
+                -> best_analysis
+                -> DhatuAnalysis
+                -> Dhatu
         """
 
         if self.dhatu_result is None:

@@ -8130,6 +8130,18 @@
                 - search(self, query)
                 - all(self)
                 - count(self)
+        📄 default_samasa_resolution_kernel.py
+            🏗️ Classes:
+              • class DefaultSamasaResolutionKernel:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - resolution_strategy(self)
+                - kernel(self)
+                - build_context(self, context)
+                - resolve(self, context)
+                - __call__(self, context)
+                - __str__(self)
         📄 default_samasa_resolver.py
             🏗️ Classes:
               • class DefaultSamasaResolver:
@@ -8256,6 +8268,17 @@
                 - search(self, query)
                 - all(self)
                 - count(self)
+        📄 samasa_resolution_kernel.py
+            🏗️ Classes:
+              • class SamasaResolutionKernel:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - resolution_strategy(self)
+                - resolve(self, context)
+                - _to_resolution_result(self, result)
+                - __call__(self, context)
+                - __str__(self)
         📄 samasa_resolution_result.py
             🏗️ Classes:
               • class SamasaResolutionResult:
@@ -8364,6 +8387,17 @@
                 - search(self, query)
                 - all(self)
                 - count(self)
+        📄 default_sandhi_resolution_kernel.py
+            🏗️ Classes:
+              • class DefaultSandhiResolutionKernel:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - resolution_strategy(self)
+                - kernel(self)
+                - resolve(self, context)
+                - __call__(self, context)
+                - __str__(self)
         📄 default_sandhi_resolver.py
             🏗️ Classes:
               • class DefaultSandhiResolver:
@@ -8457,6 +8491,17 @@
                 - search(self, query)
                 - all(self)
                 - count(self)
+        📄 sandhi_resolution_kernel.py
+            🏗️ Classes:
+              • class SandhiResolutionKernel:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - resolution_strategy(self)
+                - build_context(self, context)
+                - resolve(self, context)
+                - __call__(self, context)
+                - __str__(self)
         📄 sandhi_resolution_result.py
             🏗️ Classes:
               • class SandhiResolutionResult:
@@ -8532,8 +8577,7 @@
                 - display_description(self)
                 - resolution_kernel(self)
                 - resolve(self, context)
-                - contribute(self, aggregate, context)
-                - count(self)
+                - contribute(self, aggregate)
                 - __str__(self)
         📄 sandhi_strategy.py
             🏗️ Classes:
@@ -11529,6 +11573,24 @@
                 • test_word_position_helpers_are_inherited()
                 • test_word_is_immutable()
         📂 samasa/
+          📄 test_default_samasa_resolution_kernel.py
+              ⚙️ Functions:
+                • make_context()
+                • test_default_kernel_can_be_constructed()
+                • test_default_kernel_exposes_generic_kernel()
+                • test_default_kernel_builds_samasa_context()
+              🏗️ Classes:
+                • class StubSamasaRepository:
+          📄 test_samasa_resolution_kernel.py
+              ⚙️ Functions:
+                • make_context()
+                • test_kernel_delegates_to_strategy()
+                • test_kernel_returns_canonical_resolution_result()
+                • test_kernel_preserves_analysis_collection()
+              🏗️ Classes:
+                • class StubSamasaStrategy:
+                  - __init__(self)
+                  - analyze(self, context)
           📄 test_samasa_rule_set.py
               ⚙️ Functions:
                 • make_context()
@@ -11552,6 +11614,28 @@
                   - display_name(self)
                   - applies_to(self, context)
                   - apply(self, context)
+          📄 test_samasa_service.py
+              ⚙️ Functions:
+                • make_context()
+                • test_service_can_be_constructed()
+                • test_service_creates_default_kernel()
+                • test_service_resolve_returns_resolution_result()
+              🏗️ Classes:
+                • class StubSamasaRepository:
+        📂 sandhi/
+          📄 test_default_sandhi_resolution_kernel.py
+              ⚙️ Functions:
+                • test_default_kernel_can_be_constructed()
+                • test_default_kernel_exposes_resolution_kernel()
+              🏗️ Classes:
+                • class StubSandhiRepository:
+          📄 test_sandhi_resolution_kernel.py
+          📄 test_sandhi_service.py
+              ⚙️ Functions:
+                • test_sandhi_service_can_be_constructed()
+                • test_sandhi_service_exposes_resolution_kernel()
+              🏗️ Classes:
+                • class StubSandhiRepository:
         📂 semantic/
           📄 test_semantic_relation_collection.py
               ⚙️ Functions:
@@ -11594,6 +11678,12 @@
               • SAMPLE_FILE
             ⚙️ Functions:
               • main()
+        📄 test_knowledge_service_registry.py
+            ⚙️ Functions:
+              • test_knowledge_service_registry_imports()
+        📄 test_resolution_services.py
+            ⚙️ Functions:
+              • test_resolution_services_are_importable()
       📂 lexical/
         📄 __init__.py
         📄 demo.py
