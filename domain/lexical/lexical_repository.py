@@ -5,56 +5,48 @@ SanskritAI
 ==========
 
 Lexical Repository
+------------------
 
-Adapter over the Canonical Knowledge Repository.
+Adapter abstraction between the Domain Lexical Kernel and
+the canonical knowledge layer.
 
-Purpose
--------
-The Lexical Kernel no longer owns lexical persistence.
+Important dependency rule
+-------------------------
 
-Instead, it delegates all retrieval operations to the
-CanonicalKnowledgeRepository, which has become the single
-source of truth for Sanskrit lexical knowledge.
+This module MUST NOT import CanonicalKnowledgeRepository
+at runtime.
 
-Architecture
-------------
+CanonicalKnowledgeRepository is a composition root which
+constructs the domain repositories. Importing the composition
+root from this domain abstraction creates:
 
-LexicalService
-        │
-        ▼
-LexicalRepository (Adapter)
-        │
-        ▼
-CanonicalKnowledgeRepository
-        │
-        ├── Registries
-        ├── KnowledgeIndex
-        ├── CanonicalLexicons
-        ├── CanonicalDictionaryEntries
-        ├── CanonicalDictionarySenses
-        ├── CanonicalContexts
-        └── CanonicalSources
+    CanonicalKnowledgeRepository
+        ↓
+    KnowledgeServiceRegistry
+        ↓
+    LexicalRepository
+        ↓
+    CanonicalKnowledgeRepository
 
-Responsibilities
-----------------
+Therefore the CanonicalKnowledgeRepository reference is used
+only for static type checking.
 
-• Adapt the Domain Lexical Kernel to the Canonical Repository
+Runtime dependency direction:
 
-• Hide canonical storage implementation
-
-• Preserve a stable interface for LexicalService
+    Composition Root
+          ↓
+    LexicalRepository
+          ↓
+    Canonical knowledge object
 
 Version
 -------
-v2.0.0
+v2.0.1
 """
 
 from abc import ABC
 from abc import abstractmethod
-
-from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
-    CanonicalKnowledgeRepository,
-)
+from typing import TYPE_CHECKING
 
 from SanskritAI.core.mixins.displayable import Displayable
 
@@ -67,59 +59,74 @@ from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
 )
 
 
+if TYPE_CHECKING:
+    from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
+        CanonicalKnowledgeRepository,
+    )
+
+
 class LexicalRepository(
     ABC,
     Displayable,
 ):
     """
-    Adapter over CanonicalKnowledgeRepository.
+    Adapter abstraction for canonical lexical knowledge.
 
-    The Domain layer never accesses indices directly.
-
-    All lexical retrieval is delegated through this adapter.
+    The domain lexical layer communicates through this stable
+    interface rather than depending on a concrete storage
+    implementation.
     """
 
     def __init__(
         self,
         repository: CanonicalKnowledgeRepository,
     ) -> None:
-
         self._repository = repository
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Display
-    # ---------------------------------------------------------
+    # =========================================================
 
     @property
-    def display_name(self) -> str:
+    def display_name(
+        self,
+    ) -> str:
         return self.__class__.__name__
 
     @property
-    def display_text(self) -> str:
+    def display_text(
+        self,
+    ) -> str:
         return self.display_name
 
     @property
-    def display_description(self) -> str:
+    def display_description(
+        self,
+    ) -> str:
         return (
             "Adapter over the Canonical Knowledge Repository."
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Canonical Repository
-    # ---------------------------------------------------------
+    # =========================================================
 
     @property
     def repository(
         self,
     ) -> CanonicalKnowledgeRepository:
         """
-        Underlying canonical repository.
+        Underlying canonical knowledge object.
+
+        The concrete type is available to static type checkers
+        but is deliberately not imported at runtime.
         """
+
         return self._repository
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Identity Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     @abstractmethod
     def get_entry(
@@ -127,13 +134,14 @@ class LexicalRepository(
         headword: str,
     ) -> CanonicalDictionaryEntry | None:
         """
-        Retrieves a canonical dictionary entry by headword.
+        Retrieve a canonical dictionary entry by headword.
         """
+
         raise NotImplementedError
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Lemma Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     @abstractmethod
     def find_entries_by_lemma(
@@ -144,13 +152,14 @@ class LexicalRepository(
         ...,
     ]:
         """
-        Retrieves canonical entries matching a lemma.
+        Retrieve canonical entries matching a lemma.
         """
+
         raise NotImplementedError
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Word-form Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     @abstractmethod
     def find_entries_by_word_form(
@@ -161,13 +170,14 @@ class LexicalRepository(
         ...,
     ]:
         """
-        Retrieves canonical entries matching a surface form.
+        Retrieve canonical entries matching a surface form.
         """
+
         raise NotImplementedError
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Sense Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     @abstractmethod
     def find_senses(
@@ -178,13 +188,14 @@ class LexicalRepository(
         ...,
     ]:
         """
-        Retrieves all senses belonging to a headword.
+        Retrieve all senses belonging to a headword.
         """
+
         raise NotImplementedError
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Search
-    # ---------------------------------------------------------
+    # =========================================================
 
     @abstractmethod
     def search(
@@ -195,23 +206,21 @@ class LexicalRepository(
         ...,
     ]:
         """
-        Performs lexical search.
+        Perform lexical search.
 
         Implementations may use:
 
             • HeadwordIndex
-
             • LemmaIndex
-
             • Full-text index
-
             • Semantic index
         """
+
         raise NotImplementedError
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Enumeration
-    # ---------------------------------------------------------
+    # =========================================================
 
     @abstractmethod
     def all_entries(
@@ -221,13 +230,14 @@ class LexicalRepository(
         ...,
     ]:
         """
-        Returns every canonical dictionary entry.
+        Return every canonical dictionary entry.
         """
+
         raise NotImplementedError
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Cardinality
-    # ---------------------------------------------------------
+    # =========================================================
 
     @property
     @abstractmethod
@@ -237,4 +247,5 @@ class LexicalRepository(
         """
         Total number of canonical entries.
         """
+
         raise NotImplementedError

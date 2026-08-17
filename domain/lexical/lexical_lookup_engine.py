@@ -10,25 +10,42 @@ Coordinates canonical lexical lookup.
 
 Responsibilities
 ----------------
-
 • canonical word-form lookup
-
 • canonical lemma lookup
-
 • candidate construction
-
 • candidate ranking
-
 • ambiguity detection
 
-The engine deliberately contains NO lexical reasoning.
+Architectural Boundary
+----------------------
+The lookup engine depends only on the LexicalRepository
+abstraction.
 
-It simply transforms repository output into a
-LexicalResolutionResult.
+It must NOT depend directly on:
+
+    • CanonicalKnowledgeRepository
+    • KnowledgeServiceRegistry
+    • LexicalService
+    • Composition-root objects
+
+This keeps the Lexical Kernel independent from the
+acquisition/composition layer and prevents circular imports.
+
+Pipeline
+--------
+ResolutionContext
+        ↓
+LexicalRepository
+        ↓
+LookupCandidate(s)
+        ↓
+LookupRankingPolicy
+        ↓
+LexicalResolutionResult
 
 Version
 -------
-v2.2.0
+v3.0.0
 """
 
 from SanskritAI.domain.lexical.lookup_candidate import (
@@ -39,6 +56,10 @@ from SanskritAI.domain.lexical.lookup_ranking_policy import (
     LookupRankingPolicy,
 )
 
+from SanskritAI.domain.lexical.lexical_repository import (
+    LexicalRepository,
+)
+
 from SanskritAI.domain.lexical.lexical_resolution_result import (
     LexicalResolutionResult,
 )
@@ -47,19 +68,18 @@ from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
 )
 
-from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
-    CanonicalKnowledgeRepository,
-)
-
 
 class LexicalLookupEngine:
     """
     Canonical lexical lookup engine.
+
+    The engine orchestrates lexical lookup but contains
+    no persistence implementation and no lexical reasoning.
     """
 
     def __init__(
         self,
-        repository: CanonicalKnowledgeRepository,
+        repository: LexicalRepository,
         ranking_policy: LookupRankingPolicy | None = None,
     ) -> None:
 
@@ -71,25 +91,33 @@ class LexicalLookupEngine:
             else LookupRankingPolicy()
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Properties
-    # ---------------------------------------------------------
+    # =========================================================
 
     @property
     def repository(
         self,
-    ) -> CanonicalKnowledgeRepository:
+    ) -> LexicalRepository:
+        """
+        Lexical repository used by this engine.
+        """
+
         return self._repository
 
     @property
     def ranking_policy(
         self,
     ) -> LookupRankingPolicy:
+        """
+        Candidate ranking policy.
+        """
+
         return self._ranking_policy
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     def lookup(
         self,
@@ -98,38 +126,35 @@ class LexicalLookupEngine:
         """
         Performs canonical lexical lookup.
 
-        Current pipeline
+        Pipeline
+        --------
+        ResolutionContext
+                ↓
+        LexicalRepository
+                ↓
+        LookupCandidate(s)
+                ↓
+        LookupRankingPolicy
+                ↓
+        LexicalResolutionResult
 
-            ResolutionContext
-                    ↓
-            Canonical Repository
-                    ↓
-            LookupCandidate(s)
-                    ↓
-            Ranking Policy
-                    ↓
-            LexicalResolutionResult
+        Future versions may additionally perform:
 
-        Future versions may additionally perform
-
-            • lemma normalization
-
-            • morphology expansion
-
-            • sandhi decomposition
-
-            • samāsa decomposition
-
-            • semantic ranking
-
-            • AI-assisted disambiguation
+        • lemma normalization
+        • morphology expansion
+        • sandhi decomposition
+        • samāsa decomposition
+        • semantic ranking
+        • AI-assisted disambiguation
         """
 
-        word_form = str(context.subject)
+        word_form = str(
+            context.subject
+        )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # Repository lookup
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         entries = tuple(
             self.repository.find_entries_by_word_form(
@@ -137,9 +162,9 @@ class LexicalLookupEngine:
             )
         )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # Candidate construction
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         candidates = tuple(
             LookupCandidate(
@@ -149,17 +174,19 @@ class LexicalLookupEngine:
             for entry in entries
         )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # Ranking
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
-        ranked_candidates = self.ranking_policy.rank(
-            candidates,
+        ranked_candidates = (
+            self.ranking_policy.rank(
+                candidates,
+            )
         )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # Confidence
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         confidence = (
             ranked_candidates[0].score
@@ -167,9 +194,9 @@ class LexicalLookupEngine:
             else 0.0
         )
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # Result
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         return LexicalResolutionResult(
             context=context,
@@ -179,6 +206,8 @@ class LexicalLookupEngine:
             ambiguity_detected=(
                 len(ranked_candidates) > 1
             ),
-            succeeded=bool(ranked_candidates),
+            succeeded=bool(
+                ranked_candidates
+            ),
             confidence=confidence,
         )

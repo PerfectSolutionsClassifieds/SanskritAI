@@ -5269,6 +5269,15 @@
                 - __iter__(self)
                 - __getitem__(self, index)
                 - __str__(self)
+        📄 dhatu_service.py
+            🏗️ Classes:
+              • class DhatuService:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - analyze(self, context)
+                - resolve(self, context)
+                - __str__(self)
         📄 dhatu_specification.py
             🔹 Constants:
               • CANONICAL_DHATU_SPECIFICATION
@@ -5608,7 +5617,7 @@
                 - display_name(self)
                 - display_text(self)
                 - display_description(self)
-                - resolve(self, state)
+                - __str__(self)
         📄 dictionary_entry.py
             🏗️ Classes:
               • class DictionaryEntry:
@@ -5844,6 +5853,12 @@
                 • class LexemeValidator:
                   - supports(cls, obj)
                   - validate(self, obj)
+          📄 lexical_composite_validator.py
+              🏗️ Classes:
+                • class LexicalCompositeValidator:
+                  - __init__(self, validators)
+                  - validators(self)
+                  - validate(self, value)
           📄 lexical_relation_validator.py
               🏗️ Classes:
                 • class LexicalRelationValidator:
@@ -5854,6 +5869,21 @@
                 • class LexicalSourceValidator:
                   - supports(cls, obj)
                   - validate(self, obj)
+          📄 lexical_validator_registry.py
+              🏗️ Classes:
+                • class LexicalValidatorRegistry:
+                  - __init__(self, validators)
+                  - _register_defaults(self)
+                  - _infer_model_type(validator)
+                  - register(self, model_type, validator)
+                  - unregister(self, model_type)
+                  - get(self, model_type)
+                  - resolve(self, value_or_type)
+                  - contains(self, model_type)
+                  - clear(self)
+                  - __len__(self)
+                  - __contains__(self, model_type)
+                  - items(self)
       📂 morphology/
         📄 default_morphological_analyzer.py
             🏗️ Classes:
@@ -5880,6 +5910,17 @@
                 - all_categories(self)
                 - morphological_rule_set(self)
                 - morphological_analyzer(self)
+        📄 default_morphological_resolution_kernel.py
+            🏗️ Classes:
+              • class DefaultMorphologicalResolutionKernel:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - resolution_strategy(self)
+                - kernel(self)
+                - resolve(self, context)
+                - __call__(self, context)
+                - __str__(self)
         📄 default_morphological_resolution_strategy.py
             🏗️ Classes:
               • class DefaultMorphologicalResolutionStrategy:
@@ -6030,6 +6071,13 @@
                 - indeclinable_rules(self)
                 - category_count(self)
                 - rule_count(self)
+        📄 morphological_resolution_context.py
+            🏗️ Classes:
+              • class MorphologicalResolutionContext:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - __str__(self)
         📄 morphological_resolution_kernel.py
             🏗️ Classes:
               • class MorphologicalResolutionKernel:
@@ -8800,6 +8848,21 @@
                 - has_notes(self)
                 - is_confident(self)
                 - __str__(self)
+        📄 semantic_relation_collection.py
+            🏗️ Classes:
+              • class SemanticRelationCollection:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - count(self)
+                - is_empty(self)
+                - first(self)
+                - add(self, relation)
+                - extend(self, other)
+                - __iter__(self)
+                - __len__(self)
+                - __getitem__(self, index)
+                - __str__(self)
         📄 semantic_repository.py
             🏗️ Classes:
               • class SemanticRepository:
@@ -10492,6 +10555,81 @@
                   - identifier(self)
                   - applies_to(self, context)
                   - apply(self, context)
+        📂 dhatu/
+          📄 test_dhatu_service.py
+              🏗️ Classes:
+                • class TestDhatuService:
+                  - test_service_can_be_created(self)
+                  - test_display_name(self)
+                  - test_display_text(self)
+                  - test_display_description(self)
+                  - test_analyze_delegates_to_resolver(self)
+                  - test_resolve_is_alias_for_analyze(self)
+                  - test_service_is_immutable(self)
+                  - test_string_representation(self)
+        📂 lexical/
+          📄 test_default_lexical_resolution_strategy.py
+              🏗️ Classes:
+                • class TestDefaultLexicalResolutionStrategy:
+                  - test_can_be_created(self)
+                  - test_preserves_lookup_engine(self)
+                  - test_resolve_delegates_to_lookup_engine(self)
+                  - test_display_name(self)
+                  - test_display_description(self)
+                  - test_is_lexical_resolution_strategy(self)
+          📄 test_default_lexical_service.py
+              🏗️ Classes:
+                • class TestDefaultLexicalService:
+                  - test_is_lexical_service(self)
+                  - test_preserves_repository(self)
+                  - test_display_name(self)
+                  - test_display_text(self)
+                  - test_display_description(self)
+                  - test_inherits_lookup_engine_behavior(self)
+                  - test_can_resolve_using_inherited_service_logic(self)
+                  - test_string_representation(self)
+          📄 test_lexical_resolution_composition.py
+              🏗️ Classes:
+                • class TestLexicalResolutionComposition:
+                  - test_canonical_repository_constructs_default_lexical_service(self)
+                  - test_default_lexical_service_is_registered(self)
+                  - test_registry_lexical_alias_returns_service(self)
+                  - test_lexical_service_is_resolution_contributor(self)
+                  - test_default_resolution_pipeline_accepts_lexical_service(self)
+                  - test_lexical_service_is_first_pipeline_stage(self)
+          📄 test_lexical_resolver.py
+              🏗️ Classes:
+                • class TestLexicalResolver:
+                  - test_can_be_created(self)
+                  - test_preserves_strategy(self)
+                  - test_resolve_delegates_to_strategy(self)
+                  - test_display_name(self)
+                  - test_display_description(self)
+                  - test_string_representation(self)
+          📄 test_lexical_service.py
+              🏗️ Classes:
+                • class TestLexicalService:
+                  - _repository(self)
+                  - _context(self)
+                  - test_can_be_created(self)
+                  - test_is_frozen(self)
+                  - test_display_name(self)
+                  - test_display_text(self)
+                  - test_display_description(self)
+                  - test_string_representation(self)
+                  - test_lookup_engine_is_canonical_engine(self)
+                  - test_lookup_engine_uses_same_repository(self)
+                  - test_get_entry_delegates_to_repository(self)
+                  - test_lookup_lemma_delegates_to_repository(self)
+                  - test_lookup_word_form_delegates_to_repository(self)
+                  - test_lookup_senses_delegates_to_repository(self)
+                  - test_search_delegates_to_repository(self)
+                  - test_all_entries_delegates_to_repository(self)
+                  - test_count_delegates_to_repository(self)
+                  - test_resolve_returns_lexical_resolution_result(self)
+                  - test_resolve_uses_context_subject_as_word_form(self)
+                  - test_contribute_enriches_resolution_result(self)
+                  - test_contribute_preserves_context(self)
           📂 validators/
             📄 test_dictionary_entry_validator.py
                 ⚙️ Functions:
@@ -10577,6 +10715,15 @@
                   • test_validation_does_not_mutate_lexeme()
                   • test_invalid_object_returns_validation_result()
                   • test_invalid_object_produces_lex000()
+            📄 test_lexical_composite_validator.py
+                🏗️ Classes:
+                  • class TestLexicalCompositeValidator:
+                    - test_creates_default_validators(self)
+                    - test_accepts_custom_validators(self)
+                    - test_delegates_validation_to_composite(self)
+                    - test_empty_composite_is_valid(self)
+                    - test_validates_lexical_value_without_replacing_individual_rules(self)
+                    - test_validators_are_returned_as_immutable_tuple(self)
             📄 test_lexical_relation_validator.py
                 ⚙️ Functions:
                   • make_relation()
@@ -10630,6 +10777,53 @@
                   • test_has_description()
                   • test_has_url()
                   • test_string_representation_uses_display_text()
+            📄 test_lexical_validator_registry.py
+                🏗️ Classes:
+                  • class TestLexicalValidatorRegistry:
+                    - test_registry_can_be_created(self)
+                    - test_custom_registry_starts_with_supplied_validators(self)
+                    - test_register(self)
+                    - test_register_replaces_existing_validator(self)
+                    - test_register_rejects_none_model_type(self)
+                    - test_register_rejects_none_validator(self)
+                    - test_register_rejects_invalid_validator(self)
+                    - test_get_returns_none_for_unknown_type(self)
+                    - test_resolve_accepts_model_type(self)
+                    - test_resolve_accepts_instance(self)
+                    - test_resolve_uses_exact_type_before_base_type(self)
+                    - test_resolve_falls_back_to_base_type(self)
+                    - test_resolve_returns_none_when_unknown(self)
+                    - test_unregister_existing_validator(self)
+                    - test_unregister_unknown_validator(self)
+                    - test_contains(self)
+                    - test_clear(self)
+                    - test_items(self)
+                    - test_default_validator_classes_are_defined(self)
+        📂 morphology/
+          📄 test_default_morphological_resolution_kernel.py
+              🏗️ Classes:
+                • class TestDefaultMorphologicalResolutionKernel:
+                  - test_can_be_created_with_repository(self)
+                  - test_default_strategy_is_created(self)
+                  - test_custom_strategy_is_preserved(self)
+                  - test_resolution_strategy_returns_strategy(self)
+                  - test_kernel_exposes_generic_resolution_kernel(self)
+                  - test_resolve_delegates_to_strategy(self)
+                  - test_call_delegates_to_resolve(self)
+                  - test_display_contract(self)
+                  - test_string_representation(self)
+          📄 test_morphological_resolution_context.py
+              🏗️ Classes:
+                • class TestMorphologicalResolutionContext:
+                  - _create_context(self)
+                  - test_is_morphological_context(self)
+                  - test_is_morphological_resolution_context(self)
+                  - test_does_not_duplicate_state(self)
+                  - test_display_name(self)
+                  - test_display_text(self)
+                  - test_display_description(self)
+                  - test_string_representation(self)
+                  - test_is_immutable(self)
         📂 pratyaya/
           📄 test_pratyaya_analysis_collection.py
               ⚙️ Functions:
@@ -11358,6 +11552,28 @@
                   - display_name(self)
                   - applies_to(self, context)
                   - apply(self, context)
+        📂 semantic/
+          📄 test_semantic_relation_collection.py
+              ⚙️ Functions:
+                • make_relation(identifier, relation)
+              🏗️ Classes:
+                • class TestSemanticRelationCollection:
+                  - test_can_be_created_empty(self)
+                  - test_empty_collection_has_zero_count(self)
+                  - test_empty_collection_is_empty(self)
+                  - test_empty_collection_has_no_first_relation(self)
+                  - test_accepts_relations_as_tuple(self)
+                  - test_count_matches_number_of_relations(self)
+                  - test_first_returns_first_relation(self)
+                  - test_is_immutable_at_collection_level(self)
+                  - test_add_returns_new_collection(self)
+                  - test_extend_returns_new_collection(self)
+                  - test_iteration(self)
+                  - test_indexing(self)
+                  - test_display_name(self)
+                  - test_display_text(self)
+                  - test_display_description(self)
+                  - test_string_representation(self)
       📂 importers/
         📄 run_all_tests.py
             🔹 Constants:

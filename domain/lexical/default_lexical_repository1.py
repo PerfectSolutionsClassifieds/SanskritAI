@@ -5,30 +5,49 @@ SanskritAI
 ==========
 
 Default Lexical Repository
---------------------------
 
-Canonical implementation of LexicalRepository.
+Canonical implementation of the LexicalRepository.
 
-The repository adapts the canonical knowledge layer to the
+This class adapts the CanonicalKnowledgeRepository to the
 Lexical Kernel.
 
-Important dependency rule
--------------------------
+Responsibilities
+----------------
 
-CanonicalKnowledgeRepository is a composition root.
+• canonical lexical lookup
 
-Therefore this module must NOT import it at runtime.
+• lemma lookup
 
-The repository reference is used only as a type annotation
-and is resolved by static type checkers through TYPE_CHECKING.
+• word-form lookup
+
+• lexical search
+
+• dictionary enumeration
+
+The repository intentionally contains no linguistic reasoning.
+It simply delegates to the canonical knowledge layer.
+
+Architecture
+------------
+
+LexicalService
+        │
+        ▼
+DefaultLexicalRepository
+        │
+        ▼
+CanonicalKnowledgeRepository
 
 Version
 -------
-v3.0.1
+v3.0.0
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+
+from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
+    CanonicalKnowledgeRepository,
+)
 
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
     CanonicalDictionaryEntry,
@@ -43,12 +62,6 @@ from SanskritAI.domain.lexical.lexical_repository import (
 )
 
 
-if TYPE_CHECKING:
-    from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
-        CanonicalKnowledgeRepository,
-    )
-
-
 @dataclass(
     frozen=True,
     slots=True,
@@ -57,41 +70,32 @@ class DefaultLexicalRepository(
     LexicalRepository,
 ):
     """
-    Canonical adapter over the CanonicalKnowledgeRepository.
-
-    The actual repository instance is dependency-injected by
-    the composition root.
+    Canonical adapter over CanonicalKnowledgeRepository.
     """
 
     repository: CanonicalKnowledgeRepository
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Display
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
-    def display_name(
-        self,
-    ) -> str:
+    def display_name(self) -> str:
         return "Default Lexical Repository"
 
     @property
-    def display_text(
-        self,
-    ) -> str:
+    def display_text(self) -> str:
         return self.display_name
 
     @property
-    def display_description(
-        self,
-    ) -> str:
+    def display_description(self) -> str:
         return (
             "Canonical adapter exposing lexical knowledge."
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Entry
-    # =========================================================
+    # ---------------------------------------------------------
 
     def get_entry(
         self,
@@ -102,9 +106,9 @@ class DefaultLexicalRepository(
             headword,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Lemma
-    # =========================================================
+    # ---------------------------------------------------------
 
     def find_entries_by_lemma(
         self,
@@ -118,9 +122,9 @@ class DefaultLexicalRepository(
             lemma,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Word Form
-    # =========================================================
+    # ---------------------------------------------------------
 
     def find_entries_by_word_form(
         self,
@@ -134,9 +138,9 @@ class DefaultLexicalRepository(
             word_form,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Senses
-    # =========================================================
+    # ---------------------------------------------------------
 
     def find_senses(
         self,
@@ -150,9 +154,9 @@ class DefaultLexicalRepository(
             headword,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Search
-    # =========================================================
+    # ---------------------------------------------------------
 
     def search(
         self,
@@ -166,9 +170,9 @@ class DefaultLexicalRepository(
             query,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Enumeration
-    # =========================================================
+    # ---------------------------------------------------------
 
     def all_entries(
         self,
@@ -179,22 +183,16 @@ class DefaultLexicalRepository(
 
         return self.repository.all_entries()
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Information
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
-    def count(
-        self,
-    ) -> int:
+    def count(self) -> int:
 
         return self.repository.lexical_entry_count
 
-    # =========================================================
-    # String Representation
-    # =========================================================
+    # ---------------------------------------------------------
 
-    def __str__(
-        self,
-    ) -> str:
+    def __str__(self) -> str:
         return self.display_text

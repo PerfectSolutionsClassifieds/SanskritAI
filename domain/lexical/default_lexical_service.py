@@ -5,97 +5,80 @@ SanskritAI
 ==========
 
 Default Lexical Service
+=======================
 
-Canonical implementation of the LexicalService.
+Canonical concrete implementation of LexicalService.
+
+The DefaultLexicalService does not duplicate lexical lookup
+logic. It inherits the canonical service orchestration and
+therefore uses:
+
+    LexicalService
+        ↓
+    LexicalLookupEngine
+        ↓
+    LexicalRepository
+        ↓
+    CanonicalKnowledgeRepository
 
 Responsibilities
 ----------------
+• provide the canonical LexicalService implementation
+• preserve the repository-based composition-root contract
+• expose the default lexical contributor to ResolutionPipeline
 
-• invokes the LexicalLookupEngine
-
-• enriches ResolutionState
-
-• stores LexicalResolutionResult
-
-The service performs no lexical reasoning.
-
-All lookup logic resides inside LexicalLookupEngine.
-
-Architecture
-
-ResolutionState
-        │
-        ▼
-DefaultLexicalService
-        │
-        ▼
-LexicalLookupEngine
-        │
-        ▼
-CanonicalKnowledgeRepository
+No lexical reasoning is implemented here.
 
 Version
 -------
-v2.0.0
+v3.1.0
 """
 
 from dataclasses import dataclass
 
-from SanskritAI.domain.lexical.lexical_lookup_engine import (
-    LexicalLookupEngine,
-)
-
-from SanskritAI.domain.lexical.lexical_resolution_result import (
-    LexicalResolutionResult,
-)
-
-from SanskritAI.domain.resolution.resolution_state import (
-    ResolutionState,
+from SanskritAI.domain.lexical.lexical_service import (
+    LexicalService,
 )
 
 
-@dataclass(frozen=True, slots=True)
-class DefaultLexicalService:
+@dataclass(
+    frozen=True,
+    slots=True,
+)
+class DefaultLexicalService(
+    LexicalService,
+):
     """
-    Canonical lexical resolution service.
-    """
+    Canonical LexicalService implementation.
 
-    lookup_engine: LexicalLookupEngine
+    All lexical resolution behavior is inherited from
+    LexicalService.
+    """
 
     @property
-    def display_name(self) -> str:
+    def display_name(
+        self,
+    ) -> str:
         return "Default Lexical Service"
 
     @property
-    def display_text(self) -> str:
+    def display_text(
+        self,
+    ) -> str:
         return self.display_name
 
     @property
-    def display_description(self) -> str:
+    def display_description(
+        self,
+    ) -> str:
         return (
             "Canonical lexical resolution service."
         )
 
-    def resolve(
+    # ---------------------------------------------------------
+
+    def __str__(
         self,
-        state: ResolutionState,
-    ) -> ResolutionState:
-        """
-        Performs lexical resolution and enriches the supplied
-        ResolutionState.
-        """
+    ) -> str:
 
-        lexical_result: LexicalResolutionResult = (
-            self.lookup_engine.lookup(
-                state.context,
-            )
-        )
-
-        state.lexical_result = lexical_result
-
-        state.payload = lexical_result
-
-        if lexical_result.confidence < state.confidence:
-            state.confidence = lexical_result.confidence
-
-        return state
+        return self.display_text

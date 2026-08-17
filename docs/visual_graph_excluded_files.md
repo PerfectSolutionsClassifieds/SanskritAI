@@ -1,5 +1,5 @@
 # Excluded Files
-Generated: 2026-08-16T06:02:37.620701Z
+Generated: 2026-08-17T00:42:18.872368Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - application/execution_context1.py  — stem_ends_with_digits
@@ -62,6 +62,7 @@ Generated: 2026-08-16T06:02:37.620701Z
 - domain/resolution/resolution_result1.py  — stem_ends_with_digits
 - domain/resolution/resolution_result2.py  — stem_ends_with_digits
 - domain/resolution/resolution_result3.py  — stem_ends_with_digits
+- domain/resolution/resolution_result4.py  — stem_ends_with_digits
 - domain/resolution/resolution_stage1.py  — stem_ends_with_digits
 - domain/resolution/resolution_stage2.py  — stem_ends_with_digits
 - domain/resolution/resolution_stage3.py  — stem_ends_with_digits
@@ -177,16 +178,22 @@ Generated: 2026-08-16T06:02:37.620701Z
 - domain/pratyaya/pratyaya_rule_set1.py  — stem_ends_with_digits
 - domain/pratyaya/specific_pratyaya_rules1.py  — stem_ends_with_digits
 - domain/pipeline/default_derivation_pipeline1.py  — stem_ends_with_digits
+- domain/lexical/default_lexical_repository1.py  — stem_ends_with_digits
 - domain/lexical/default_lexical_resolution_strategy1.py  — stem_ends_with_digits
 - domain/lexical/default_lexical_resolution_strategy2.py  — stem_ends_with_digits
+- domain/lexical/default_lexical_service1.py  — stem_ends_with_digits
 - domain/lexical/lexical_lookup_engine1.py  — stem_ends_with_digits
 - domain/lexical/lexical_lookup_engine2.py  — stem_ends_with_digits
+- domain/lexical/lexical_lookup_engine3.py  — stem_ends_with_digits
 - domain/lexical/lexical_repository1.py  — stem_ends_with_digits
+- domain/lexical/lexical_repository2.py  — stem_ends_with_digits
 - domain/lexical/lexical_resolution_result1.py  — stem_ends_with_digits
 - domain/lexical/lexical_resolution_result2.py  — stem_ends_with_digits
 - domain/lexical/lexical_service1.py  — stem_ends_with_digits
 - domain/lexical/lexical_service2.py  — stem_ends_with_digits
 - domain/lexical/lexical_service3.py  — stem_ends_with_digits
+- domain/lexical/lexical_service4.py  — stem_ends_with_digits
+- domain/lexical/validators/lexical_composite_validator1.py  — stem_ends_with_digits
 - domain/lexical/validators/lexical_relation_validator1.py  — stem_ends_with_digits
 - ai/agent1.py  — stem_ends_with_digits
 - ai/default_agent1.py  — stem_ends_with_digits
@@ -237,6 +244,8 @@ Generated: 2026-08-16T06:02:37.620701Z
 - tests/domain/reader/test_reader_workspace_integration1.py  — stem_ends_with_digits
 - tests/domain/reader/test_reader_workspace_integration2.py  — stem_ends_with_digits
 - tests/domain/pratyaya/test_pratyaya_analysis_collection1.py  — stem_ends_with_digits
+- tests/domain/lexical/validators/test_lexical_composite_validator1.py  — stem_ends_with_digits
+- tests/domain/lexical/validators/test_lexical_composite_validator2.py  — stem_ends_with_digits
 - tests/panini/testing/panini_test_case1.py  — stem_ends_with_digits
 - tests/panini/mocks/mock_rule1.py  — stem_ends_with_digits
 - tests/panini/mocks/mock_rule2.py  — stem_ends_with_digits

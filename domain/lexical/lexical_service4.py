@@ -5,7 +5,6 @@ SanskritAI
 ==========
 
 Lexical Service
-===============
 
 Application-facing façade for the Lexical Kernel.
 
@@ -14,14 +13,18 @@ Resolution Pipeline.
 
 Responsibilities
 ----------------
-• canonical lexical lookup
-• headword retrieval
-• lemma lookup
-• word-form lookup
-• sense lookup
-• lexical search
-• candidate construction through LexicalLookupEngine
-• contribution to ResolutionResult
+
+• Canonical lexical lookup
+
+• Headword retrieval
+
+• Lemma lookup
+
+• Word-form lookup
+
+• Candidate construction
+
+• Contribution to ResolutionResult
 
 Architecture
 ------------
@@ -31,21 +34,15 @@ ResolutionPipeline
         ▼
 LexicalService
         │
-        ├── LexicalLookupEngine
-        │
         ▼
 LexicalRepository
         │
         ▼
 CanonicalKnowledgeRepository
 
-The service contains no repository implementation details and
-no lexical reasoning. Lookup orchestration remains delegated
-to LexicalLookupEngine.
-
 Version
 -------
-v3.1.0
+v3.0.0
 """
 
 from dataclasses import dataclass
@@ -55,7 +52,6 @@ from SanskritAI.core.mixins.displayable import Displayable
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
     CanonicalDictionaryEntry,
 )
-
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
     CanonicalDictionarySense,
 )
@@ -64,8 +60,8 @@ from SanskritAI.domain.lexical.lexical_repository import (
     LexicalRepository,
 )
 
-from SanskritAI.domain.lexical.lexical_lookup_engine import (
-    LexicalLookupEngine,
+from SanskritAI.domain.lexical.default_lexical_lookup_engine import (
+    DefaultLexicalLookupEngine,
 )
 
 from SanskritAI.domain.lexical.lexical_resolution_result import (
@@ -96,7 +92,7 @@ class LexicalService(
     """
     Domain façade over lexical knowledge.
 
-    The service is also the lexical contributor of the
+    This service is also the lexical contributor of the
     canonical Resolution Pipeline.
     """
 
@@ -107,21 +103,15 @@ class LexicalService(
     # ---------------------------------------------------------
 
     @property
-    def display_name(
-        self,
-    ) -> str:
+    def display_name(self) -> str:
         return "Lexical Service"
 
     @property
-    def display_text(
-        self,
-    ) -> str:
+    def display_text(self) -> str:
         return self.display_name
 
     @property
-    def display_description(
-        self,
-    ) -> str:
+    def display_description(self) -> str:
         return (
             "Domain façade for canonical lexical retrieval."
         )
@@ -133,19 +123,16 @@ class LexicalService(
     @property
     def lookup_engine(
         self,
-    ) -> LexicalLookupEngine:
+    ) -> DefaultLexicalLookupEngine:
         """
-        Canonical lexical lookup engine.
-
-        The engine owns lookup orchestration and ranking.
+        Canonical lookup engine.
         """
-
-        return LexicalLookupEngine(
+        return DefaultLexicalLookupEngine(
             repository=self.repository,
         )
 
     # ---------------------------------------------------------
-    # Resolution
+    # Resolution Pipeline Contribution
     # ---------------------------------------------------------
 
     def resolve(
@@ -154,18 +141,10 @@ class LexicalService(
     ) -> LexicalResolutionResult:
         """
         Performs lexical resolution.
-
-        Resolution logic is delegated entirely to
-        LexicalLookupEngine.
         """
-
         return self.lookup_engine.lookup(
             context,
         )
-
-    # ---------------------------------------------------------
-    # Resolution Pipeline Contribution
-    # ---------------------------------------------------------
 
     def contribute(
         self,
@@ -173,10 +152,9 @@ class LexicalService(
         context: ResolutionContext,
     ) -> ResolutionResult:
         """
-        Contributes lexical resolution to the aggregate
+        Contributes lexical analysis to the aggregate
         ResolutionResult.
         """
-
         lexical_result = self.resolve(
             context,
         )
@@ -193,7 +171,6 @@ class LexicalService(
         self,
         headword: str,
     ) -> CanonicalDictionaryEntry | None:
-
         return self.repository.get_entry(
             headword,
         )
@@ -209,7 +186,6 @@ class LexicalService(
         CanonicalDictionaryEntry,
         ...,
     ]:
-
         return self.repository.find_entries_by_lemma(
             lemma,
         )
@@ -225,7 +201,6 @@ class LexicalService(
         CanonicalDictionaryEntry,
         ...,
     ]:
-
         return self.repository.find_entries_by_word_form(
             word_form,
         )
@@ -241,7 +216,6 @@ class LexicalService(
         CanonicalDictionarySense,
         ...,
     ]:
-
         return self.repository.find_senses(
             headword,
         )
@@ -257,7 +231,6 @@ class LexicalService(
         CanonicalDictionaryEntry,
         ...,
     ]:
-
         return self.repository.search(
             query,
         )
@@ -272,7 +245,6 @@ class LexicalService(
         CanonicalDictionaryEntry,
         ...,
     ]:
-
         return self.repository.all_entries()
 
     # ---------------------------------------------------------
@@ -283,7 +255,6 @@ class LexicalService(
     def count(
         self,
     ) -> int:
-
         return self.repository.count
 
     # ---------------------------------------------------------
@@ -291,5 +262,4 @@ class LexicalService(
     def __str__(
         self,
     ) -> str:
-
         return self.display_text
