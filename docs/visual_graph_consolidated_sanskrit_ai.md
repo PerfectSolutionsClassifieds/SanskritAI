@@ -5077,6 +5077,28 @@
                 - bridge(self, dhatu, pratyaya_source)
                 - to_payloads(self, dhatu, pratyaya_source)
       📂 dhatu/
+        📄 default_dhatu_repository.py
+            🏗️ Classes:
+              • class DefaultDhatuRepository:
+                - __init__(self, dhatus)
+                - _validate_dhatu(dhatu)
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - get(self, identifier)
+                - find_by_root(self, root)
+                - find_by_gana(self, gana)
+                - search(self, query)
+                - all(self)
+                - contains(self, identifier)
+                - count(self)
+                - register(self, dhatu)
+                - register_many(self, dhatus)
+                - remove(self, identifier)
+                - clear(self)
+                - __len__(self)
+                - __contains__(self, identifier)
+                - __str__(self)
         📄 default_dhatu_resolver.py
             🏗️ Classes:
               • class DefaultDhatuResolver:
@@ -8668,6 +8690,18 @@
                 - search(self, query)
                 - all(self)
                 - count(self)
+        📄 default_semantic_resolution_kernel.py
+            🏗️ Classes:
+              • class DefaultSemanticResolutionKernel:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - resolution_strategy(self)
+                - kernel(self)
+                - build_context(self, context)
+                - resolve(self, context)
+                - __call__(self, context)
+                - __str__(self)
         📄 default_semantic_resolver.py
             🏗️ Classes:
               • class DefaultSemanticResolver:
@@ -8917,6 +8951,17 @@
                 - search(self, query)
                 - all(self)
                 - count(self)
+        📄 semantic_resolution_kernel.py
+            🏗️ Classes:
+              • class SemanticResolutionKernel:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - resolution_strategy(self)
+                - resolve(self, context)
+                - _to_resolution_result(result)
+                - __call__(self, context)
+                - __str__(self)
         📄 semantic_resolution_result.py
             🏗️ Classes:
               • class SemanticResolutionResult:
@@ -10600,6 +10645,39 @@
                   - applies_to(self, context)
                   - apply(self, context)
         📂 dhatu/
+          📄 test_default_dhatu_repository.py
+              ⚙️ Functions:
+                • make_dhatu(identifier, root, gana, transliteration, meaning, notes)
+              🏗️ Classes:
+                • class TestDefaultDhatuRepository:
+                  - test_can_be_created_empty(self)
+                  - test_accepts_initial_dhatus(self)
+                  - test_get_unknown_returns_none(self)
+                  - test_contains_identifier(self)
+                  - test_find_by_root(self)
+                  - test_find_by_root_unknown_returns_empty(self)
+                  - test_find_by_gana(self)
+                  - test_find_by_gana_unknown_returns_empty(self)
+                  - test_search_by_identifier(self)
+                  - test_search_by_root(self)
+                  - test_search_by_transliteration(self)
+                  - test_search_by_meaning(self)
+                  - test_search_by_notes(self)
+                  - test_search_by_gana_name(self)
+                  - test_search_is_case_insensitive_for_latin_fields(self)
+                  - test_empty_search_returns_empty(self)
+                  - test_unknown_search_returns_empty(self)
+                  - test_all_returns_insertion_order(self)
+                  - test_register_adds_dhatu(self)
+                  - test_register_replaces_same_identifier(self)
+                  - test_register_many(self)
+                  - test_register_rejects_none(self)
+                  - test_register_rejects_wrong_type(self)
+                  - test_register_rejects_empty_identifier(self)
+                  - test_register_rejects_empty_root(self)
+                  - test_remove_existing(self)
+                  - test_remove_unknown_returns_false(self)
+                  - test_clear(self)
           📄 test_dhatu_service.py
               🏗️ Classes:
                 • class TestDhatuService:
@@ -11637,6 +11715,15 @@
               🏗️ Classes:
                 • class StubSandhiRepository:
         📂 semantic/
+          📄 test_default_semantic_resolution_kernel.py
+              ⚙️ Functions:
+                • make_context()
+                • test_default_kernel_can_be_constructed()
+                • test_default_kernel_exposes_generic_kernel()
+                • test_default_kernel_builds_semantic_context()
+                • test_default_kernel_preserves_metadata()
+              🏗️ Classes:
+                • class StubSemanticRepository:
           📄 test_semantic_relation_collection.py
               ⚙️ Functions:
                 • make_relation(identifier, relation)
@@ -11658,6 +11745,24 @@
                   - test_display_text(self)
                   - test_display_description(self)
                   - test_string_representation(self)
+          📄 test_semantic_resolution_kernel.py
+              ⚙️ Functions:
+                • make_context()
+                • test_kernel_delegates_to_strategy()
+                • test_kernel_preserves_context()
+                • test_kernel_returns_empty_analysis_collection_when_unresolved()
+              🏗️ Classes:
+                • class StubSemanticStrategy:
+                  - __init__(self)
+                  - analyze(self, context)
+          📄 test_semantic_service.py
+              ⚙️ Functions:
+                • make_context()
+                • test_service_can_be_constructed()
+                • test_service_creates_default_kernel()
+                • test_service_resolve_returns_resolution_result()
+              🏗️ Classes:
+                • class StubSemanticRepository:
       📂 importers/
         📄 run_all_tests.py
             🔹 Constants:
@@ -12133,6 +12238,8 @@
                   - assert_context_iteration(self, context, expected)
                   - assert_rule_applied(self, trace, sutra_number)
                   - print_trace(self, trace)
+    📂 tools/
+      📄 diagnose_semantic_rules.py
     📂 utils/
       📄 __init__.py
       📄 helpers.py

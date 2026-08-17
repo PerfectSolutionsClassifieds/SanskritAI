@@ -54,21 +54,14 @@ class SemanticRuleSet(
         return len(self.rules)
 
     def add(self, rule: SemanticRule) -> "SemanticRuleSet":
-        return SemanticRuleSet(
-            rules=self.rules + (rule,),
-        )
+        return SemanticRuleSet(rules=self.rules + (rule,))
 
-    def apply(
-        self,
-        context: SemanticContext,
-    ) -> tuple[Any, ...]:
+    def apply(self, context: SemanticContext) -> tuple[Any, ...]:
         candidates: list[Any] = []
 
         for rule in self.rules:
             if rule.applies_to(context):
-                candidates.extend(
-                    rule.apply(context)
-                )
+                candidates.extend(rule.apply(context))
 
         return tuple(dict.fromkeys(candidates))
 
@@ -78,10 +71,7 @@ class SemanticRuleSet(
     def __iter__(self) -> Iterator[SemanticRule]:
         return iter(self.rules)
 
-    def __getitem__(
-        self,
-        index: int,
-    ) -> SemanticRule:
+    def __getitem__(self, index: int) -> SemanticRule:
         return self.rules[index]
 
     def __str__(self) -> str:

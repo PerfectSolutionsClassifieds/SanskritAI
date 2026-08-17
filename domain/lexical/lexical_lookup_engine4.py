@@ -28,15 +28,8 @@ It must NOT depend directly on:
     • LexicalService
     • Composition-root objects
 
-The ranking dependency follows the same architectural pattern:
-
-    LookupRankingPolicy
-            ↑
-            │
-    DefaultLookupRankingPolicy
-
-The engine depends on the abstraction while using the
-canonical concrete implementation as its default.
+This keeps the Lexical Kernel independent from the
+acquisition/composition layer and prevents circular imports.
 
 Pipeline
 --------
@@ -52,7 +45,7 @@ LexicalResolutionResult
 
 Version
 -------
-v3.1.0
+v3.0.0
 """
 
 from SanskritAI.domain.lexical.lookup_candidate import (
@@ -60,7 +53,6 @@ from SanskritAI.domain.lexical.lookup_candidate import (
 )
 
 from SanskritAI.domain.lexical.lookup_ranking_policy import (
-    DefaultLookupRankingPolicy,
     LookupRankingPolicy,
 )
 
@@ -83,10 +75,6 @@ class LexicalLookupEngine:
 
     The engine orchestrates lexical lookup but contains
     no persistence implementation and no lexical reasoning.
-
-    A LookupRankingPolicy may be injected explicitly.
-    When none is supplied, the canonical
-    DefaultLookupRankingPolicy is used.
     """
 
     def __init__(
@@ -100,7 +88,7 @@ class LexicalLookupEngine:
         self._ranking_policy = (
             ranking_policy
             if ranking_policy is not None
-            else DefaultLookupRankingPolicy()
+            else LookupRankingPolicy()
         )
 
     # =========================================================
@@ -123,9 +111,6 @@ class LexicalLookupEngine:
     ) -> LookupRankingPolicy:
         """
         Candidate ranking policy.
-
-        The returned object conforms to the abstract
-        LookupRankingPolicy contract.
         """
 
         return self._ranking_policy

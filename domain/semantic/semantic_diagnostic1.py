@@ -32,9 +32,13 @@ class SemanticDiagnostic(
     """
 
     code: str
+
     message: str
+
     severity: str = "INFO"
+
     rule: str = ""
+
     location: str = ""
 
     @property

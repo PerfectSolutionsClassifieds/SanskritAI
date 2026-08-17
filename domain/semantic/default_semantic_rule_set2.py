@@ -9,20 +9,17 @@ Default Semantic Rule Set
 Provides the canonical reusable SemanticRuleSet for the
 Semantic Kernel.
 
-The rule set is composed exclusively of concrete semantic
-rules that are part of the current Semantic rule architecture.
-
 Version
 -------
-v1.2.0
+v1.1.0
 """
 
 from SanskritAI.domain.semantic.semantic_rule import (
+    MeaningHintRule,
     SemanticRule,
+    UpstreamSemanticRule,
 )
-from SanskritAI.domain.semantic.semantic_rule_set import (
-    SemanticRuleSet,
-)
+from SanskritAI.domain.semantic.semantic_rule_set import SemanticRuleSet
 from SanskritAI.domain.semantic.semantic_upstream_rules import (
     DerivationSemanticFrameRule,
     GrammarSemanticFrameRule,
@@ -31,29 +28,19 @@ from SanskritAI.domain.semantic.semantic_upstream_rules import (
 )
 
 
-# ---------------------------------------------------------------------------
-# Canonical Semantic Rule Bundle
-# ---------------------------------------------------------------------------
-
 DEFAULT_SEMANTIC_RULES: tuple[SemanticRule, ...] = (
     VakyaSemanticFrameRule(),
     DerivationSemanticFrameRule(),
     SamasaSemanticFrameRule(),
     GrammarSemanticFrameRule(),
+    UpstreamSemanticRule(),
+    MeaningHintRule(),
 )
 
-
-# ---------------------------------------------------------------------------
-# Factory
-# ---------------------------------------------------------------------------
 
 def default_semantic_rule_set() -> SemanticRuleSet:
     """
     Returns the canonical semantic rule bundle.
-
-    The returned SemanticRuleSet contains the concrete upstream
-    semantic-frame rules currently supported by the Semantic
-    architecture.
     """
     return SemanticRuleSet(
         rules=DEFAULT_SEMANTIC_RULES,

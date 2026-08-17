@@ -14,7 +14,7 @@ SemanticResolutionResult used by the Resolution Pipeline.
 
 Version
 -------
-v1.0.1
+v1.0.0
 """
 
 from dataclasses import dataclass, field
@@ -63,7 +63,6 @@ class SemanticResolutionKernel(
     • Orchestrate semantic resolution.
     • Delegate analysis to SemanticStrategy.
     • Adapt SemanticResult into SemanticResolutionResult.
-    • Preserve success/failure state.
     • Adapt SemanticDiagnostic into ResolutionDiagnostic.
 
     The kernel contains no repository logic and no semantic
@@ -82,18 +81,21 @@ class SemanticResolutionKernel(
     def display_name(
         self,
     ) -> str:
+
         return "Semantic Resolution Kernel"
 
     @property
     def display_text(
         self,
     ) -> str:
+
         return self.display_name
 
     @property
     def display_description(
         self,
     ) -> str:
+
         return (
             "Canonical orchestration layer for Semantic "
             "resolution."
@@ -107,6 +109,7 @@ class SemanticResolutionKernel(
     def resolution_strategy(
         self,
     ) -> SemanticStrategy:
+
         return self.strategy
 
     # ---------------------------------------------------------
@@ -143,15 +146,6 @@ class SemanticResolutionKernel(
 
         Existing result models are reused. No duplicate result
         model is introduced.
-
-        The semantic result state is preserved exactly:
-
-            SemanticResult.succeeded
-                    ↓
-            SemanticResolutionResult.succeeded
-
-        Likewise, confidence and diagnostics are propagated
-        without altering the underlying semantic outcome.
         """
 
         from SanskritAI.domain.semantic.semantic_analysis_collection import (
@@ -194,7 +188,6 @@ class SemanticResolutionKernel(
             analyses=analyses,
             diagnostics=diagnostics,
             confidence=result.confidence,
-            succeeded=result.succeeded,
         )
 
     # ---------------------------------------------------------
@@ -205,6 +198,7 @@ class SemanticResolutionKernel(
         self,
         context: SemanticContext,
     ) -> SemanticResolutionResult:
+
         return self.resolve(
             context,
         )
@@ -214,4 +208,5 @@ class SemanticResolutionKernel(
     def __str__(
         self,
     ) -> str:
+
         return self.display_text
