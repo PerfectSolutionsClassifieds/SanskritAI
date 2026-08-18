@@ -1,5 +1,5 @@
 # Excluded Files
-Generated: 2026-08-18T04:53:33.114018Z
+Generated: 2026-08-18T06:01:19.242146Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - ai/agent1.py  — stem_ends_with_digits
@@ -331,6 +331,7 @@ Generated: 2026-08-18T04:53:33.114018Z
 - tests/domain/reader/test_reader_workspace_integration2.py  — stem_ends_with_digits
 - tests/domain/sandhi/test_sandhi_resolution_kernel1.py  — stem_ends_with_digits
 - tests/domain/sandhi/test_sandhi_resolution_kernel2.py  — stem_ends_with_digits
+- tests/domain/sandhi/test_sandhi_resolution_kernel3.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator1.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator2.py  — stem_ends_with_digits
 - tests/domain/pratyaya/test_pratyaya_analysis_collection1.py  — stem_ends_with_digits
