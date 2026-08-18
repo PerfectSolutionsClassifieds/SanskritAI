@@ -25,10 +25,7 @@ from SanskritAI.domain.morphology.grammatical_category import (
 )
 
 
-@dataclass(
-    frozen=True,
-    slots=True,
-)
+@dataclass(frozen=True, slots=True)
 class GrammaticalCategoryCollection(
     ValueObject,
     Immutable,
@@ -38,18 +35,12 @@ class GrammaticalCategoryCollection(
     items: tuple[
         GrammaticalCategory,
         ...
-    ] = field(
-        default_factory=tuple,
-    )
+    ] = field(default_factory=tuple)
 
-    def __iter__(
-        self,
-    ) -> Iterator[GrammaticalCategory]:
+    def __iter__(self) -> Iterator[GrammaticalCategory]:
         return iter(self.items)
 
-    def __len__(
-        self,
-    ) -> int:
+    def __len__(self) -> int:
         return len(self.items)
 
     def __getitem__(
@@ -65,15 +56,11 @@ class GrammaticalCategoryCollection(
         return category in self.items
 
     @property
-    def count(
-        self,
-    ) -> int:
+    def count(self) -> int:
         return len(self.items)
 
     @property
-    def is_empty(
-        self,
-    ) -> bool:
+    def is_empty(self) -> bool:
         return self.count == 0
 
     @property
@@ -96,31 +83,22 @@ class GrammaticalCategoryCollection(
         for item in self.items:
             if item.identifier == identifier:
                 return item
-
         return None
 
     @property
-    def display_name(
-        self,
-    ) -> str:
+    def display_name(self) -> str:
         return "Grammatical Categories"
 
     @property
-    def display_text(
-        self,
-    ) -> str:
+    def display_text(self) -> str:
         return f"{self.count} Categories"
 
     @property
-    def display_description(
-        self,
-    ) -> str:
+    def display_description(self) -> str:
         return (
             "Immutable collection of canonical "
             "grammatical categories."
         )
 
-    def __str__(
-        self,
-    ) -> str:
+    def __str__(self) -> str:
         return self.display_text

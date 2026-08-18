@@ -6,7 +6,7 @@ SanskritAI
 
 Default Morphological Analyzer
 
-Canonical implementation of MorphologicalAnalyzer.
+Canonical implementation of the MorphologicalAnalyzer.
 
 Purpose
 -------
@@ -18,9 +18,13 @@ The analyzer performs grammatical analysis only.
 It deliberately does NOT perform:
 
     • lexical lookup
+
     • dhātu resolution
+
     • repository access
+
     • candidate ranking
+
     • ambiguity resolution
 
 Those responsibilities belong to the Morphological Resolution
@@ -48,10 +52,11 @@ MorphologicalAnalysisCollection
 
 Version
 -------
-v2.1.0
+v2.0.0
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field
 
 from SanskritAI.domain.lexical.word_form import WordForm
 
@@ -82,68 +87,73 @@ class DefaultMorphologicalAnalyzer(
     """
     Canonical rule-based morphology analyzer.
 
-    The analyzer owns only the rule set required to generate
-    candidate analyses.
+    This analyzer simply applies the configured rule set and
+    returns every candidate analysis.
     """
 
     rule_set: MorphologicalRuleSet = field(
         default_factory=default_morphological_rule_set,
     )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Display
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
     def display_name(
         self,
     ) -> str:
+
         return "Default Morphological Analyzer"
 
     @property
     def display_text(
         self,
     ) -> str:
+
         return self.display_name
 
     @property
     def display_description(
         self,
     ) -> str:
+
         return (
             "Canonical rule-based analyzer using the "
             "configured MorphologicalRuleSet."
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Configuration
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
     def rules(
         self,
     ) -> MorphologicalRuleSet:
+
         return self.rule_set
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Analysis
-    # =========================================================
+    # ---------------------------------------------------------
 
     def analyze(
         self,
         word_form: WordForm,
     ) -> MorphologicalAnalysisCollection:
         """
-        Produce candidate analyses for the supplied word form.
+        Produces candidate analyses for the supplied word form.
         """
 
         return self.rule_set.apply(
             word_form,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def __str__(
         self,
     ) -> str:
+
         return self.display_text

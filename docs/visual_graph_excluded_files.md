@@ -1,5 +1,5 @@
 # Excluded Files
-Generated: 2026-08-17T23:52:27.869987Z
+Generated: 2026-08-18T04:53:33.114018Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - ai/agent1.py  — stem_ends_with_digits
@@ -234,8 +234,14 @@ Generated: 2026-08-17T23:52:27.869987Z
 - domain/morphology/default_morphological_analyzer1.py  — stem_ends_with_digits
 - domain/morphology/default_morphological_analyzer2.py  — stem_ends_with_digits
 - domain/morphology/default_morphological_analyzer3.py  — stem_ends_with_digits
+- domain/morphology/default_morphological_analyzer4.py  — stem_ends_with_digits
+- domain/morphology/default_morphological_repository1.py  — stem_ends_with_digits
+- domain/morphology/default_morphological_repository2.py  — stem_ends_with_digits
+- domain/morphology/default_morphological_repository3.py  — stem_ends_with_digits
+- domain/morphology/default_morphological_repository4.py  — stem_ends_with_digits
 - domain/morphology/grammatical_category1.py  — stem_ends_with_digits
 - domain/morphology/grammatical_category_collection1.py  — stem_ends_with_digits
+- domain/morphology/grammatical_category_collection2.py  — stem_ends_with_digits
 - domain/morphology/morphological_context1.py  — stem_ends_with_digits
 - domain/morphology/morphological_context2.py  — stem_ends_with_digits
 - domain/morphology/morphological_features1.py  — stem_ends_with_digits
@@ -248,6 +254,7 @@ Generated: 2026-08-17T23:52:27.869987Z
 - domain/dhatu/default_dhatu_strategy1.py  — stem_ends_with_digits
 - domain/dhatu/default_dhatu_strategy2.py  — stem_ends_with_digits
 - domain/dhatu/dhatu_result1.py  — stem_ends_with_digits
+- domain/dhatu/dhatu_service1.py  — stem_ends_with_digits
 - domain/grammar/default_grammar_analyzer1.py  — stem_ends_with_digits
 - domain/grammar/default_grammar_analyzer2.py  — stem_ends_with_digits
 - domain/grammar/grammar_analyzer1.py  — stem_ends_with_digits
@@ -283,6 +290,7 @@ Generated: 2026-08-17T23:52:27.869987Z
 - acquisition/knowledge/canonical_knowledge_repository1.py  — stem_ends_with_digits
 - acquisition/knowledge/canonical_knowledge_repository2.py  — stem_ends_with_digits
 - acquisition/knowledge/canonical_knowledge_repository3.py  — stem_ends_with_digits
+- acquisition/knowledge/canonical_knowledge_repository4.py  — stem_ends_with_digits
 - acquisition/knowledge/builders/canonical_index_builder1.py  — stem_ends_with_digits
 - acquisition/knowledge/builders/canonical_knowledge_repository_builder1.py  — stem_ends_with_digits
 - acquisition/knowledge/builders/canonical_knowledge_repository_builder2.py  — stem_ends_with_digits
@@ -322,8 +330,13 @@ Generated: 2026-08-17T23:52:27.869987Z
 - tests/domain/reader/test_reader_workspace_integration1.py  — stem_ends_with_digits
 - tests/domain/reader/test_reader_workspace_integration2.py  — stem_ends_with_digits
 - tests/domain/sandhi/test_sandhi_resolution_kernel1.py  — stem_ends_with_digits
+- tests/domain/sandhi/test_sandhi_resolution_kernel2.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator1.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator2.py  — stem_ends_with_digits
 - tests/domain/pratyaya/test_pratyaya_analysis_collection1.py  — stem_ends_with_digits
+- tests/domain/morphology/test_default_morphological_repository1.py  — stem_ends_with_digits
+- tests/domain/morphology/test_default_morphological_service1.py  — stem_ends_with_digits
+- tests/domain/morphology/test_default_morphological_service2.py  — stem_ends_with_digits
+- tests/domain/morphology/test_default_morphological_service3.py  — stem_ends_with_digits
 - tests/domain/dhatu/test_default_dhatu_repository1.py  — stem_ends_with_digits
 - tests/corpus/models/test_base_node1.py  — stem_ends_with_digits

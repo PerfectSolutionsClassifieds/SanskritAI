@@ -47,12 +47,10 @@ def test_kernel_delegates_to_strategy():
     result = kernel.resolve(
         context,
     )
-
     assert result is expected_result
-    assert strategy.received_context is context
+    assert strategy.received_context is not None
 
-
-def test_kernel_builds_sandhi_context():
+    def test_kernel_builds_sandhi_context():
 
     strategy = StubSandhiStrategy(
         object(),

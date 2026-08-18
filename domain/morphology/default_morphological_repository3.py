@@ -50,7 +50,7 @@ DefaultMorphologicalRepository
 
 Version
 -------
-v2.1.0
+v2.0.1
 """
 
 from dataclasses import dataclass, field
@@ -58,22 +58,17 @@ from dataclasses import dataclass, field
 from SanskritAI.domain.morphology.default_morphological_analyzer import (
     DefaultMorphologicalAnalyzer,
 )
-
 from SanskritAI.domain.morphology.default_morphological_rule_set import (
     default_morphological_rule_set,
 )
-
 from SanskritAI.domain.morphology.grammatical_category_collection import (
     GrammaticalCategoryCollection,
 )
-
 from SanskritAI.domain.morphology.lakara import Lakara
 from SanskritAI.domain.morphology.linga import Linga
-
 from SanskritAI.domain.morphology.morphological_rule_set import (
     MorphologicalRuleSet,
 )
-
 from SanskritAI.domain.morphology.pada import Pada
 from SanskritAI.domain.morphology.prayoga import Prayoga
 from SanskritAI.domain.morphology.purusha import Purusha
@@ -86,10 +81,11 @@ class DefaultMorphologicalRepository:
     """
     Canonical repository for the Morphology Kernel.
 
-    The repository owns the canonical MorphologicalRuleSet and
-    exposes the canonical analyzer and grammatical categories.
+    The repository exposes canonical grammatical categories,
+    grouped category collections, the canonical rule set, and
+    the canonical morphological analyzer.
 
-    It performs no linguistic analysis itself.
+    The repository itself performs no linguistic analysis.
     """
 
     rule_set: MorphologicalRuleSet = field(
@@ -103,27 +99,12 @@ class DefaultMorphologicalRepository:
     def __post_init__(self) -> None:
         """
         Construct the canonical analyzer from the repository's
-        MorphologicalRuleSet.
-
-        The analyzer accepts `rule_set`, not `kernel`.
+        configured MorphologicalRuleSet.
         """
 
         self.analyzer = DefaultMorphologicalAnalyzer(
             rule_set=self.rule_set,
         )
-
-    # =========================================================
-    # Statistics
-    # =========================================================
-
-    @property
-    def count(self) -> int:
-        """
-        Number of canonical morphological rules exposed by
-        this repository.
-        """
-
-        return len(self.rule_set)
 
     # =========================================================
     # Canonical Categories
@@ -166,7 +147,7 @@ class DefaultMorphologicalRepository:
         self,
     ) -> GrammaticalCategoryCollection:
         """
-        Canonical nominal grammatical categories.
+        Return the canonical nominal grammatical categories.
         """
 
         return GrammaticalCategoryCollection(
@@ -182,7 +163,7 @@ class DefaultMorphologicalRepository:
         self,
     ) -> GrammaticalCategoryCollection:
         """
-        Canonical verbal grammatical categories.
+        Return the canonical verbal grammatical categories.
         """
 
         return GrammaticalCategoryCollection(
@@ -199,7 +180,7 @@ class DefaultMorphologicalRepository:
         self,
     ) -> GrammaticalCategoryCollection:
         """
-        All canonical grammatical categories.
+        Return all canonical grammatical categories.
         """
 
         return GrammaticalCategoryCollection(
@@ -215,7 +196,7 @@ class DefaultMorphologicalRepository:
         )
 
     # =========================================================
-    # Morphology Kernel
+    # Rule Set
     # =========================================================
 
     @property
@@ -223,21 +204,21 @@ class DefaultMorphologicalRepository:
         self,
     ) -> MorphologicalRuleSet:
         """
-        Canonical MorphologicalRuleSet.
+        Return the canonical MorphologicalRuleSet.
         """
 
         return self.rule_set
+
+    # =========================================================
+    # Analyzer
+    # =========================================================
 
     @property
     def morphological_analyzer(
         self,
     ) -> DefaultMorphologicalAnalyzer:
         """
-        Canonical MorphologicalAnalyzer.
+        Return the canonical morphological analyzer.
         """
 
         return self.analyzer
-
-    @property
-    def count(self) -> int:
-        return len(self.rule_set)

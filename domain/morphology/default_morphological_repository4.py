@@ -237,7 +237,3 @@ class DefaultMorphologicalRepository:
         """
 
         return self.analyzer
-
-    @property
-    def count(self) -> int:
-        return len(self.rule_set)

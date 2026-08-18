@@ -5112,6 +5112,15 @@
               • DEFAULT_DHATU_RULES
             ⚙️ Functions:
               • default_dhatu_rule_set()
+        📄 default_dhatu_service.py
+            🏗️ Classes:
+              • class DefaultDhatuService:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - analyze(self, context)
+                - resolve(self, context)
+                - __str__(self)
         📄 default_dhatu_strategy.py
             🏗️ Classes:
               • class DefaultDhatuStrategy:
@@ -5920,6 +5929,7 @@
             🏗️ Classes:
               • class DefaultMorphologicalRepository:
                 - __post_init__(self)
+                - count(self)
                 - vibhakti(self)
                 - vacana(self)
                 - linga(self)
@@ -5932,6 +5942,7 @@
                 - all_categories(self)
                 - morphological_rule_set(self)
                 - morphological_analyzer(self)
+                - count(self)
         📄 default_morphological_resolution_kernel.py
             🏗️ Classes:
               • class DefaultMorphologicalResolutionKernel:
@@ -5955,14 +5966,29 @@
         📄 default_morphological_service.py
             🏗️ Classes:
               • class DefaultMorphologicalService:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - morphological_repository(self)
+                - resolution_kernel(self)
+                - analyzer(self)
                 - analyze(self, word_form)
+                - resolve(self, context)
+                - __call__(self, context)
+                - vibhakti(self)
+                - vacana(self)
+                - linga(self)
+                - purusha(self)
+                - lakara(self)
+                - pada(self)
+                - prayoga(self)
                 - nominal_categories(self)
                 - verbal_categories(self)
                 - all_categories(self)
                 - rule_set(self)
-                - display_name(self)
-                - display_text(self)
-                - display_description(self)
+                - morphological_rule_set(self)
+                - count(self)
+                - __str__(self)
         📄 grammatical_category.py
             🏗️ Classes:
               • class GrammaticalCategory:
@@ -10678,6 +10704,18 @@
                   - test_remove_existing(self)
                   - test_remove_unknown_returns_false(self)
                   - test_clear(self)
+          📄 test_default_dhatu_service.py
+              🏗️ Classes:
+                • class TestDefaultDhatuService:
+                  - test_creates_default_service(self)
+                  - test_default_resolver_is_created(self)
+                  - test_display_name(self)
+                  - test_display_text(self)
+                  - test_display_description(self)
+                  - test_delegates_analysis_to_resolver(self)
+                  - test_resolve_is_alias_for_analyze(self)
+                  - test_service_is_immutable(self)
+                  - test_string_representation(self)
           📄 test_dhatu_service.py
               🏗️ Classes:
                 • class TestDhatuService:
@@ -10922,6 +10960,23 @@
                     - test_items(self)
                     - test_default_validator_classes_are_defined(self)
         📂 morphology/
+          📄 test_default_morphological_repository.py
+              🏗️ Classes:
+                • class TestDefaultMorphologicalRepository:
+                  - test_default_construction(self)
+                  - test_rule_set_is_canonical(self)
+                  - test_analyzer_is_canonical(self)
+                  - test_analyzer_uses_repository_rule_set(self)
+                  - test_count_matches_rule_set(self)
+                  - test_nominal_categories(self)
+                  - test_verbal_categories(self)
+                  - test_all_categories(self)
+                  - test_nominal_categories_are_not_empty(self)
+                  - test_verbal_categories_are_not_empty(self)
+                  - test_all_categories_are_not_empty(self)
+                  - test_canonical_category_is_exposed(self, attribute)
+                  - test_morphological_rule_set_alias(self)
+                  - test_morphological_analyzer_alias(self)
           📄 test_default_morphological_resolution_kernel.py
               🏗️ Classes:
                 • class TestDefaultMorphologicalResolutionKernel:
@@ -10934,6 +10989,67 @@
                   - test_call_delegates_to_resolve(self)
                   - test_display_contract(self)
                   - test_string_representation(self)
+          📄 test_default_morphological_service.py
+              🏗️ Classes:
+                • class TestDefaultMorphologicalService:
+                  - test_default_construction(self)
+                  - test_default_repository_is_canonical_repository(self)
+                  - test_repository_is_not_none(self)
+                  - test_analyzer_is_canonical_analyzer(self)
+                  - test_analyzer_comes_from_repository(self)
+                  - test_rule_set_is_morphological_rule_set(self)
+                  - test_rule_set_is_repository_rule_set(self)
+                  - test_resolution_kernel_is_canonical_kernel(self)
+                  - test_resolution_kernel_uses_service_repository(self)
+                  - test_display_name(self)
+                  - test_display_text_matches_display_name(self)
+                  - test_string_representation(self)
+                  - test_service_is_frozen(self)
+                  - test_nominal_categories_are_exposed(self)
+                  - test_verbal_categories_are_exposed(self)
+                  - test_all_categories_are_exposed(self)
+                  - test_vibhakti_is_exposed(self)
+                  - test_vacana_is_exposed(self)
+                  - test_linga_is_exposed(self)
+                  - test_purusha_is_exposed(self)
+                  - test_lakara_is_exposed(self)
+                  - test_pada_is_exposed(self)
+                  - test_prayoga_is_exposed(self)
+                  - test_count_delegates_to_repository(self)
+                  - test_repository_count_is_exposed_by_service(self)
+                  - test_service_count_matches_rule_set_count(self)
+          📄 test_grammatical_category_collection.py
+              🏗️ Classes:
+                • class TestGrammaticalCategoryCollection:
+                  - _create_collection(self)
+                  - test_default_construction(self)
+                  - test_construction_with_items(self)
+                  - test_iteration(self)
+                  - test_len(self)
+                  - test_indexing(self)
+                  - test_first(self)
+                  - test_last(self)
+                  - test_first_on_empty_collection(self)
+                  - test_last_on_empty_collection(self)
+                  - test_contains_existing_category(self)
+                  - test_find_existing_identifier(self)
+                  - test_find_missing_identifier(self)
+                  - test_collection_is_immutable(self)
+                  - test_items_are_tuple(self)
+                  - test_display_name(self)
+                  - test_display_text(self)
+                  - test_display_description(self)
+                  - test_string_representation(self)
+          📄 test_morphological_integration.py
+              🏗️ Classes:
+                • class TestMorphologicalIntegration:
+                  - test_canonical_repository_exposes_morphology_service(self)
+                  - test_morphology_service_uses_canonical_repository(self)
+                  - test_morphology_service_uses_repository_analyzer(self)
+                  - test_morphology_service_uses_repository_rule_set(self)
+                  - test_morphology_service_uses_canonical_resolution_kernel(self)
+                  - test_resolution_kernel_uses_same_repository(self)
+                  - test_repository_count_is_consistent(self)
           📄 test_morphological_resolution_context.py
               🏗️ Classes:
                 • class TestMorphologicalResolutionContext:
@@ -11708,6 +11824,13 @@
               🏗️ Classes:
                 • class StubSandhiRepository:
           📄 test_sandhi_resolution_kernel.py
+              ⚙️ Functions:
+                • test_kernel_delegates_to_strategy()
+                • test_kernel_builds_sandhi_context()
+              🏗️ Classes:
+                • class StubSandhiStrategy:
+                  - __init__(self, result)
+                  - resolve(self, context)
           📄 test_sandhi_service.py
               ⚙️ Functions:
                 • test_sandhi_service_can_be_constructed()

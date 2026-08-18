@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -6,25 +7,18 @@ SanskritAI
 
 Default Morphological Repository
 
-Canonical repository exposing the immutable Morphology Kernel.
+Canonical repository exposing the Morphology Kernel components.
 
 Responsibilities
 ----------------
 
 • provide canonical grammatical categories
-
 • provide grouped category collections
-
-• expose canonical rule set
-
-• expose canonical analyzer
-
+• expose canonical MorphologicalRuleSet
+• expose canonical DefaultMorphologicalAnalyzer
 • provide a single integration point for higher layers
 
 This repository performs NO linguistic analysis.
-
-It simply publishes the canonical objects that make up the
-Morphology Kernel.
 
 Relationship
 ------------
@@ -34,23 +28,13 @@ CanonicalKnowledgeRepository
             ▼
 DefaultMorphologicalRepository
             │
-            ├── Vibhakti
-            ├── Vacana
-            ├── Linga
-            ├── Purusha
-            ├── Lakara
-            ├── Pada
-            ├── Prayoga
-            │
-            ├── NominalMorphologicalRule
-            ├── VerbalMorphologicalRule
-            │
+            ├── grammatical categories
             ├── MorphologicalRuleSet
             └── DefaultMorphologicalAnalyzer
 
 Version
 -------
-v2.1.0
+v3.0.0
 """
 
 from dataclasses import dataclass, field
@@ -69,11 +53,9 @@ from SanskritAI.domain.morphology.grammatical_category_collection import (
 
 from SanskritAI.domain.morphology.lakara import Lakara
 from SanskritAI.domain.morphology.linga import Linga
-
 from SanskritAI.domain.morphology.morphological_rule_set import (
     MorphologicalRuleSet,
 )
-
 from SanskritAI.domain.morphology.pada import Pada
 from SanskritAI.domain.morphology.prayoga import Prayoga
 from SanskritAI.domain.morphology.purusha import Purusha
@@ -86,10 +68,8 @@ class DefaultMorphologicalRepository:
     """
     Canonical repository for the Morphology Kernel.
 
-    The repository owns the canonical MorphologicalRuleSet and
-    exposes the canonical analyzer and grammatical categories.
-
-    It performs no linguistic analysis itself.
+    The repository owns the rule-set/analyzer composition.
+    It does not perform resolution itself.
     """
 
     rule_set: MorphologicalRuleSet = field(
@@ -102,28 +82,17 @@ class DefaultMorphologicalRepository:
 
     def __post_init__(self) -> None:
         """
-        Construct the canonical analyzer from the repository's
-        MorphologicalRuleSet.
+        Construct the analyzer from the canonical rule set.
 
-        The analyzer accepts `rule_set`, not `kernel`.
+        IMPORTANT
+        ---------
+        DefaultMorphologicalAnalyzer expects `rule_set`,
+        not `kernel`.
         """
 
         self.analyzer = DefaultMorphologicalAnalyzer(
             rule_set=self.rule_set,
         )
-
-    # =========================================================
-    # Statistics
-    # =========================================================
-
-    @property
-    def count(self) -> int:
-        """
-        Number of canonical morphological rules exposed by
-        this repository.
-        """
-
-        return len(self.rule_set)
 
     # =========================================================
     # Canonical Categories
@@ -165,12 +134,8 @@ class DefaultMorphologicalRepository:
     def nominal_categories(
         self,
     ) -> GrammaticalCategoryCollection:
-        """
-        Canonical nominal grammatical categories.
-        """
-
         return GrammaticalCategoryCollection(
-            items=(
+            categories=(
                 self.vibhakti,
                 self.vacana,
                 self.linga,
@@ -181,12 +146,8 @@ class DefaultMorphologicalRepository:
     def verbal_categories(
         self,
     ) -> GrammaticalCategoryCollection:
-        """
-        Canonical verbal grammatical categories.
-        """
-
         return GrammaticalCategoryCollection(
-            items=(
+            categories=(
                 self.purusha,
                 self.lakara,
                 self.pada,
@@ -198,12 +159,8 @@ class DefaultMorphologicalRepository:
     def all_categories(
         self,
     ) -> GrammaticalCategoryCollection:
-        """
-        All canonical grammatical categories.
-        """
-
         return GrammaticalCategoryCollection(
-            items=(
+            categories=(
                 self.vibhakti,
                 self.vacana,
                 self.linga,
@@ -215,29 +172,35 @@ class DefaultMorphologicalRepository:
         )
 
     # =========================================================
-    # Morphology Kernel
+    # Kernel Components
     # =========================================================
 
     @property
     def morphological_rule_set(
         self,
     ) -> MorphologicalRuleSet:
-        """
-        Canonical MorphologicalRuleSet.
-        """
-
         return self.rule_set
 
     @property
     def morphological_analyzer(
         self,
     ) -> DefaultMorphologicalAnalyzer:
-        """
-        Canonical MorphologicalAnalyzer.
-        """
-
         return self.analyzer
+
+    # =========================================================
+    # Statistics
+    # =========================================================
 
     @property
     def count(self) -> int:
-        return len(self.rule_set)
+        """
+        Number of canonical rule definitions.
+
+        This is intentionally delegated to the rule set when
+        such a count is available.
+        """
+
+        try:
+            return len(self.rule_set)
+        except TypeError:
+            return 0

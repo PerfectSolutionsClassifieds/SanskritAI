@@ -65,6 +65,7 @@ class TestDhatuService:
 
     def test_analyze_delegates_to_resolver(self):
         resolver = Mock(spec=DhatuResolver)
+
         context = Mock(spec=DhatuContext)
         result = Mock(spec=DhatuResult)
 
@@ -86,6 +87,7 @@ class TestDhatuService:
 
     def test_resolve_is_alias_for_analyze(self):
         resolver = Mock(spec=DhatuResolver)
+
         context = Mock(spec=DhatuContext)
         result = Mock(spec=DhatuResult)
 

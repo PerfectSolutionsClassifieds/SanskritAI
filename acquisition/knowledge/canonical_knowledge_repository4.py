@@ -6,24 +6,65 @@ SanskritAI
 
 Canonical Knowledge Repository
 
-Composition root for the SanskritAI knowledge layer.
+Composition Root for the complete SanskritAI knowledge layer.
 
-This object constructs the canonical repositories and services
-and exposes them through KnowledgeServiceRegistry.
+Responsibilities
+----------------
 
-Important architectural rule
------------------------------
+This class is the ONLY object responsible for constructing
+the canonical linguistic infrastructure.
 
-The composition root may depend on domain implementations.
+It wires together
 
-Domain services must NOT depend on this composition root.
+    • repositories
+
+    • services
+
+    • registry
+
+All downstream components should depend only upon
+
+    KnowledgeServiceRegistry
+
+rather than constructing repositories or services directly.
+
+Architecture
+------------
+
+CanonicalKnowledgeRepository
+            │
+            ▼
+KnowledgeServiceRegistry
+            │
+            ├── Lexical
+            ├── Dhatu
+            ├── Morphology
+            ├── Sandhi
+            ├── Samasa
+            └── Semantic
+
+Future versions may additionally register
+
+    • ResolutionPipeline
+
+    • ReaderEngine
+
+    • AIReasoner
+
+    • PragmaticsEngine
+
+    • CommentarialEngine
 
 Version
 -------
-v3.2.0
+v3.1.0
 """
 
 from dataclasses import dataclass, field
+
+# =========================================================
+# Registry
+# =========================================================
 
 from SanskritAI.acquisition.knowledge.knowledge_service_registry import (
     KnowledgeServiceRegistry,
@@ -86,18 +127,13 @@ from SanskritAI.domain.semantic.default_semantic_service import (
 )
 
 
-@dataclass(
-    slots=True,
-)
+@dataclass(slots=True)
 class CanonicalKnowledgeRepository:
     """
-    SanskritAI composition root.
+    SanskritAI Composition Root.
 
-    Owns construction of the canonical repositories and
-    application services.
-
-    The resulting dependencies are exposed through
-    KnowledgeServiceRegistry.
+    Owns the construction of every repository and service,
+    then exposes them through a single immutable registry.
     """
 
     # =====================================================
@@ -132,37 +168,25 @@ class CanonicalKnowledgeRepository:
     # Services
     # =====================================================
 
-    lexical_service: DefaultLexicalService = field(
-        init=False,
-    )
+    lexical_service: DefaultLexicalService = field(init=False)
 
-    dhatu_service: DefaultDhatuService = field(
-        init=False,
-    )
+    dhatu_service: DefaultDhatuService = field(init=False)
 
     morphological_service: DefaultMorphologicalService = field(
         init=False,
     )
 
-    sandhi_service: DefaultSandhiService = field(
-        init=False,
-    )
+    sandhi_service: DefaultSandhiService = field(init=False)
 
-    samasa_service: DefaultSamasaService = field(
-        init=False,
-    )
+    samasa_service: DefaultSamasaService = field(init=False)
 
-    semantic_service: DefaultSemanticService = field(
-        init=False,
-    )
+    semantic_service: DefaultSemanticService = field(init=False)
 
     # =====================================================
     # Registry
     # =====================================================
 
-    registry: KnowledgeServiceRegistry = field(
-        init=False,
-    )
+    registry: KnowledgeServiceRegistry = field(init=False)
 
     # =====================================================
     # Construction
@@ -178,13 +202,9 @@ class CanonicalKnowledgeRepository:
             repository=self.lexical_repository,
         )
 
-        # IMPORTANT:
-        #
-        # DhatuService is resolver-oriented.
-        # The Dhatu repository remains an independent
-        # registered knowledge component.
-        #
-        self.dhatu_service = DefaultDhatuService()
+        self.dhatu_service = DefaultDhatuService(
+            repository=self.dhatu_repository,
+        )
 
         self.morphological_service = (
             DefaultMorphologicalService(
@@ -216,9 +236,7 @@ class CanonicalKnowledgeRepository:
 
             dhatu_repository=self.dhatu_repository,
 
-            morphological_repository=(
-                self.morphological_repository
-            ),
+            morphological_repository=self.morphological_repository,
 
             sandhi_repository=self.sandhi_repository,
 
@@ -232,9 +250,7 @@ class CanonicalKnowledgeRepository:
 
             dhatu_service=self.dhatu_service,
 
-            morphological_service=(
-                self.morphological_service
-            ),
+            morphological_service=self.morphological_service,
 
             sandhi_service=self.sandhi_service,
 
@@ -254,17 +270,19 @@ class CanonicalKnowledgeRepository:
         """
         Preferred access point.
 
-        Example:
+        Example
 
             repository.services.lexical
-            repository.services.dhatu
-            repository.services.morphology
-        """
 
+            repository.services.morphology
+
+            repository.services.semantic
+        """
         return self.registry
 
     # =====================================================
     # Legacy Convenience Properties
+    # (Backward compatibility)
     # =====================================================
 
     @property
@@ -292,8 +310,6 @@ class CanonicalKnowledgeRepository:
         return self.registry.semantic
 
     # =====================================================
-    # Statistics
-    # =====================================================
 
     @property
     def repository_count(self) -> int:
@@ -306,8 +322,6 @@ class CanonicalKnowledgeRepository:
     @property
     def component_count(self) -> int:
         return self.registry.component_count
-
-    # =====================================================
 
     def __len__(self) -> int:
         return self.component_count

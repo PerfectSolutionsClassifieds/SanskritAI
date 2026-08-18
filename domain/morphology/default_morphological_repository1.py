@@ -50,7 +50,7 @@ DefaultMorphologicalRepository
 
 Version
 -------
-v2.1.0
+v2.0.0
 """
 
 from dataclasses import dataclass, field
@@ -58,22 +58,17 @@ from dataclasses import dataclass, field
 from SanskritAI.domain.morphology.default_morphological_analyzer import (
     DefaultMorphologicalAnalyzer,
 )
-
 from SanskritAI.domain.morphology.default_morphological_rule_set import (
     default_morphological_rule_set,
 )
-
 from SanskritAI.domain.morphology.grammatical_category_collection import (
     GrammaticalCategoryCollection,
 )
-
 from SanskritAI.domain.morphology.lakara import Lakara
 from SanskritAI.domain.morphology.linga import Linga
-
 from SanskritAI.domain.morphology.morphological_rule_set import (
     MorphologicalRuleSet,
 )
-
 from SanskritAI.domain.morphology.pada import Pada
 from SanskritAI.domain.morphology.prayoga import Prayoga
 from SanskritAI.domain.morphology.purusha import Purusha
@@ -84,12 +79,7 @@ from SanskritAI.domain.morphology.vibhakti import Vibhakti
 @dataclass(slots=True)
 class DefaultMorphologicalRepository:
     """
-    Canonical repository for the Morphology Kernel.
-
-    The repository owns the canonical MorphologicalRuleSet and
-    exposes the canonical analyzer and grammatical categories.
-
-    It performs no linguistic analysis itself.
+    Canonical repository for Morphology Kernel.
     """
 
     rule_set: MorphologicalRuleSet = field(
@@ -101,33 +91,13 @@ class DefaultMorphologicalRepository:
     )
 
     def __post_init__(self) -> None:
-        """
-        Construct the canonical analyzer from the repository's
-        MorphologicalRuleSet.
-
-        The analyzer accepts `rule_set`, not `kernel`.
-        """
-
         self.analyzer = DefaultMorphologicalAnalyzer(
-            rule_set=self.rule_set,
+            kernel=self.rule_set,
         )
 
-    # =========================================================
-    # Statistics
-    # =========================================================
-
-    @property
-    def count(self) -> int:
-        """
-        Number of canonical morphological rules exposed by
-        this repository.
-        """
-
-        return len(self.rule_set)
-
-    # =========================================================
-    # Canonical Categories
-    # =========================================================
+    # ---------------------------------------------------------
+    # Canonical categories
+    # ---------------------------------------------------------
 
     @property
     def vibhakti(self) -> Vibhakti:
@@ -157,20 +127,16 @@ class DefaultMorphologicalRepository:
     def prayoga(self) -> Prayoga:
         return Prayoga()
 
-    # =========================================================
-    # Category Collections
-    # =========================================================
+    # ---------------------------------------------------------
+    # Category collections
+    # ---------------------------------------------------------
 
     @property
     def nominal_categories(
         self,
     ) -> GrammaticalCategoryCollection:
-        """
-        Canonical nominal grammatical categories.
-        """
-
         return GrammaticalCategoryCollection(
-            items=(
+            categories=(
                 self.vibhakti,
                 self.vacana,
                 self.linga,
@@ -181,12 +147,8 @@ class DefaultMorphologicalRepository:
     def verbal_categories(
         self,
     ) -> GrammaticalCategoryCollection:
-        """
-        Canonical verbal grammatical categories.
-        """
-
         return GrammaticalCategoryCollection(
-            items=(
+            categories=(
                 self.purusha,
                 self.lakara,
                 self.pada,
@@ -198,12 +160,8 @@ class DefaultMorphologicalRepository:
     def all_categories(
         self,
     ) -> GrammaticalCategoryCollection:
-        """
-        All canonical grammatical categories.
-        """
-
         return GrammaticalCategoryCollection(
-            items=(
+            categories=(
                 self.vibhakti,
                 self.vacana,
                 self.linga,
@@ -214,30 +172,18 @@ class DefaultMorphologicalRepository:
             )
         )
 
-    # =========================================================
-    # Morphology Kernel
-    # =========================================================
+    # ---------------------------------------------------------
+    # Kernel
+    # ---------------------------------------------------------
 
     @property
     def morphological_rule_set(
         self,
     ) -> MorphologicalRuleSet:
-        """
-        Canonical MorphologicalRuleSet.
-        """
-
         return self.rule_set
 
     @property
     def morphological_analyzer(
         self,
     ) -> DefaultMorphologicalAnalyzer:
-        """
-        Canonical MorphologicalAnalyzer.
-        """
-
         return self.analyzer
-
-    @property
-    def count(self) -> int:
-        return len(self.rule_set)
