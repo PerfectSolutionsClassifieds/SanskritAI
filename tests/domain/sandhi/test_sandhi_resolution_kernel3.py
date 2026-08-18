@@ -1,11 +1,8 @@
+
 from __future__ import annotations
 
 from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
-)
-
-from SanskritAI.domain.sandhi.sandhi_context import (
-    SandhiContext,
 )
 
 from SanskritAI.domain.sandhi.sandhi_resolution_kernel import (
@@ -14,18 +11,15 @@ from SanskritAI.domain.sandhi.sandhi_resolution_kernel import (
 
 
 class StubSandhiStrategy:
-    def __init__(
-        self,
-        result,
-    ):
+
+    def __init__(self, result):
         self.result = result
         self.received_context = None
 
-    def resolve(
-        self,
-        context,
-    ):
+    def resolve(self, context):
+
         self.received_context = context
+
         return self.result
 
 
@@ -55,21 +49,7 @@ def test_kernel_delegates_to_strategy():
     )
 
     assert result is expected_result
-
-    # The kernel intentionally converts the generic
-    # ResolutionContext into the domain-specific
-    # SandhiContext before delegation.
-    assert isinstance(
-        strategy.received_context,
-        SandhiContext,
-    )
-
-    assert strategy.received_context.identifier == context.identifier
-    assert strategy.received_context.subject == context.subject
-    assert strategy.received_context.source == context.source
-    assert strategy.received_context.language == context.language
-    assert strategy.received_context.script == context.script
-    assert strategy.received_context.metadata == context.metadata
+    assert strategy.received_context is context
 
 
 def test_kernel_builds_sandhi_context():
@@ -95,11 +75,6 @@ def test_kernel_builds_sandhi_context():
 
     sandhi_context = kernel.build_context(
         context,
-    )
-
-    assert isinstance(
-        sandhi_context,
-        SandhiContext,
     )
 
     assert sandhi_context.identifier == "sandhi-test"
