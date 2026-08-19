@@ -662,6 +662,36 @@
               🏗️ Classes:
                 • class MonierWilliamsTransformer:
                   - transform(self, entry)
+      📂 lexical/
+        📄 __init__.py
+        📂 monier_williams/
+          📄 __init__.py
+          📄 delimited_monier_williams_parser.py
+              🏗️ Classes:
+                • class DelimitedMonierWilliamsParser:
+                  - __init__(self)
+                  - parse(self, source_text)
+                  - _value(row, column)
+          📄 file_monier_williams_source.py
+              🏗️ Classes:
+                • class FileMonierWilliamsSource:
+                  - __post_init__(self)
+                  - read(self)
+          📄 monier_williams_acquisition_service.py
+              🏗️ Classes:
+                • class MonierWilliamsAcquisitionService:
+                  - acquire(self)
+                  - count(self)
+          📄 monier_williams_parser.py
+              🏗️ Classes:
+                • class MonierWilliamsParser:
+                  - parse(self, source_text)
+                  - parse_lines(self, lines)
+          📄 monier_williams_source.py
+              🏗️ Classes:
+                • class MonierWilliamsSource:
+                  - source(self)
+                  - read(self)
       📂 metadata/
         📄 __init__.py
         📄 base_metadata_extractor.py
@@ -5857,6 +5887,35 @@
                 - canonical_form(self)
                 - is_lemma(self)
                 - __str__(self)
+        📂 adapters/
+          📄 __init__.py
+          📄 in_memory_monier_williams_adapter.py
+              🏗️ Classes:
+                • class InMemoryMonierWilliamsAdapter:
+                  - __init__(self, records)
+                  - lookup(self, headword)
+                  - search(self, query)
+                  - all_records(self)
+                  - count(self)
+          📄 monier_williams_adapter.py
+              🏗️ Classes:
+                • class MonierWilliamsAdapter:
+                  - source(self)
+                  - lookup(self, headword)
+                  - search(self, query)
+                  - all_records(self)
+                  - count(self)
+                  - normalize_headword(value)
+                  - normalize_record(cls, record)
+                  - normalize_records(cls, records)
+          📄 monier_williams_mapper.py
+              🏗️ Classes:
+                • class MonierWilliamsMapper:
+                  - to_entry(cls, record)
+                  - to_sense(cls, record)
+          📄 monier_williams_record.py
+              🏗️ Classes:
+                • class MonierWilliamsRecord:
         📂 validators/
           📄 base_lexical_validator.py
               🏗️ Classes:
@@ -10334,6 +10393,35 @@
                 - test_unknown(self)
                 - test_is_reference(self)
                 - test_string(self)
+          📂 monier_williams/
+            📄 test_delimited_monier_williams_parser.py
+                ⚙️ Functions:
+                  • test_parser_reads_single_record()
+                  • test_parser_reads_multiple_records()
+                  • test_parser_returns_empty_tuple_for_empty_source()
+                  • test_parser_rejects_non_string_source()
+                  • test_parser_requires_header()
+                  • test_parser_requires_headword_column()
+                  • test_parser_requires_definition_column()
+                  • test_parser_rejects_missing_headword_value()
+                  • test_parser_rejects_missing_definition_value()
+                  • test_parser_supports_custom_delimiter()
+                  • test_parser_strips_field_values()
+            📄 test_file_monier_williams_source.py
+                ⚙️ Functions:
+                  • test_file_source_reads_utf8_content(tmp_path)
+                  • test_file_source_accepts_string_path(tmp_path)
+            📄 test_monier_williams_acquisition_service.py
+                ⚙️ Functions:
+                  • test_acquisition_service_reads_and_parses_source()
+                  • test_acquisition_service_count()
+                  • test_acquisition_service_preserves_source_boundary()
+                🏗️ Classes:
+                  • class StubSource:
+                    - read(self)
+            📄 test_monier_williams_parser.py
+                ⚙️ Functions:
+                  • test_parse_lines_delegates_to_parse()
       📂 core/
         📄 test_typing.py
             ⚙️ Functions:
@@ -10790,6 +10878,26 @@
                   - test_resolve_uses_context_subject_as_word_form(self)
                   - test_contribute_enriches_resolution_result(self)
                   - test_contribute_preserves_context(self)
+          📂 adapters/
+            📄 test_monier_williams_adapter.py
+                ⚙️ Functions:
+                  • make_adapter()
+                  • test_adapter_source()
+                  • test_adapter_count()
+                  • test_lookup_returns_exact_headword()
+                  • test_lookup_normalizes_whitespace()
+                  • test_lookup_unknown_headword_returns_empty()
+                  • test_search_matches_headword()
+                  • test_search_matches_definition()
+                  • test_search_empty_query_returns_empty()
+                  • test_all_records_returns_all_records()
+                  • test_records_are_normalized()
+                  • test_normalize_headword_requires_string()
+            📄 test_monier_williams_mapper.py
+                ⚙️ Functions:
+                  • make_record()
+                  • test_to_entry_preserves_source_information()
+                  • test_to_sense_preserves_definition()
           📂 validators/
             📄 test_dictionary_entry_validator.py
                 ⚙️ Functions:
