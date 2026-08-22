@@ -30,9 +30,23 @@ The result combines:
     • Metadata
     • Source/importer identity
 
-ImportResult represents the outcome of an operation.
+Architecture
+------------
 
-It does NOT own canonical corpus identity.
+    Importer
+        │
+        ▼
+    ImportResult
+        │
+        ├── status
+        ├── imported_object
+        ├── statistics
+        ├── errors
+        ├── metadata
+        └── source information
+
+ImportResult represents the outcome of an operation.
+It does not own canonical corpus identity.
 
 Canonical identity remains the responsibility of:
 
@@ -62,6 +76,34 @@ from .import_status import ImportStatus
 class ImportResult:
     """
     Canonical result of an import operation.
+
+    Parameters
+    ----------
+    status:
+        Current lifecycle status.
+
+    imported_object:
+        Domain object produced by the import operation.
+
+    importer_name:
+        Human-readable importer identity.
+
+    source_file:
+        Optional source file associated with the operation.
+
+    Examples
+    --------
+    Amarakośa:
+
+        imported_object -> Amarakosha
+
+    Purāṇa:
+
+        imported_object -> Purana
+
+    Dictionary:
+
+        imported_object -> list[Lexeme]
     """
 
     # =========================================================
@@ -132,7 +174,10 @@ class ImportResult:
 
     def __post_init__(self) -> None:
         """
-        Start statistics timing when a result is created.
+        Start the import statistics timer.
+
+        A result created for an already completed operation can
+        subsequently be finalized immediately.
         """
 
         if self.statistics.started_at == 0.0:
@@ -149,7 +194,7 @@ class ImportResult:
         """
         Register one imported document.
 
-        Duplicate identifiers are ignored.
+        Duplicate document identifiers are ignored.
         """
 
         identifier = identifier.strip()
@@ -176,7 +221,6 @@ class ImportResult:
         identifier = identifier.strip()
 
         if identifier:
-
             self.imported_units.append(
                 identifier
             )
@@ -194,7 +238,6 @@ class ImportResult:
         identifier = identifier.strip()
 
         if identifier:
-
             self.skipped_units.append(
                 identifier
             )
@@ -210,13 +253,15 @@ class ImportResult:
         error: ImportError,
     ) -> None:
         """
-        Register one structured import diagnostic.
+        Register a structured import diagnostic.
+
+        Severity controls the corresponding statistics counter
+        and lifecycle status.
         """
 
         self.errors.append(error)
 
         if error.is_info:
-
             return
 
         if error.is_warning:
@@ -310,7 +355,7 @@ class ImportResult:
         value: Any,
     ) -> None:
         """
-        Add or replace metadata.
+        Add or replace one metadata value.
         """
 
         self.metadata[key] = value
@@ -341,7 +386,9 @@ class ImportResult:
         amount: int = 1,
     ) -> None:
         """
-        Increment an existing ImportStatistics counter.
+        Increment a named ImportStatistics counter.
+
+        Only existing numeric statistics fields are accepted.
         """
 
         if not hasattr(
@@ -358,7 +405,6 @@ class ImportResult:
         )
 
         if not isinstance(value, int):
-
             raise TypeError(
                 f"ImportStatistics.{key} "
                 f"is not an integer counter."
@@ -376,49 +422,42 @@ class ImportResult:
 
     @property
     def warning_count(self) -> int:
-
         return self.statistics.warnings
 
     # =========================================================
 
     @property
     def error_count(self) -> int:
-
         return self.statistics.errors
 
     # =========================================================
 
     @property
     def has_errors(self) -> bool:
-
         return self.statistics.errors > 0
 
     # =========================================================
 
     @property
     def has_warnings(self) -> bool:
-
         return self.statistics.warnings > 0
 
     # =========================================================
 
     @property
     def successful(self) -> bool:
-
         return self.status.is_success
 
     # =========================================================
 
     @property
     def duration_seconds(self) -> float:
-
         return self.statistics.elapsed_seconds
 
     # =========================================================
 
     @property
     def document_count(self) -> int:
-
         return len(
             self.imported_documents
         )
@@ -427,7 +466,6 @@ class ImportResult:
 
     @property
     def unit_count(self) -> int:
-
         return len(
             self.imported_units
         )
@@ -448,9 +486,7 @@ class ImportResult:
             ImportStatus.FAILED,
             ImportStatus.CANCELLED,
         }:
-
             self.statistics.stop()
-
             return
 
         if self.statistics.errors > 0:
@@ -487,7 +523,7 @@ class ImportResult:
         other: "ImportResult",
     ) -> None:
         """
-        Merge another ImportResult.
+        Merge another ImportResult into this result.
 
         Used by ImportManager for batch and directory imports.
         """
@@ -602,7 +638,10 @@ class ImportResult:
 
             self.status = ImportStatus.FAILED
 
-        elif other.status is ImportStatus.CANCELLED:
+        elif (
+            other.status
+            is ImportStatus.CANCELLED
+        ):
 
             self.status = ImportStatus.CANCELLED
 
@@ -647,9 +686,6 @@ class ImportResult:
             "message":
                 self.message,
 
-            "imported_object":
-                self.imported_object,
-
             "imported_documents":
                 list(self.imported_documents),
 
@@ -669,6 +705,7 @@ class ImportResult:
 
             "metadata":
                 dict(self.metadata),
+
         }
 
     # =========================================================
@@ -676,13 +713,11 @@ class ImportResult:
     # =========================================================
 
     def __bool__(self) -> bool:
-
         return self.successful
 
     # =========================================================
 
     def __len__(self) -> int:
-
         return self.unit_count
 
     # =========================================================

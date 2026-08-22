@@ -9,7 +9,14 @@ Description
 -----------
 Builder for assembling canonical ImportResult objects.
 
-The builder is independent of a specific imported domain object.
+The builder is intentionally independent of a specific imported
+domain object. Amarakośa, Purāṇa, Veda, dictionary and future
+importers may all use the same result-building contract.
+
+Compatibility
+-------------
+``with_book()`` is retained as a compatibility alias for the
+Amarakośa importer. New code should prefer ``with_imported_object()``.
 
 Version
 -------
@@ -31,6 +38,9 @@ from SanskritAI.models.imports import (
 class ImportResultBuilder:
     """
     Builder for canonical ImportResult objects.
+
+    The builder assembles a result snapshot without introducing
+    importer-specific result models.
     """
 
     # =========================================================
@@ -131,9 +141,9 @@ class ImportResultBuilder:
         book: Any,
     ) -> Self:
         """
-        Compatibility alias for Amarakośa.
+        Compatibility alias for Amarakośa import code.
 
-        New code should use with_imported_object().
+        New code should use ``with_imported_object()``.
         """
 
         return self.with_imported_object(
@@ -232,10 +242,14 @@ class ImportResultBuilder:
         self,
     ) -> ImportResult:
         """
-        Construct canonical ImportResult.
+        Construct the canonical ImportResult.
+
+        The supplied statistics and diagnostics are copied into
+        the result so that the builder retains no ownership of
+        the resulting mutable collections.
         """
 
-        return ImportResult(
+        result = ImportResult(
 
             status=self._status,
 
@@ -269,3 +283,5 @@ class ImportResultBuilder:
                 self._metadata
             ),
         )
+
+        return result

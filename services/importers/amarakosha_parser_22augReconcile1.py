@@ -229,10 +229,7 @@ class AmarakoshaParser:
         # Canonical context implementation.
         self._context = ParserContext()
 
-        #22-AUG_2026 RECONCILATION
-        # status = ImportStatus.SUCCESS
-        
-        status = ImportStatus.COMPLETED
+        status = ImportStatus.SUCCESS
 
         try:
 

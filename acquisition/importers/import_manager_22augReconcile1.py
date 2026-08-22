@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -15,12 +16,29 @@ Responsibilities
 * Batch importing
 * Recursive directory importing
 * ImportResult aggregation
+* Import statistics
 
-The manager is format-independent.
+The ImportManager is intentionally independent of any particular
+file format. Concrete importers are selected automatically based
+on the file extension.
+
+Architecture
+------------
+
+                ImportManager
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+        ▼             ▼             ▼
+   TxtImporter   XmlImporter   PdfImporter
+        │             │             │
+        └─────────────┼─────────────┘
+                      ▼
+                ImportResult
 
 Version
 -------
-v0.9.0
+v0.8.0
 """
 
 from pathlib import Path
@@ -30,19 +48,19 @@ from SanskritAI.acquisition.importers.base_importer import (
     BaseImporter,
 )
 
-from SanskritAI.models.imports import (
+from SanskritAI.acquisition.importers.import_result import (
     ImportResult,
 )
 
 
 class ImportManager:
     """
-    Coordinates registered importers.
+    Coordinates all importers.
     """
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Construction
-    # =========================================================
+    # ---------------------------------------------------------
 
     def __init__(self) -> None:
 
@@ -51,9 +69,9 @@ class ImportManager:
             BaseImporter,
         ] = {}
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Registration
-    # =========================================================
+    # ---------------------------------------------------------
 
     def register(
         self,
@@ -62,7 +80,9 @@ class ImportManager:
         replace: bool = False,
     ) -> None:
         """
-        Register an importer for all supported extensions.
+        Register an importer.
+
+        One importer may support multiple extensions.
         """
 
         for extension in importer.supported_extensions:
@@ -75,15 +95,18 @@ class ImportManager:
             ):
 
                 raise ValueError(
+
                     f"Importer already registered "
+
                     f"for extension '{extension}'."
+
                 )
 
             self._importers[
                 extension
             ] = importer
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def unregister(
         self,
@@ -102,9 +125,9 @@ class ImportManager:
 
         return True
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Lookup
-    # =========================================================
+    # ---------------------------------------------------------
 
     def importer_for(
         self,
@@ -116,17 +139,20 @@ class ImportManager:
         if extension not in self._importers:
 
             raise ValueError(
+
                 f"No importer registered "
+
                 f"for '{extension}'."
+
             )
 
         return self._importers[
             extension
         ]
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Single File
-    # =========================================================
+    # ---------------------------------------------------------
 
     def import_file(
         self,
@@ -137,16 +163,18 @@ class ImportManager:
         Import a single file.
         """
 
-        importer = self.importer_for(file)
+        importer = self.importer_for(
+            file
+        )
 
         return importer.import_file(
             file,
             **kwargs,
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Multiple Files
-    # =========================================================
+    # ---------------------------------------------------------
 
     def import_files(
         self,
@@ -154,19 +182,25 @@ class ImportManager:
         **kwargs,
     ) -> ImportResult:
         """
-        Import multiple files and aggregate their results.
+        Import multiple files.
         """
 
         aggregate = ImportResult(
+
             importer_name="ImportManager",
+
             source_file=Path("<batch>"),
+
         )
 
         for file in files:
 
             result = self.import_file(
+
                 file,
+
                 **kwargs,
+
             )
 
             aggregate.merge(
@@ -177,9 +211,9 @@ class ImportManager:
 
         return aggregate
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Directory Import
-    # =========================================================
+    # ---------------------------------------------------------
 
     def import_directory(
         self,
@@ -189,7 +223,8 @@ class ImportManager:
         **kwargs,
     ) -> ImportResult:
         """
-        Import every supported file in a directory.
+        Import every supported file
+        from a directory.
         """
 
         if not directory.exists():
@@ -198,35 +233,38 @@ class ImportManager:
                 directory
             )
 
-        if not directory.is_dir():
+        if recursive:
 
-            raise ValueError(
-                f"Not a directory: {directory}"
-            )
+            iterator = directory.rglob("*")
 
-        iterator = (
-            directory.rglob("*")
-            if recursive
-            else directory.glob("*")
-        )
+        else:
+
+            iterator = directory.glob("*")
 
         files = [
+
             path
+
             for path in iterator
+
             if (
                 path.is_file()
                 and self.supports(path)
             )
+
         ]
 
         return self.import_files(
+
             files,
+
             **kwargs,
+
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Capabilities
-    # =========================================================
+    # ---------------------------------------------------------
 
     def supports(
         self,
@@ -234,11 +272,14 @@ class ImportManager:
     ) -> bool:
 
         return (
+
             file.suffix.lower()
+
             in self._importers
+
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
     def supported_extensions(
@@ -246,12 +287,16 @@ class ImportManager:
     ) -> tuple[str, ...]:
 
         return tuple(
+
             sorted(
+
                 self._importers.keys()
+
             )
+
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
     def importer_count(
@@ -259,14 +304,20 @@ class ImportManager:
     ) -> int:
 
         return len(
+
             {
+
                 id(importer)
+
                 for importer
+
                 in self._importers.values()
+
             }
+
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def importers(
         self,
@@ -275,32 +326,41 @@ class ImportManager:
         ...
     ]:
 
-        unique: dict[int, BaseImporter] = {}
+        unique = {}
 
         for importer in self._importers.values():
 
             unique[id(importer)] = importer
 
         return tuple(
+
             unique.values()
+
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def metadata(
         self,
     ) -> dict:
 
         return {
+
             "supported_extensions":
+
                 list(
+
                     self.supported_extensions
+
                 ),
+
             "importer_count":
+
                 self.importer_count,
+
         }
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def clear(
         self,
@@ -308,7 +368,7 @@ class ImportManager:
 
         self._importers.clear()
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def __contains__(
         self,
@@ -316,11 +376,14 @@ class ImportManager:
     ) -> bool:
 
         return (
+
             extension.lower()
+
             in self._importers
+
         )
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def __len__(
         self,
@@ -328,14 +391,18 @@ class ImportManager:
 
         return self.importer_count
 
-    # =========================================================
+    # ---------------------------------------------------------
 
     def __repr__(
         self,
     ) -> str:
 
         return (
+
             f"{self.__class__.__name__}("
+
             f"importers={self.importer_count}, "
+
             f"extensions={len(self._importers)})"
+
         )
