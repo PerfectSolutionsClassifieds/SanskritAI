@@ -1,68 +1,68 @@
-from __future__ import annotations
-
-from dataclasses import dataclass
 
 from SanskritAI.acquisition.lexical.monier_williams import (
-    DelimitedMonierWilliamsParser,
     MonierWilliamsAcquisitionService,
     MonierWilliamsSource,
 )
 
 
-@dataclass
 class StubSource(MonierWilliamsSource):
-    content: str
 
-    def read(self) -> str:
-        return self.content
+    def __init__(self, text):
+        self.text = text
+        self.read_count = 0
+
+    @property
+    def identifier(self):
+        return "test:mw"
+
+    @property
+    def source_name(self):
+        return "Test MW Source"
+
+    def read(self):
+        self.read_count += 1
+        return self.text
 
 
-def test_acquisition_service_reads_and_parses_source():
+def test_acquisition_service_reads_source():
+    source = StubSource("mw source")
+
+    service = MonierWilliamsAcquisitionService(source)
+
+    result = service.acquire()
+
+    assert result.text == "mw source"
+    assert result.source_identifier == "test:mw"
+    assert result.source_name == "Test MW Source"
+
+
+def test_acquisition_service_returns_counts():
     source = StubSource(
-        "headword\tdefinition\n"
-        "देव\tgod\n"
-        "राम\tRama\n"
+        "first\n"
+        "second\n"
     )
 
-    parser = DelimitedMonierWilliamsParser()
+    result = MonierWilliamsAcquisitionService(
+        source
+    ).acquire()
 
-    service = MonierWilliamsAcquisitionService(
-        source=source,
-        parser=parser,
+    assert result.character_count == len(
+        "first\nsecond\n"
     )
-
-    records = service.acquire()
-
-    assert len(records) == 2
-    assert records[0].headword == "देव"
-    assert records[1].headword == "राम"
+    assert result.line_count == 2
 
 
-def test_acquisition_service_count():
-    source = StubSource(
-        "headword\tdefinition\n"
-        "देव\tgod\n"
-    )
+def test_acquisition_service_read_is_convenience_method():
+    source = StubSource("mw")
 
-    service = MonierWilliamsAcquisitionService(
-        source=source,
-        parser=DelimitedMonierWilliamsParser(),
-    )
+    service = MonierWilliamsAcquisitionService(source)
 
-    assert service.count() == 1
+    assert service.read() == "mw"
 
 
-def test_acquisition_service_preserves_source_boundary():
-    source = StubSource(
-        "headword\tdefinition\n"
-        "देव\tgod\n"
-    )
+def test_source_is_not_replaced():
+    source = StubSource("mw")
 
-    service = MonierWilliamsAcquisitionService(
-        source=source,
-        parser=DelimitedMonierWilliamsParser(),
-    )
+    service = MonierWilliamsAcquisitionService(source)
 
-    records = service.acquire()
-
-    assert records[0].source == "monier-williams"
+    assert service.source is source

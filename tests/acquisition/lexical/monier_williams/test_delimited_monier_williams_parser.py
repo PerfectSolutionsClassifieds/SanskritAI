@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import pytest
 
@@ -6,152 +5,152 @@ from SanskritAI.acquisition.lexical.monier_williams import (
     DelimitedMonierWilliamsParser,
 )
 
-from SanskritAI.domain.lexical.adapters.monier_williams_record import (
-    MonierWilliamsRecord,
-)
 
-
-def test_parser_reads_single_record():
-    parser = DelimitedMonierWilliamsParser()
-
-    text = (
-        "headword\ttransliteration\tdefinition\t"
-        "grammatical_label\tsource_id\traw_text\n"
-        "देव\tdeva\tgod\tm.\tmw-001\tदेव — god\n"
-    )
-
-    records = parser.parse(text)
-
-    assert len(records) == 1
-
-    record = records[0]
-
-    assert isinstance(
-        record,
-        MonierWilliamsRecord,
-    )
-
-    assert record.headword == "देव"
-    assert record.transliteration == "deva"
-    assert record.definition == "god"
-    assert record.grammatical_label == "m."
-    assert record.source == "monier-williams"
-    assert record.source_id == "mw-001"
-    assert record.raw_text == "देव — god"
-
-
-def test_parser_reads_multiple_records():
+def test_parser_reads_basic_record():
     parser = DelimitedMonierWilliamsParser()
 
     text = (
         "headword\tdefinition\n"
-        "देव\tgod\n"
-        "राम\tRama\n"
+        "rāma\tpleasing; beautiful\n"
     )
 
-    records = parser.parse(text)
+    entries = parser.parse(text)
 
-    assert len(records) == 2
-    assert records[0].headword == "देव"
-    assert records[1].headword == "राम"
+    assert len(entries) == 1
+    assert entries[0].headword == "rāma"
+    assert entries[0].definition == "pleasing; beautiful"
 
 
-def test_parser_returns_empty_tuple_for_empty_source():
+def test_parser_reads_optional_fields():
     parser = DelimitedMonierWilliamsParser()
 
-    assert parser.parse("") == ()
-    assert parser.parse("   ") == ()
+    text = (
+        "headword\tdefinition\tgrammatical_category\t"
+        "transliteration\tsource_reference\n"
+        "rāma\tpleasing\tnoun\trāma\tMW\n"
+    )
+
+    entries = parser.parse(text)
+
+    entry = entries[0]
+
+    assert entry.grammatical_category == "noun"
+    assert entry.transliteration == "rāma"
+    assert entry.source_reference == "MW"
 
 
-def test_parser_rejects_non_string_source():
+def test_parser_requires_header():
+    parser = DelimitedMonierWilliamsParser()
+
+    with pytest.raises(ValueError):
+        parser.parse(
+            "rāma\tpleasing\n"
+        )
+
+
+def test_parser_requires_required_headers():
+    parser = DelimitedMonierWilliamsParser()
+
+    with pytest.raises(ValueError):
+        parser.parse(
+            "headword\tgrammatical_category\n"
+            "rāma\tnoun\n"
+        )
+
+
+def test_parser_rejects_unknown_header_in_strict_mode():
+    parser = DelimitedMonierWilliamsParser()
+
+    with pytest.raises(ValueError):
+        parser.parse(
+            "headword\tdefinition\tunknown_field\n"
+            "rāma\tpleasing\tvalue\n"
+        )
+
+
+def test_parser_rejects_empty_source():
+    parser = DelimitedMonierWilliamsParser()
+
+    with pytest.raises(ValueError):
+        parser.parse("")
+
+
+def test_parser_rejects_none():
     parser = DelimitedMonierWilliamsParser()
 
     with pytest.raises(TypeError):
         parser.parse(None)
 
 
-def test_parser_requires_header():
-    parser = DelimitedMonierWilliamsParser()
-
-    text = "देव\tgod\n"
-
-    with pytest.raises(ValueError):
-        parser.parse(text)
-
-
-def test_parser_requires_headword_column():
-    parser = DelimitedMonierWilliamsParser()
-
-    text = (
-        "definition\n"
-        "god\n"
-    )
-
-    with pytest.raises(ValueError):
-        parser.parse(text)
-
-
-def test_parser_requires_definition_column():
-    parser = DelimitedMonierWilliamsParser()
-
-    text = (
-        "headword\n"
-        "देव\n"
-    )
-
-    with pytest.raises(ValueError):
-        parser.parse(text)
-
-
-def test_parser_rejects_missing_headword_value():
+def test_parser_skips_blank_lines():
     parser = DelimitedMonierWilliamsParser()
 
     text = (
         "headword\tdefinition\n"
-        "\tgod\n"
+        "\n"
+        "rāma\tpleasing\n"
+        "\n"
     )
 
+    entries = parser.parse(text)
+
+    assert len(entries) == 1
+
+
+def test_parser_rejects_missing_headword():
+    parser = DelimitedMonierWilliamsParser()
+
     with pytest.raises(ValueError):
-        parser.parse(text)
+        parser.parse(
+            "headword\tdefinition\n"
+            "\tpleasing\n"
+        )
 
 
-def test_parser_rejects_missing_definition_value():
+def test_parser_rejects_missing_definition():
+    parser = DelimitedMonierWilliamsParser()
+
+    with pytest.raises(ValueError):
+        parser.parse(
+            "headword\tdefinition\n"
+            "rāma\t\n"
+        )
+
+
+def test_parser_rejects_extra_columns():
+    parser = DelimitedMonierWilliamsParser()
+
+    with pytest.raises(ValueError):
+        parser.parse(
+            "headword\tdefinition\n"
+            "rāma\tpleasing\textra\n"
+        )
+
+
+def test_parser_normalizes_header_case_and_whitespace():
+    parser = DelimitedMonierWilliamsParser()
+
+    text = (
+        " HEADWORD \t DEFINITION \n"
+        "rāma\tpleasing\n"
+    )
+
+    entries = parser.parse(text)
+
+    assert entries[0].headword == "rāma"
+
+
+def test_parser_iter_parse():
     parser = DelimitedMonierWilliamsParser()
 
     text = (
         "headword\tdefinition\n"
-        "देव\t\n"
+        "rāma\tpleasing\n"
+        "hari\tbrown\n"
     )
 
-    with pytest.raises(ValueError):
-        parser.parse(text)
+    entries = list(parser.iter_parse(text))
 
-
-def test_parser_supports_custom_delimiter():
-    parser = DelimitedMonierWilliamsParser(
-        delimiter=",",
-    )
-
-    text = (
-        "headword,definition\n"
-        "deva,god\n"
-    )
-
-    records = parser.parse(text)
-
-    assert len(records) == 1
-    assert records[0].headword == "deva"
-
-
-def test_parser_strips_field_values():
-    parser = DelimitedMonierWilliamsParser()
-
-    text = (
-        "headword\tdefinition\n"
-        "  देव  \t  god  \n"
-    )
-
-    records = parser.parse(text)
-
-    assert records[0].headword == "देव"
-    assert records[0].definition == "god"
+    assert len(entries) == 2
+    assert entries[0].headword == "rāma"
+    assert entries[1].headword == "hari"

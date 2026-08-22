@@ -1,31 +1,7 @@
 from __future__ import annotations
 
-"""
-SanskritAI
-==========
-
-Monier-Williams Acquisition Service
-------------------------------------
-
-Coordinates:
-
-    Source
-      |
-      v
-    Parser
-      |
-      v
-    MonierWilliamsRecord
-
-The service intentionally does not know anything about
-the canonical lexical repository.
-"""
-
 from dataclasses import dataclass
-
-from SanskritAI.domain.lexical.adapters.monier_williams_record import (
-    MonierWilliamsRecord,
-)
+from typing import Any
 
 from .monier_williams_parser import MonierWilliamsParser
 from .monier_williams_source import MonierWilliamsSource
@@ -33,25 +9,26 @@ from .monier_williams_source import MonierWilliamsSource
 
 @dataclass(frozen=True, slots=True)
 class MonierWilliamsAcquisitionService:
-    """
-    Coordinates source reading and parsing.
-    """
+    """Coordinates source acquisition and parsing."""
 
     source: MonierWilliamsSource
-    parser: MonierWilliamsParser
+    parser: MonierWilliamsParser | None = None
 
-    def acquire(self) -> tuple[MonierWilliamsRecord, ...]:
-        """
-        Acquire and parse the configured source.
-        """
+    def read(self) -> str:
+        return self.source.read()
+
+    def acquire(self):
         source_text = self.source.read()
 
-        return self.parser.parse(
-            source_text,
-        )
+        if self.parser is None:
+            return source_text
+
+        return self.parser.parse(source_text)
 
     def count(self) -> int:
-        """
-        Return the number of parsed records.
-        """
-        return len(self.acquire())
+        result = self.acquire()
+
+        if isinstance(result, str):
+            return len(result.splitlines()) if result else 0
+
+        return len(result)

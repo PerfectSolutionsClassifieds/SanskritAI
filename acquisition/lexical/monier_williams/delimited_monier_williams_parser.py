@@ -1,42 +1,29 @@
 from __future__ import annotations
 
-"""
-SanskritAI
-==========
-
-Delimited Monier-Williams Parser
----------------------------------
-
-Parses a controlled tabular representation of MW records.
-
-Expected columns:
-
-    headword
-    transliteration
-    definition
-    grammatical_label
-    source_id
-    raw_text
-
-The parser accepts TSV by default but also supports another
-delimiter.
-
-This is an acquisition-stage parser, not a linguistic parser.
-"""
-
 import csv
 from io import StringIO
-
-from SanskritAI.domain.lexical.adapters.monier_williams_record import (
-    MonierWilliamsRecord,
-)
+from typing import Iterator
 
 from .monier_williams_parser import MonierWilliamsParser
+from .monier_williams_source_record import MonierWilliamsSourceRecord
 
 
 class DelimitedMonierWilliamsParser(MonierWilliamsParser):
     """
-    Parse tabular Monier-Williams source data.
+    Parser for controlled tabular Monier-Williams source data.
+
+    Required columns:
+        headword
+        definition
+
+    Supported optional columns include:
+        transliteration
+        grammatical_label
+        grammatical_category
+        source_id
+        source_reference
+        raw_text
+        homonym
     """
 
     DEFAULT_DELIMITER = "\t"
@@ -49,14 +36,18 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
     OPTIONAL_COLUMNS = (
         "transliteration",
         "grammatical_label",
+        "grammatical_category",
         "source_id",
+        "source_reference",
         "raw_text",
+        "homonym",
     )
 
     def __init__(
         self,
         *,
         delimiter: str = DEFAULT_DELIMITER,
+        strict_headers: bool = True,
     ) -> None:
         if not isinstance(delimiter, str):
             raise TypeError("delimiter must be a string")
@@ -67,38 +58,122 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
             )
 
         self.delimiter = delimiter
+        self.strict_headers = strict_headers
 
     def parse(
         self,
         source_text: str,
-    ) -> tuple[MonierWilliamsRecord, ...]:
+    ) -> tuple[MonierWilliamsSourceRecord, ...]:
+
         if not isinstance(source_text, str):
             raise TypeError("source_text must be a string")
 
         if not source_text.strip():
             return ()
 
-        reader = csv.DictReader(
+        return tuple(self.iter_parse(source_text))
+
+    def parse_lines(
+        self,
+        lines: tuple[str, ...] | list[str],
+    ) -> tuple[MonierWilliamsSourceRecord, ...]:
+        return self.parse("\n".join(lines))
+
+    def iter_parse(
+        self,
+        source_text: str,
+    ) -> Iterator[MonierWilliamsSourceRecord]:
+
+        if not isinstance(source_text, str):
+            raise TypeError("source_text must be a string")
+
+        if not source_text.strip():
+            return
+
+        reader = csv.reader(
             StringIO(source_text),
             delimiter=self.delimiter,
         )
 
-        if reader.fieldnames is None:
+        try:
+            raw_header = next(reader)
+        except StopIteration:
+            return
+
+        header = tuple(
+            self._normalize_header(value)
+            for value in raw_header
+        )
+
+        self._validate_header(header)
+
+        known_columns = set(self.REQUIRED_COLUMNS) | set(
+            self.OPTIONAL_COLUMNS
+        )
+
+        for sequence, row in enumerate(reader, start=1):
+
+            if not row or not any(cell.strip() for cell in row):
+                continue
+
+            if len(row) != len(header):
+                raise ValueError(
+                    "Invalid column count at source row "
+                    f"{sequence + 1}: expected {len(header)}, "
+                    f"got {len(row)}"
+                )
+
+            values = {
+                header[index]: row[index].strip()
+                for index in range(len(header))
+            }
+
+            headword = values.get("headword", "")
+            definition = values.get("definition", "")
+
+            if not headword:
+                raise ValueError(
+                    f"Missing headword at source row {sequence + 1}"
+                )
+
+            if not definition:
+                raise ValueError(
+                    f"Missing definition at source row {sequence + 1}"
+                )
+
+            # raw_text is the source representation when supplied.
+            # Otherwise preserve the complete row exactly as tabular data.
+            raw_text = values.get("raw_text", "")
+            if not raw_text:
+                raw_text = self.delimiter.join(row)
+
+            fields = {
+                key: value
+                for key, value in values.items()
+                if key in known_columns
+            }
+
+            yield MonierWilliamsSourceRecord(
+                sequence=sequence,
+                raw_text=raw_text,
+                fields=fields,
+            )
+
+    def _validate_header(
+        self,
+        header: tuple[str, ...],
+    ) -> None:
+
+        if not header:
             raise ValueError(
                 "Monier-Williams source contains no header"
             )
 
-        fieldnames = tuple(
-            name.strip()
-            for name in reader.fieldnames
-            if name is not None
-        )
-
-        missing = tuple(
+        missing = [
             column
             for column in self.REQUIRED_COLUMNS
-            if column not in fieldnames
-        )
+            if column not in header
+        ]
 
         if missing:
             raise ValueError(
@@ -106,66 +181,23 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
                 + ", ".join(missing)
             )
 
-        records: list[MonierWilliamsRecord] = []
-
-        for row_number, row in enumerate(
-            reader,
-            start=2,
-        ):
-            headword = self._value(
-                row,
-                "headword",
+        if self.strict_headers:
+            known = set(self.REQUIRED_COLUMNS) | set(
+                self.OPTIONAL_COLUMNS
             )
 
-            definition = self._value(
-                row,
-                "definition",
-            )
+            unknown = [
+                column
+                for column in header
+                if column not in known
+            ]
 
-            if not headword:
+            if unknown:
                 raise ValueError(
-                    f"Missing headword at source row {row_number}"
+                    "Unknown Monier-Williams header(s): "
+                    + ", ".join(unknown)
                 )
-
-            if not definition:
-                raise ValueError(
-                    f"Missing definition at source row {row_number}"
-                )
-
-            records.append(
-                MonierWilliamsRecord(
-                    headword=headword,
-                    transliteration=self._value(
-                        row,
-                        "transliteration",
-                    ),
-                    definition=definition,
-                    grammatical_label=self._value(
-                        row,
-                        "grammatical_label",
-                    ),
-                    source=self.SOURCE,
-                    source_id=self._value(
-                        row,
-                        "source_id",
-                    ),
-                    raw_text=self._value(
-                        row,
-                        "raw_text",
-                    ),
-                )
-            )
-
-        return tuple(records)
 
     @staticmethod
-    def _value(
-        row: dict[str, str | None],
-        column: str,
-    ) -> str:
-        value = row.get(column)
-
-        if value is None:
-            return ""
-
-        return value.strip()
+    def _normalize_header(value: str) -> str:
+        return value.strip().lower()

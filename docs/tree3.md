@@ -1,4 +1,4 @@
-"SanskritAI as on ::::: 18-08-2026 11:31:02"
+"SanskritAI as on ::::: 19-08-2026 05:16:06"
 SanskritAI/
 ├── .git
 │   ├── COMMIT_EDITMSG
@@ -162,6 +162,7 @@ SanskritAI/
 │   │   │   ├── 26a8ba9ade16395fcb3670a3c5b32507d6b418
 │   │   │   └── 93198c4638590df4e7ceddf8a529b120df31a4
 │   │   ├── 12
+│   │   │   ├── 23deeea41686d20764f09a985a66b4b9810671
 │   │   │   ├── 6d04b43596d6d9640b5f7c4265d65956328ec8
 │   │   │   ├── 81e7f570f4dd070f6cab3dd9216056cf477a14
 │   │   │   ├── 9b7e64bf24c207358df51d73c4a74f5fe88628
@@ -182,6 +183,7 @@ SanskritAI/
 │   │   │   ├── 887e0e46506b57d9aaaa1dee33bc8d8b36f8aa
 │   │   │   ├── 8cca14962c181486a03bbad017a8f908c51233
 │   │   │   ├── acdab336d0a92a18bf3e4cbe3ab1e6b1108d16
+│   │   │   ├── b34c6cbdc228d50d744054da93508f1e0618a8
 │   │   │   └── f824e1880098ef5053018c308bab0e68ca44b5
 │   │   ├── 15
 │   │   │   ├── 94a1b2c3df57eb2458b413c42b8f88522bf4cb
@@ -254,8 +256,10 @@ SanskritAI/
 │   │   │   ├── 7e6144fd31e124bc84e46c8ea85be4bb19471d
 │   │   │   └── 9e63c04c483836848a8f9a45340cf3cc1ec48d
 │   │   ├── 20
+│   │   │   ├── 0140afc23730863473ff73a196d44f8f680fa5
 │   │   │   ├── 407be079f76d2a90ce45362cdf83c7461c9c2f
-│   │   │   └── 49e4f4b0de4586553ece07eb1cbbc3ac62543c
+│   │   │   ├── 49e4f4b0de4586553ece07eb1cbbc3ac62543c
+│   │   │   └── 5dd278a27fcaf21fc24f3de00af4dbeecf60b0
 │   │   ├── 21
 │   │   │   ├── 0a915fab996584ad6b0c4e2b4d7728cbc1092f
 │   │   │   ├── 44e10dcdb0934324342fa426dbe6e4a21a3608
@@ -423,7 +427,8 @@ SanskritAI/
 │   │   │   ├── 3ea872aa67797ed5671da42c34b165cbfb58f0
 │   │   │   ├── 50a0a075448b910c5edd809add3080885ee972
 │   │   │   ├── 5b4c7b66060e34e1c88d99225c40ba2462ce60
-│   │   │   └── 78bfae939a553f07cc8e302f72eeb565277f2c
+│   │   │   ├── 78bfae939a553f07cc8e302f72eeb565277f2c
+│   │   │   └── 93666c3303be1e4b07488497f47a75cbc1c184
 │   │   ├── 3a
 │   │   │   ├── 9ef38973f69dc0145f85d89a6ddd0793818146
 │   │   │   ├── a350db935a25af5aadd32d90c95649ebe00184
@@ -496,6 +501,7 @@ SanskritAI/
 │   │   │   ├── 7eb0fbde1f28533177ddb4599d85a91750afb5
 │   │   │   ├── 8f6019e5ac78b4a6ea1296f374e64176c12feb
 │   │   │   ├── ab118b929ad1e138372cbd23c38ac39532663a
+│   │   │   ├── c25731f5e560cc329a4515147d1ca68e239c77
 │   │   │   ├── c8cbc3c148596983d97fb799c304be5705b422
 │   │   │   └── f421b1586badea6947e2574e3448c9722ad64c
 │   │   ├── 44
@@ -533,9 +539,11 @@ SanskritAI/
 │   │   │   └── 5d6b4a51346636975afb871745fb60926a1f60
 │   │   ├── 48
 │   │   │   ├── 0b91e907ef1bda0b705f6724d1b1c1c6a4207c
+│   │   │   ├── 27fc0fcfc6900d7c626fbf21148933c2e96576
 │   │   │   ├── 74af7709c9554f26de90ee8e2ee95ad0a40af2
 │   │   │   └── f1ebe44b4af6ad3e64ac65a2959aebb8066ad5
 │   │   ├── 49
+│   │   │   ├── 6b61d9ec3b4b60407c92bd487b0c35a280baf0
 │   │   │   ├── 6b8a32973ac85cbf06a2d73d0a52767a261891
 │   │   │   ├── 779d40f13fe72b4bee980b2c45f96b81316d60
 │   │   │   ├── 9a165780e1e5fd258934ec10aaf4931db9ee48
@@ -638,7 +646,8 @@ SanskritAI/
 │   │   │   ├── 372327f133197721c804009100201a247b2b3c
 │   │   │   ├── 7c55cbe7fc8a2b491412ebc9fd70fa96b481d2
 │   │   │   ├── 82e7d9d4b26ce5c7c14d89e25e4e0beba17eb4
-│   │   │   └── c865b264a444e3e72cfa9de937692a0c29cc6b
+│   │   │   ├── c865b264a444e3e72cfa9de937692a0c29cc6b
+│   │   │   └── cb8d76e41b6ed9f7b6ba77bc302eaff33ee857
 │   │   ├── 59
 │   │   │   ├── 2e0a8f6febc2ac8a731abb2fc44b95defe597b
 │   │   │   ├── 3910dc82cde8658bed686aa3bf2d0acb078ffa
@@ -695,6 +704,7 @@ SanskritAI/
 │   │   │   ├── 020cf1514d5f56fc952e36dda48f6116c83155
 │   │   │   ├── 2202ca01e100482a1157ae8cb0c2f07f1e6c78
 │   │   │   ├── 467efe3bfc0429762b0cab73d20893cd2ece72
+│   │   │   ├── 775aa3f1288e753c7d74bbdedaa9fa0a58f408
 │   │   │   ├── 8d5d5e8b96babdc1a0e3839e7a2caa3df7f534
 │   │   │   ├── a9b97a4879e01e6fe3ba3a81a1b32b57f3b20b
 │   │   │   ├── ba650c45dcdec7e98205e9ed72731df1944fc4
@@ -751,6 +761,7 @@ SanskritAI/
 │   │   │   ├── 3f8cd2f98aab25396471f54c7eb60fea34fb01
 │   │   │   ├── 4dfdfd57985a90ef76cf5fda792dd0ad40031a
 │   │   │   ├── 970b52bb83e8d5bf9002f9c2bffdffe60fcdb4
+│   │   │   ├── a73ba43b5821478120ec6c14ae49d824564c79
 │   │   │   ├── b66d1a855947b8bd9b05f059362d10049b656f
 │   │   │   ├── bc1f9afc2eadce9fffd1bfcb9bfe9239276c3b
 │   │   │   └── f5c72af7ced292d517906c1798f8369c3ec765
@@ -773,11 +784,13 @@ SanskritAI/
 │   │   │   ├── 7d9b2a34766eb6b4809e8732503eadca77e7c3
 │   │   │   ├── 9c5896875fb9589a4863855b7e2b592ef78c79
 │   │   │   ├── 9ef1374df13835ef8b04ee3e33882cae2ca986
+│   │   │   ├── a7459ee80f3a1f2cc00ed2015c0b20ea159eda
 │   │   │   ├── e89a0329b26edf7513868a423efd24d596ca17
 │   │   │   ├── f01497da11d3fc068c6190a1e3d3ae98c57084
 │   │   │   └── f1cb9a1ef35a169ade0c4dcefda91dce02623c
 │   │   ├── 6d
 │   │   │   ├── 19cf1a1d3bb3109fd6c9d62a737e83eaad4918
+│   │   │   ├── 30703331dfecd2dbdd8f283a7619add1abf19b
 │   │   │   ├── 33ee0a39a8909816e887088c4f3efca1d1e5ba
 │   │   │   ├── 3c33f957737b061b27daf56a89c2df5de50087
 │   │   │   ├── 4f6f382cd339ae5f120cf484a26187ab75ab7b
@@ -847,7 +860,8 @@ SanskritAI/
 │   │   │   ├── 95227186af988fb47c8a70ac991cbcb90ff61d
 │   │   │   ├── a1caaa845af666bf6aac9212e9386b921e7c47
 │   │   │   ├── a26807178cf7c714771f171b5abd482a06927f
-│   │   │   └── d2b905aedf07bdc57b70ba92367a8c27957107
+│   │   │   ├── d2b905aedf07bdc57b70ba92367a8c27957107
+│   │   │   └── f40ad01e3d833779ed8726119c1e102f3e1dc0
 │   │   ├── 79
 │   │   │   ├── 1b8f8aead7a3e7e57e4c49dfd92e2aaf17f7b6
 │   │   │   ├── 283f97a3efb5217ec69cfa1edf3d8897b09cb1
@@ -912,8 +926,10 @@ SanskritAI/
 │   │   ├── 84
 │   │   │   ├── 55a8dd4fb4e313f2a53593d8c726df4c110eef
 │   │   │   ├── 6edf484ae9ff697671c17ce4adca9aab13ba1f
+│   │   │   ├── 8e8304ba2d2142e4818ad5ecaf8e19f3988fc3
 │   │   │   ├── a4160dbe776469cb76072103e7a2721d6c486a
-│   │   │   └── c1ee079c1af13830e26e98494461cf633bac9f
+│   │   │   ├── c1ee079c1af13830e26e98494461cf633bac9f
+│   │   │   └── d53298c47f84daadbcef53e3f6c542137d3eb8
 │   │   ├── 85
 │   │   │   ├── 1220c7acb80ed92dde4c07c059eeb1eda9f810
 │   │   │   ├── 331bb1793547a24de69ef6b75db3dff2d0e600
@@ -929,7 +945,8 @@ SanskritAI/
 │   │   ├── 88
 │   │   │   ├── 251fe4f0e7d251eac15c273adc51522a0f7f0c
 │   │   │   ├── 2b8ed4ac82064622a974da5134fb5d03ab243d
-│   │   │   └── b0f5431163fad9be5fd5593a2b7150fdc9cb92
+│   │   │   ├── b0f5431163fad9be5fd5593a2b7150fdc9cb92
+│   │   │   └── c4c2a53a57d695f0d48398cea9b05169081fab
 │   │   ├── 89
 │   │   │   ├── 3a9529fbb03075d194bb7287d6c0f998331b76
 │   │   │   ├── 861c1d36d0a296bd327e89e318aeec1df17602
@@ -1248,6 +1265,7 @@ SanskritAI/
 │   │   │   └── e2c61124eed5547524db1fdab4b30c8411e37d
 │   │   ├── b4
 │   │   │   ├── 048c3bc9b5eda21300e292ee5d9d2e18a7069a
+│   │   │   ├── 12e53239087e2024c0fafaab67a2216bd8ede1
 │   │   │   ├── 2c17a99cb2ca2b9405d3a9d3f2ccd07117f0a5
 │   │   │   ├── 58dd204e53edf842cd93bead6cfc9a31424edd
 │   │   │   ├── 6e32dbe0f8b9bdc1ae6f8b8f91528e4562fbc1
@@ -1454,6 +1472,7 @@ SanskritAI/
 │   │   │   ├── 8be3b7825d804ba3834e667606d928c066dfc8
 │   │   │   └── b578c1757f508daddd366cc7ccf2ffe8a814b2
 │   │   ├── d3
+│   │   │   ├── 1644f1f269dd20263785836e007c2b61732bbf
 │   │   │   ├── 544125035449b315dc11d3cd6e7a442b6235ac
 │   │   │   ├── 88ba9782ac7c3444b2c35c4405a8598c8215dc
 │   │   │   ├── a7b6195f8a9419809d4bb3b05ff685c7efcf16
@@ -1507,7 +1526,8 @@ SanskritAI/
 │   │   ├── db
 │   │   │   ├── 24b1c9ba1fbd54f7a9c436f7c2aaed5d39785c
 │   │   │   ├── 79fdd0d671dcc47d86b70785c9d8163b48a97b
-│   │   │   └── f0e82ab3404f8f86f6106a57c18f523f76d6ba
+│   │   │   ├── f0e82ab3404f8f86f6106a57c18f523f76d6ba
+│   │   │   └── fb0b8de05ecc2cdc5753446a74ca7850f0f718
 │   │   ├── dc
 │   │   │   ├── 289eba22572e8a79e78e7f3bc943b5e13dd5c8
 │   │   │   ├── 364116a575ad6e1e167135b78af6b08a3c8c65
@@ -1583,7 +1603,8 @@ SanskritAI/
 │   │   │   ├── 42d70c487073efed28e563ec6ae5727372bd56
 │   │   │   ├── 4be165c9c3d53872c225f6b7c6cc93a2a0b4de
 │   │   │   ├── 90ccb93495c678315adc26faaf695132d5eebe
-│   │   │   └── c11ab87dbad19fc1e1a3f5a2fb3e00a2c17771
+│   │   │   ├── c11ab87dbad19fc1e1a3f5a2fb3e00a2c17771
+│   │   │   └── ce615f2b99df3be744bb8ee230feff21c676f3
 │   │   ├── eb
 │   │   │   ├── 2f2167a9058554fb95dc194ec469fec38098b0
 │   │   │   ├── 6f9d1c938e4bc5c927f6af2ecd859e00821418
@@ -1690,6 +1711,7 @@ SanskritAI/
 │   │   │   ├── 6b6891aab3a4fe146f0614a541f62425c6cfba
 │   │   │   ├── 8e2996d9f2d27d5f0608e48d0bb06d7e1a9b18
 │   │   │   ├── aca99ad094d0afb126176675ed5592dfbfd6cc
+│   │   │   ├── f3e5b968d3963b662cdc3dd5ec61b9b01ed0d6
 │   │   │   └── f9e96e7135f6e3732a441913494ab1e00ef2fa
 │   │   ├── fb
 │   │   │   ├── 20d90c5f9a6f9b260787ce228a6c6a4749a486
@@ -1746,14 +1768,6 @@ SanskritAI/
 │       └── tags
 │           └── v0.4.0
 ├── .gitignore
-├── .pytest_cache
-│   ├── .gitignore
-│   ├── CACHEDIR.TAG
-│   ├── README.md
-│   └── v
-│       └── cache
-│           ├── lastfailed
-│           └── nodeids
 ├── README.md
 ├── VERSION
 ├── __init__.py
@@ -1836,6 +1850,15 @@ SanskritAI/
 │   │   │   └── canonical_lexical_repository.py
 │   │   └── transformers
 │   │       └── monier_williams_transformer.py
+│   ├── lexical
+│   │   ├── __init__.py
+│   │   └── monier_williams
+│   │       ├── __init__.py
+│   │       ├── delimited_monier_williams_parser.py
+│   │       ├── file_monier_williams_source.py
+│   │       ├── monier_williams_acquisition_service.py
+│   │       ├── monier_williams_parser.py
+│   │       └── monier_williams_source.py
 │   ├── metadata
 │   │   ├── __init__.py
 │   │   ├── base_metadata_extractor.py
@@ -2357,8 +2380,8 @@ SanskritAI/
 │   ├── object_model.md
 │   ├── repository.md
 │   ├── roadmap.md
-│   ├── tree3.md
-│   ├── visual_graph_consolidated_sanskrit_ai3.md
+│   ├── tree2.md
+│   ├── visual_graph_consolidated_sanskrit_ai2.md
 │   └── visual_graph_excluded_files.md
 ├── domain
 │   ├── alankara
@@ -2466,6 +2489,12 @@ SanskritAI/
 │   │   ├── knowledge_graph_result.py
 │   │   └── knowledge_graph_strategy.py
 │   ├── lexical
+│   │   ├── adapters
+│   │   │   ├── __init__.py
+│   │   │   ├── in_memory_monier_williams_adapter.py
+│   │   │   ├── monier_williams_adapter.py
+│   │   │   ├── monier_williams_mapper.py
+│   │   │   └── monier_williams_record.py
 │   │   ├── default_lexical_repository.py
 │   │   ├── default_lexical_resolution_strategy.py
 │   │   ├── default_lexical_service.py
@@ -3025,6 +3054,12 @@ SanskritAI/
 ├── tests
 │   ├── __init__.py
 │   ├── acquisition
+│   │   ├── lexical
+│   │   │   └── monier_williams
+│   │   │       ├── test_delimited_monier_williams_parser.py
+│   │   │       ├── test_file_monier_williams_source.py
+│   │   │       ├── test_monier_williams_acquisition_service.py
+│   │   │       └── test_monier_williams_parser.py
 │   │   └── test_source_type.py
 │   ├── core
 │   │   ├── test_typing.py
@@ -3063,6 +3098,9 @@ SanskritAI/
 │   │   │   ├── test_dhatu_service.1py
 │   │   │   └── test_dhatu_service.py
 │   │   ├── lexical
+│   │   │   ├── adapters
+│   │   │   │   ├── test_monier_williams_adapter.py
+│   │   │   │   └── test_monier_williams_mapper.py
 │   │   │   ├── test_default_lexical_resolution_strategy.py
 │   │   │   ├── test_default_lexical_service.py
 │   │   │   ├── test_lexical_resolution_composition.py

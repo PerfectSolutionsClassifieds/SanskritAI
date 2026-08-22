@@ -9,14 +9,19 @@ Acquisition Result
 
 Represents the outcome of a corpus acquisition operation.
 
-This class is intentionally independent of any particular
-downloader, validator, or importer. It provides a common
-result object that can be returned throughout the acquisition
-pipeline.
+An AcquisitionResult starts in a successful/neutral state.
+
+The result remains successful unless an actual acquisition error
+is recorded. Warnings and empty diagnostic messages do not affect
+success.
+
+An acquisition implementation may explicitly call ``mark_success()``
+to update the completion message, while ``add_error()`` always marks
+the result as unsuccessful.
 
 Version
 -------
-v0.5.0
+v0.5.2
 
 Author
 ------
@@ -28,13 +33,21 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from SanskritAI.acquisition.models.corpus_source import CorpusSource
+from SanskritAI.acquisition.models.corpus_source import (
+    CorpusSource,
+)
 
 
 @dataclass(slots=True)
 class AcquisitionResult:
     """
     Result of an acquisition operation.
+
+    A newly constructed result represents a successful/neutral
+    acquisition state.
+
+    Actual failures are represented by non-empty errors, which
+    automatically set ``success`` to False.
     """
 
     # ------------------------------------------------------------------
@@ -47,6 +60,12 @@ class AcquisitionResult:
     # Overall Result
     # ------------------------------------------------------------------
 
+    # A newly constructed result is considered successful.
+    #
+    # This is intentional:
+    # - warnings do not invalidate success
+    # - empty errors are ignored
+    # - actual errors explicitly change success to False
     success: bool = True
 
     message: str = ""
@@ -55,7 +74,9 @@ class AcquisitionResult:
     # Timing
     # ------------------------------------------------------------------
 
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(
+        default_factory=datetime.utcnow,
+    )
 
     completed_at: datetime | None = None
 
@@ -65,9 +86,13 @@ class AcquisitionResult:
     # Download Information
     # ------------------------------------------------------------------
 
-    downloaded_files: list[Path] = field(default_factory=list)
+    downloaded_files: list[Path] = field(
+        default_factory=list,
+    )
 
-    extracted_files: list[Path] = field(default_factory=list)
+    extracted_files: list[Path] = field(
+        default_factory=list,
+    )
 
     bytes_downloaded: int = 0
 
@@ -87,11 +112,17 @@ class AcquisitionResult:
     # Diagnostics
     # ------------------------------------------------------------------
 
-    warnings: list[str] = field(default_factory=list)
+    warnings: list[str] = field(
+        default_factory=list,
+    )
 
-    errors: list[str] = field(default_factory=list)
+    errors: list[str] = field(
+        default_factory=list,
+    )
 
-    metadata: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(
+        default_factory=dict,
+    )
 
     # ------------------------------------------------------------------
     # Completion
@@ -100,7 +131,11 @@ class AcquisitionResult:
     def finalize(self) -> None:
         """
         Marks the acquisition as completed.
+
+        Finalization records completion timing. It does not alter
+        the success state.
         """
+
         self.completed_at = datetime.utcnow()
 
         self.duration_seconds = (
@@ -108,22 +143,55 @@ class AcquisitionResult:
         ).total_seconds()
 
     # ------------------------------------------------------------------
+    # Success
+    # ------------------------------------------------------------------
+
+    def mark_success(
+        self,
+        message: str = "",
+    ) -> None:
+        """
+        Explicitly marks the acquisition as successful.
+
+        An optional completion message may also be supplied.
+        """
+
+        self.success = True
+
+        if message:
+            self.message = message.strip()
+
+    # ------------------------------------------------------------------
     # Diagnostics
     # ------------------------------------------------------------------
 
-    def add_warning(self, message: str) -> None:
+    def add_warning(
+        self,
+        message: str,
+    ) -> None:
         """
         Records a warning.
+
+        Warnings do NOT make the acquisition unsuccessful.
         """
+
         message = message.strip()
 
         if message:
             self.warnings.append(message)
 
-    def add_error(self, message: str) -> None:
+    def add_error(
+        self,
+        message: str,
+    ) -> None:
         """
-        Records an error and marks the result as failed.
+        Records an actual acquisition error.
+
+        Empty or whitespace-only errors are ignored.
+
+        A non-empty error always marks the result unsuccessful.
         """
+
         message = message.strip()
 
         if not message:
@@ -143,7 +211,10 @@ class AcquisitionResult:
         """
         Registers a downloaded file.
         """
-        self.downloaded_files.append(Path(path))
+
+        self.downloaded_files.append(
+            Path(path),
+        )
 
     def add_extracted_file(
         self,
@@ -152,7 +223,10 @@ class AcquisitionResult:
         """
         Registers an extracted file.
         """
-        self.extracted_files.append(Path(path))
+
+        self.extracted_files.append(
+            Path(path),
+        )
 
     # ------------------------------------------------------------------
     # Metadata
@@ -166,6 +240,7 @@ class AcquisitionResult:
         """
         Stores arbitrary metadata.
         """
+
         self.metadata[key] = value
 
     def get_metadata(
@@ -176,7 +251,11 @@ class AcquisitionResult:
         """
         Retrieves metadata.
         """
-        return self.metadata.get(key, default)
+
+        return self.metadata.get(
+            key,
+            default,
+        )
 
     # ------------------------------------------------------------------
     # Convenience Properties
@@ -184,18 +263,34 @@ class AcquisitionResult:
 
     @property
     def has_errors(self) -> bool:
+        """
+        Returns True when at least one actual error exists.
+        """
+
         return bool(self.errors)
 
     @property
     def has_warnings(self) -> bool:
+        """
+        Returns True when at least one warning exists.
+        """
+
         return bool(self.warnings)
 
     @property
     def downloaded_file_count(self) -> int:
+        """
+        Returns the number of downloaded files.
+        """
+
         return len(self.downloaded_files)
 
     @property
     def extracted_file_count(self) -> int:
+        """
+        Returns the number of extracted files.
+        """
+
         return len(self.extracted_files)
 
     # ------------------------------------------------------------------
@@ -206,6 +301,7 @@ class AcquisitionResult:
         """
         Serializes the acquisition result.
         """
+
         return {
             "source_id": self.source.source_id,
             "success": self.success,
@@ -216,7 +312,9 @@ class AcquisitionResult:
                 if self.completed_at
                 else None
             ),
-            "duration_seconds": self.duration_seconds,
+            "duration_seconds": (
+                self.duration_seconds
+            ),
             "downloaded_files": [
                 str(path)
                 for path in self.downloaded_files
@@ -225,9 +323,15 @@ class AcquisitionResult:
                 str(path)
                 for path in self.extracted_files
             ],
-            "bytes_downloaded": self.bytes_downloaded,
-            "checksum_verified": self.checksum_verified,
-            "license_verified": self.license_verified,
+            "bytes_downloaded": (
+                self.bytes_downloaded
+            ),
+            "checksum_verified": (
+                self.checksum_verified
+            ),
+            "license_verified": (
+                self.license_verified
+            ),
             "normalized": self.normalized,
             "imported": self.imported,
             "warnings": list(self.warnings),
@@ -244,6 +348,7 @@ class AcquisitionResult:
             f"AcquisitionResult("
             f"source={self.source.source_id!r}, "
             f"success={self.success}, "
-            f"downloads={len(self.downloaded_files)}, "
+            f"downloads="
+            f"{len(self.downloaded_files)}, "
             f"errors={len(self.errors)})"
         )
