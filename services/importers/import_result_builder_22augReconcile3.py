@@ -9,15 +9,7 @@ Description
 -----------
 Builder for assembling canonical ImportResult objects.
 
-The builder is intentionally independent of a specific imported
-domain object. Amarakośa, Purāṇa, Veda, dictionary and future
-importers may all use the same result-building contract.
-
-Compatibility
--------------
-``with_book()`` is retained as a compatibility alias for the
-Amarakośa importer. New code should prefer
-``with_imported_object()``.
+The builder is independent of a specific imported domain object.
 
 Version
 -------
@@ -39,9 +31,6 @@ from SanskritAI.models.imports import (
 class ImportResultBuilder:
     """
     Builder for canonical ImportResult objects.
-
-    The builder assembles a result snapshot without introducing
-    importer-specific result models.
     """
 
     # =========================================================
@@ -86,7 +75,7 @@ class ImportResultBuilder:
         return self
 
     # =========================================================
-    # Importer Identity
+    # Identity
     # =========================================================
 
     def with_importer_name(
@@ -121,7 +110,7 @@ class ImportResultBuilder:
         return self
 
     # =========================================================
-    # Imported Domain Object
+    # Domain Object
     # =========================================================
 
     def with_imported_object(
@@ -142,9 +131,9 @@ class ImportResultBuilder:
         book: Any,
     ) -> Self:
         """
-        Compatibility alias for Amarakośa import code.
+        Compatibility alias for Amarakośa.
 
-        New code should use ``with_imported_object()``.
+        New code should use with_imported_object().
         """
 
         return self.with_imported_object(
@@ -243,14 +232,10 @@ class ImportResultBuilder:
         self,
     ) -> ImportResult:
         """
-        Construct the canonical ImportResult.
-
-        Mutable collections are copied so that the builder retains
-        no ownership of the collections stored in the resulting
-        ImportResult.
+        Construct canonical ImportResult.
         """
 
-        result = ImportResult(
+        return ImportResult(
 
             status=self._status,
 
@@ -284,5 +269,3 @@ class ImportResultBuilder:
                 self._metadata
             ),
         )
-
-        return result
