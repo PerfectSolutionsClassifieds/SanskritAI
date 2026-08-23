@@ -8,7 +8,7 @@ Module:
 
 Description
 -----------
-Rich metadata value object wrapped around tokenized lexical outputs.
+Rich metadata value object wrapped around tokenized lexical outputs. 
 Ensures the core engine evaluates strongly-typed data objects instead of raw strings.
 
 Version
@@ -19,14 +19,13 @@ v0.5.0-alpha
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
+from services.importers.line_classifier import LineType
 
-# from services.importers.line_classifier import LineType
-from .line_classifier import LineType
 
 @dataclass(frozen=True, slots=True)
 class ClassificationResult:
     """
-    Carries complete semantic and lexical classification metadata
+    Carries complete semantic and lexical classification metadata 
     extracted from a corpus line.
     """
     line_type: LineType

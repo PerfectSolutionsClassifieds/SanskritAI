@@ -1,11 +1,19 @@
 # Excluded Files
-Generated: 2026-08-22T01:18:20.207102Z
+Generated: 2026-08-23T08:06:04.912475Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - services/importers/amarakosha_parser1.py  — stem_ends_with_digits
 - services/importers/amarakosha_parser2.py  — stem_ends_with_digits
 - services/importers/amarakosha_parser3.py  — stem_ends_with_digits
+- services/importers/amarakosha_parser_22augReconcile1.py  — stem_ends_with_digits
+- services/importers/amarakosha_parser_22augReconcile2.py  — stem_ends_with_digits
+- services/importers/classification_result1.py  — stem_ends_with_digits
+- services/importers/import_result_builder_22augReconcile1.py  — stem_ends_with_digits
+- services/importers/import_result_builder_22augReconcile2.py  — stem_ends_with_digits
+- services/importers/import_result_builder_22augReconcile3.py  — stem_ends_with_digits
 - services/importers/parser_context1.py  — stem_ends_with_digits
+- services/importers/parser_context2.py  — stem_ends_with_digits
+- services/importers/parser_validator1.py  — stem_ends_with_digits
 - tests/panini/testing/panini_test_case1.py  — stem_ends_with_digits
 - tests/panini/mocks/mock_rule1.py  — stem_ends_with_digits
 - tests/panini/mocks/mock_rule2.py  — stem_ends_with_digits
@@ -84,6 +92,8 @@ Generated: 2026-08-22T01:18:20.207102Z
 - ai/reasoner1.py  — stem_ends_with_digits
 - models/word1.py  — stem_ends_with_digits
 - models/enums/script1.py  — stem_ends_with_digits
+- models/imports/import_result_22aug_Reconcile1.py  — stem_ends_with_digits
+- models/imports/import_result_22aug_Reconcile2.py  — stem_ends_with_digits
 - domain/resolution/default_resolution_pipeline1.py  — stem_ends_with_digits
 - domain/resolution/default_resolution_pipeline2.py  — stem_ends_with_digits
 - domain/resolution/default_resolution_pipeline3.py  — stem_ends_with_digits
@@ -336,6 +346,10 @@ Generated: 2026-08-22T01:18:20.207102Z
 - acquisition/knowledge/pipelines/monier_williams_pipeline1.py  — stem_ends_with_digits
 - acquisition/knowledge/indexes/context_index1.py  — stem_ends_with_digits
 - acquisition/knowledge/indexes/source_index1.py  — stem_ends_with_digits
+- acquisition/importers/base_importer_22augReconcile1.py  — stem_ends_with_digits
+- acquisition/importers/import_manager_22augReconcile1.py  — stem_ends_with_digits
+- acquisition/importers/import_result_22augReconcile1.py  — stem_ends_with_digits
+- acquisition/importers/import_result_22augReconcile2.py  — stem_ends_with_digits
 - acquisition/models/acquisition_result1.py  — stem_ends_with_digits
 - acquisition/models/acquisition_result_mw1.py  — stem_ends_with_digits
 - acquisition/repositories/default_source_repository1.py  — stem_ends_with_digits

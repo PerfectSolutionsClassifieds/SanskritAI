@@ -8,6 +8,7 @@
         🔹 Constants:
           • TEST_MODULES
     📂 acquisition/
+      📄 __init__.py
       📄 acquisition_manager.py
           🏗️ Classes:
             • class AcquisitionManager:
@@ -30,6 +31,29 @@
               - __len__(self)
               - __contains__(self, provider)
               - __repr__(self)
+      📂 acquirers/
+        📄 default_source_acquirer.py
+            🏗️ Classes:
+              • class DefaultSourceAcquirer:
+                - acquire(self, manifest)
+                - _validate_manifest(self, manifest, result)
+                - _prepare_destination(self, manifest)
+                - _download_from_sources(self, manifest, destination_directory, result)
+                - _download_one(self, url, manifest, destination_directory)
+                - _copy_local_file(self, url, destination)
+                - _download_http(self, url, destination)
+                - _resolve_filename(self, url, manifest)
+                - _verify_checksum(self, manifest, path, result)
+                - __repr__(self)
+                - __str__(self)
+        📄 source_acquirer.py
+            🏗️ Classes:
+              • class SourceAcquirer:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - acquire(self, manifest)
+                - __str__(self)
       📂 detectors/
         📄 __init__.py
         📄 source_format_detector.py
@@ -671,27 +695,81 @@
                 • class DelimitedMonierWilliamsParser:
                   - __init__(self)
                   - parse(self, source_text)
-                  - _value(row, column)
+                  - parse_lines(self, lines)
+                  - iter_parse(self, source_text)
+                  - _validate_header(self, header)
+                  - _normalize_header(value)
           📄 file_monier_williams_source.py
               🏗️ Classes:
                 • class FileMonierWilliamsSource:
                   - __post_init__(self)
+                  - identifier(self)
+                  - source_name(self)
+                  - exists(self)
                   - read(self)
+          📄 local_monier_williams_source_acquirer.py
+              🏗️ Classes:
+                • class LocalMonierWilliamsSourceAcquirer:
+                  - __init__(self, path)
+                  - path(self)
+                  - encoding(self)
+                  - acquire(self)
           📄 monier_williams_acquisition_service.py
               🏗️ Classes:
                 • class MonierWilliamsAcquisitionService:
+                  - read(self)
                   - acquire(self)
                   - count(self)
+          📄 monier_williams_parsed_entry.py
+              🏗️ Classes:
+                • class MonierWilliamsParsedEntry:
+                  - __post_init__(self)
           📄 monier_williams_parser.py
               🏗️ Classes:
                 • class MonierWilliamsParser:
                   - parse(self, source_text)
                   - parse_lines(self, lines)
+          📄 monier_williams_parser_config.py
+              🏗️ Classes:
+                • class MonierWilliamsParserConfig:
           📄 monier_williams_source.py
               🏗️ Classes:
                 • class MonierWilliamsSource:
                   - source(self)
+                  - identifier(self)
+                  - source_name(self)
                   - read(self)
+                  - acquire(self)
+          📄 monier_williams_source_acquirer.py
+              🏗️ Classes:
+                • class MonierWilliamsSourceAcquirer:
+                  - acquire(self)
+          📄 monier_williams_source_parser.py
+              🏗️ Classes:
+                • class MonierWilliamsSourceParser:
+                  - __post_init__(self)
+                  - parse(self, source_text)
+                  - parse_record(self, source_text)
+                • class _TaggedMonierWilliamsParser:
+                  - parse(self, source_text)
+                  - _build_record(self, sequence, lines)
+          📄 monier_williams_source_pipeline.py
+              🏗️ Classes:
+                • class MonierWilliamsSourcePipeline:
+                  - run(self)
+                  - records(self)
+          📄 monier_williams_source_record.py
+              🏗️ Classes:
+                • class MonierWilliamsSourceRecord:
+                  - __init__(self, sequence, raw_text, fields, **kwargs)
+                  - headword(self)
+                  - transliteration(self)
+                  - definition(self)
+                  - grammatical_label(self)
+                  - grammatical_category(self)
+                  - source_id(self)
+                  - homonym(self)
+                  - get(self, key, default)
       📂 metadata/
         📄 __init__.py
         📄 base_metadata_extractor.py
@@ -861,6 +939,7 @@
             🏗️ Classes:
               • class AcquisitionResult:
                 - finalize(self)
+                - mark_success(self, message)
                 - add_warning(self, message)
                 - add_error(self, message)
                 - add_downloaded_file(self, path)
@@ -1039,6 +1118,16 @@
                 - _title_from_href(href)
                 - metadata(self)
                 - __repr__(self)
+      📂 pipelines/
+        📄 acquisition_pipeline.py
+            🏗️ Classes:
+              • class AcquisitionPipeline:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - acquire(self, manifest)
+                - run(self, manifest)
+                - __str__(self)
       📂 providers/
         📄 acquisition_request.py
             🏗️ Classes:
@@ -1285,6 +1374,19 @@
                 - downloader(self)
                 - metadata(self)
                 - __repr__(self)
+        📄 default_source_repository.py
+            🏗️ Classes:
+              • class DefaultSourceRepository:
+                - add(self, source)
+                - get(self, source_id)
+                - exists(self, source_id)
+                - all(self)
+                - remove(self, source_id)
+                - clear(self)
+                - __contains__(self, source_id)
+                - __len__(self)
+                - __iter__(self)
+                - __repr__(self)
         📄 gretil_repository_client.py
             🏗️ Classes:
               • class GretilRepositoryClient:
@@ -1335,6 +1437,41 @@
                 - __iter__(self)
                 - __len__(self)
                 - __repr__(self)
+        📄 source_repository.py
+            🏗️ Classes:
+              • class SourceRepository:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - get(self, identifier)
+                - exists(self, identifier)
+                - all(self)
+                - add(self, source)
+                - remove(self, identifier)
+                - count(self)
+                - is_empty(self)
+                - __len__(self)
+                - __contains__(self, identifier)
+                - __str__(self)
+      📂 services/
+        📄 acquisition_service.py
+            🏗️ Classes:
+              • class AcquisitionService:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - acquire(self, manifest)
+                - run(self, manifest)
+                - __str__(self)
+        📄 default_acquisition_service.py
+            🏗️ Classes:
+              • class DefaultAcquisitionService:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - acquire(self, manifest)
+                - run(self, manifest)
+                - __str__(self)
       📂 validators/
         📄 __init__.py
         📄 base_validator.py
@@ -10386,6 +10523,157 @@
           ⚙️ Functions:
             • test_word_defaults_to_empty_features()
       📂 acquisition/
+        📄 _updated_make_manifest.py
+            ⚙️ Functions:
+              • make_manifest()
+        📄 test_acquisition_manifest.py
+            ⚙️ Functions:
+              • make_source()
+              • make_manifest()
+              • test_manifest_construction()
+              • test_url_management()
+              • test_duplicate_urls_are_ignored()
+              • test_empty_urls_are_ignored()
+              • test_download_requirement()
+              • test_checksum_requirement()
+              • test_license_validation_requirement()
+              • test_metadata()
+              • test_to_dict()
+              • test_repr_contains_identity()
+        📄 test_acquisition_pipeline.py
+            ⚙️ Functions:
+              • make_source()
+              • make_manifest()
+              • test_pipeline_delegates_to_acquirer()
+              • test_pipeline_run_is_alias_for_acquire()
+              • test_pipeline_display()
+              • test_pipeline_is_frozen()
+            🏗️ Classes:
+              • class FakeSourceAcquirer:
+                - __init__(self)
+                - acquire(self, manifest)
+        📄 test_acquisition_result.py
+            ⚙️ Functions:
+              • make_source()
+              • test_result_construction()
+              • test_finalize_sets_completion_information()
+              • test_warning_management()
+              • test_empty_warning_is_ignored()
+              • test_error_marks_result_failed()
+              • test_empty_error_is_ignored()
+              • test_downloaded_files()
+              • test_extracted_files()
+              • test_metadata()
+              • test_to_dict()
+              • test_repr_contains_identity()
+        📄 test_acquisition_service.py
+            ⚙️ Functions:
+              • test_acquisition_service_is_abstract()
+              • test_acquisition_service_cannot_be_instantiated()
+        📄 test_corpus_source.py
+            ⚙️ Functions:
+              • make_source()
+              • test_corpus_source_construction()
+              • test_default_state()
+              • test_download_url_management()
+              • test_duplicate_download_urls_are_ignored()
+              • test_tag_management()
+              • test_empty_tag_is_ignored()
+              • test_metadata_management()
+              • test_local_path_and_filename()
+              • test_status_and_importability()
+              • test_to_dict()
+              • test_repr_contains_identity()
+        📄 test_default_acquisition_service.py
+            ⚙️ Functions:
+              • make_source()
+              • make_manifest()
+              • make_service()
+              • test_default_service_delegates_to_pipeline()
+              • test_default_service_run_alias()
+              • test_default_service_display()
+              • test_default_service_is_frozen()
+            🏗️ Classes:
+              • class FakeSourceAcquirer:
+                - __init__(self)
+                - acquire(self, manifest)
+        📄 test_default_source_acquirer.py
+            ⚙️ Functions:
+              • make_source(identifier)
+              • file_url(path)
+              • make_manifest()
+              • test_successful_local_file_acquisition(tmp_path)
+              • test_result_is_finalized(tmp_path)
+              • test_existing_destination_file_is_rejected_by_default(tmp_path)
+              • test_existing_destination_can_be_overwritten(tmp_path)
+              • test_failed_primary_url_falls_back_to_mirror(tmp_path)
+              • test_bytes_downloaded_are_recorded(tmp_path)
+              • test_valid_checksum_is_verified(tmp_path)
+              • test_invalid_checksum_fails(tmp_path)
+              • test_missing_destination_fails()
+              • test_missing_urls_fails(tmp_path)
+              • test_disabled_manifest_is_skipped(tmp_path)
+              • test_successful_acquisition_updates_source_status(tmp_path)
+              • test_successful_checksum_acquisition_reaches_validated(tmp_path)
+              • test_failed_acquisition_updates_source_status(tmp_path)
+              • test_result_preserves_source_identity(tmp_path)
+              • test_url_filename_is_used_when_expected_filename_missing(tmp_path)
+        📄 test_source_acquirer.py
+            ⚙️ Functions:
+              • test_source_acquirer_is_abstract()
+              • test_source_acquirer_cannot_be_instantiated()
+        📄 test_source_format.py
+            ⚙️ Functions:
+              • test_source_format_values()
+              • test_text_formats()
+              • test_structured_formats()
+              • test_archive_formats()
+              • test_ocr_formats()
+              • test_document_formats()
+              • test_from_extension_normalizes_input()
+              • test_from_extension_unknown_returns_unknown()
+              • test_string_representation()
+        📄 test_source_license.py
+            ⚙️ Functions:
+              • test_license_values()
+              • test_open_licenses()
+              • test_non_open_licenses()
+              • test_attribution_requirements()
+              • test_commercial_use()
+              • test_permission_required()
+              • test_from_string()
+              • test_unknown_license()
+              • test_string_representation()
+        📄 test_source_repository.py
+            ⚙️ Functions:
+              • make_source(identifier)
+              • test_repository_starts_empty()
+              • test_add_registers_source()
+              • test_add_duplicate_identifier_is_rejected()
+              • test_get_returns_registered_source()
+              • test_get_returns_none_for_unknown_source()
+              • test_exists_returns_false_for_unknown_source()
+              • test_exists_returns_true_for_registered_source()
+              • test_all_returns_registered_sources()
+              • test_all_returns_immutable_snapshot()
+              • test_remove_returns_removed_source()
+              • test_remove_unknown_returns_none()
+              • test_clear_removes_all_sources()
+              • test_repository_is_iterable()
+              • test_contains_protocol()
+              • test_len_protocol()
+        📄 test_source_status.py
+            ⚙️ Functions:
+              • test_initial_statuses()
+              • test_downloaded_states()
+              • test_validated_states()
+              • test_importable_states()
+              • test_terminal_states()
+              • test_failed_state()
+              • test_active_states()
+              • test_from_string()
+              • test_unknown_status()
+              • test_string_representation()
         📄 test_source_type.py
             🏗️ Classes:
               • class TestSourceType:
@@ -10396,32 +10684,98 @@
           📂 monier_williams/
             📄 test_delimited_monier_williams_parser.py
                 ⚙️ Functions:
-                  • test_parser_reads_single_record()
-                  • test_parser_reads_multiple_records()
-                  • test_parser_returns_empty_tuple_for_empty_source()
-                  • test_parser_rejects_non_string_source()
+                  • test_parser_reads_basic_record()
+                  • test_parser_reads_optional_fields()
                   • test_parser_requires_header()
-                  • test_parser_requires_headword_column()
-                  • test_parser_requires_definition_column()
-                  • test_parser_rejects_missing_headword_value()
-                  • test_parser_rejects_missing_definition_value()
-                  • test_parser_supports_custom_delimiter()
-                  • test_parser_strips_field_values()
+                  • test_parser_requires_required_headers()
+                  • test_parser_rejects_unknown_header_in_strict_mode()
+                  • test_parser_rejects_empty_source()
+                  • test_parser_rejects_none()
+                  • test_parser_skips_blank_lines()
+                  • test_parser_rejects_missing_headword()
+                  • test_parser_rejects_missing_definition()
+                  • test_parser_rejects_extra_columns()
+                  • test_parser_normalizes_header_case_and_whitespace()
+                  • test_parser_iter_parse()
             📄 test_file_monier_williams_source.py
                 ⚙️ Functions:
-                  • test_file_source_reads_utf8_content(tmp_path)
-                  • test_file_source_accepts_string_path(tmp_path)
+                  • test_file_source_reads_text(tmp_path)
+                  • test_file_source_identifier()
+                  • test_file_source_name()
+                  • test_file_source_exposes_path()
+                  • test_file_source_missing_file(tmp_path)
+                  • test_file_source_rejects_directory(tmp_path)
+            📄 test_local_monier_williams_source_acquirer.py
+                ⚙️ Functions:
+                  • test_local_acquirer_reads_source(tmp_path)
+                  • test_local_acquirer_exposes_path(tmp_path)
+                  • test_local_acquirer_rejects_missing_file(tmp_path)
+                  • test_local_acquirer_rejects_directory(tmp_path)
             📄 test_monier_williams_acquisition_service.py
                 ⚙️ Functions:
-                  • test_acquisition_service_reads_and_parses_source()
-                  • test_acquisition_service_count()
-                  • test_acquisition_service_preserves_source_boundary()
+                  • test_acquisition_service_reads_source()
+                  • test_acquisition_service_returns_counts()
+                  • test_acquisition_service_read_is_convenience_method()
+                  • test_source_is_not_replaced()
                 🏗️ Classes:
                   • class StubSource:
+                    - __init__(self, text)
+                    - identifier(self)
+                    - source_name(self)
                     - read(self)
+            📄 test_monier_williams_compatibility.py
+                ⚙️ Functions:
+                  • test_parser_accepts_extended_canonical_headers()
+                  • test_parser_empty_source_returns_empty_tuple()
+                  • test_parser_supports_custom_delimiter()
+                  • test_parser_supports_parse_lines()
+                  • test_file_source_exposes_source(tmp_path)
+                  • test_lightweight_source_double_is_valid()
+                  • test_source_parser_accepts_injected_acquirer()
+                  • test_source_parser_accepts_custom_parser()
+                🏗️ Classes:
+                  • class StubSource:
+                    - __init__(self, text)
+                    - acquire(self)
+            📄 test_monier_williams_parsed_entry.py
+                ⚙️ Functions:
+                  • test_parsed_entry_stores_required_fields()
+                  • test_parsed_entry_stores_optional_fields()
+                  • test_empty_headword_is_rejected()
+                  • test_empty_definition_is_rejected()
+                  • test_metadata_is_immutable()
             📄 test_monier_williams_parser.py
                 ⚙️ Functions:
                   • test_parse_lines_delegates_to_parse()
+            📄 test_monier_williams_source_parser.py
+                🔹 Constants:
+                  • MW_SAMPLE
+                ⚙️ Functions:
+                  • test_parser_reads_multiple_records()
+                  • test_parser_reads_headword()
+                  • test_parser_reads_homonym()
+                  • test_parser_preserves_grammatical_field()
+                  • test_parser_preserves_definition_field()
+                  • test_parser_preserves_raw_record()
+                  • test_parser_rejects_empty_source()
+                  • test_parser_rejects_unterminated_record()
+                  • test_parser_rejects_orphan_lend()
+                  • test_parser_rejects_source_without_records()
+                  • test_parse_record_requires_one_record()
+            📄 test_monier_williams_source_pipeline.py
+                ⚙️ Functions:
+                  • test_pipeline_acquires_and_parses()
+                🏗️ Classes:
+                  • class StubSource:
+                    - identifier(self)
+                    - source_name(self)
+                    - read(self)
+            📄 test_monier_williams_source_record.py
+                ⚙️ Functions:
+                  • test_source_record_exposes_fields()
+                  • test_source_record_unknown_field_is_preserved()
+                  • test_source_record_requires_positive_sequence()
+                  • test_source_record_requires_raw_text()
       📂 core/
         📄 test_typing.py
             ⚙️ Functions:

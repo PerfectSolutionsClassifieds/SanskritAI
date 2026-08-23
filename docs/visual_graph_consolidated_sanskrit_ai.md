@@ -247,25 +247,6 @@
                 - __len__(self)
                 - __repr__(self)
         📄 import_result.py
-            🏗️ Classes:
-              • class ImportResult:
-                - add_document(self, identifier)
-                - add_unit(self, identifier)
-                - skip_unit(self, identifier)
-                - warning(self, message)
-                - error(self, message)
-                - set_metadata(self, key, value)
-                - increment(self, key, amount)
-                - finish(self)
-                - duration_seconds(self)
-                - document_count(self)
-                - unit_count(self)
-                - has_errors(self)
-                - has_warnings(self)
-                - merge(self, other)
-                - __bool__(self)
-                - __len__(self)
-                - __repr__(self)
         📄 pdf_importer.py
             🏗️ Classes:
               • class PdfImporter:
@@ -1472,6 +1453,17 @@
                 - acquire(self, manifest)
                 - run(self, manifest)
                 - __str__(self)
+      📂 sources/
+        📄 __init__.py
+        📄 monier_williams.py
+            🏗️ Classes:
+              • class MonierWilliamsSource:
+                - identity(self)
+        📄 monier_williams_manifest.py
+            🔹 Constants:
+              • MW_SOURCE_URL
+            ⚙️ Functions:
+              • create_monier_williams_manifest()
       📂 validators/
         📄 __init__.py
         📄 base_validator.py
@@ -9730,6 +9722,20 @@
         📄 lexical_source_metadata.py
             🏗️ Classes:
               • class LexicalSourceMetadata:
+      📂 monier_williams/
+        📄 __init__.py
+        📄 parser.py
+            🔹 Constants:
+              • _FIELD_PATTERN
+            🏗️ Classes:
+              • class MonierWilliamsParser:
+                - parse(self, lines)
+                - _build_record(self, lines)
+        📄 record.py
+            🏗️ Classes:
+              • class MonierWilliamsRecord:
+                - add_line(self, line)
+                - text(self)
       📂 parsers/
         📄 base_lexical_parser.py
             🏗️ Classes:
@@ -10056,15 +10062,30 @@
         📄 import_result.py
             🏗️ Classes:
               • class ImportResult:
+                - __post_init__(self)
+                - add_document(self, identifier)
+                - add_unit(self, identifier)
+                - skip_unit(self, identifier)
                 - add_error(self, error)
+                - warning(self, message)
+                - error(self, message)
                 - add_metadata(self, key, value)
+                - set_metadata(self, key, value)
+                - increment(self, key, amount)
                 - warning_count(self)
                 - error_count(self)
                 - has_errors(self)
                 - has_warnings(self)
                 - successful(self)
+                - duration_seconds(self)
+                - document_count(self)
+                - unit_count(self)
                 - finalize(self)
+                - finish(self)
+                - merge(self, other)
                 - to_dict(self)
+                - __bool__(self)
+                - __len__(self)
                 - __str__(self)
                 - __repr__(self)
         📄 import_statistics.py
@@ -10204,6 +10225,10 @@
               - get_dictionary(self, name)
               - dictionaries(self)
     📂 scripts/
+      📄 audit_amarakosha_imports.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
       📄 backup_database.py
           ⚙️ Functions:
             • main()
@@ -10332,9 +10357,17 @@
               • class ImportResultBuilder:
                 - __init__(self)
                 - with_status(self, status)
+                - with_importer_name(self, importer_name)
+                - with_source_file(self, source_file)
+                - with_message(self, message)
+                - with_imported_object(self, imported_object)
                 - with_book(self, book)
+                - with_imported_documents(self, documents)
+                - with_imported_units(self, units)
+                - with_skipped_units(self, units)
                 - with_statistics(self, statistics)
                 - with_errors(self, errors)
+                - with_metadata(self, metadata)
                 - build(self)
         📄 line_classifier.py
             🏗️ Classes:
@@ -12546,6 +12579,12 @@
                 • test_lexical_source_is_immutable()
                 • test_string_representation_without_version()
                 • test_string_representation_with_version()
+        📂 monier_williams/
+          📄 test_parser.py
+              ⚙️ Functions:
+                • test_parser_reads_single_record()
+                • test_parser_preserves_raw_text()
+                • test_parser_handles_multiple_records()
         📂 registries/
           📄 test_lexical_registry.py
               ⚙️ Functions:
@@ -12823,6 +12862,31 @@
                   - assert_context_iteration(self, context, expected)
                   - assert_rule_applied(self, trace, sutra_number)
                   - print_trace(self, trace)
+        📂 importers/
+          📄 test_amarakosha_parser_import_result.py
+              ⚙️ Functions:
+                • parser()
+                • minimal_valid_text()
+                • test_parse_text_returns_canonical_import_result(parser, minimal_valid_text)
+                • test_successful_parse_returns_completed_status(parser, minimal_valid_text)
+                • test_successful_parse_has_no_errors(parser, minimal_valid_text)
+                • test_successful_parse_reconciles_imported_object(parser, minimal_valid_text)
+                • test_imported_object_is_not_lost_during_result_build(parser, minimal_valid_text)
+                • test_statistics_are_reconciled_from_parser_context(parser, minimal_valid_text)
+                • test_statistics_contain_expected_structural_counts(parser, minimal_valid_text)
+                • test_unknown_line_produces_warning(parser, minimal_valid_text)
+                • test_warning_does_not_make_import_unsuccessful(parser, minimal_valid_text)
+                • test_structural_violation_is_recoverable(parser)
+                • test_parser_converts_unexpected_exception_to_failed_result(parser, monkeypatch)
+                • test_failed_result_contains_diagnostic(parser, monkeypatch)
+                • test_parse_file_returns_canonical_import_result(parser, minimal_valid_text, tmp_path)
+                • test_parse_file_rejects_unsupported_extension(parser, tmp_path)
+                • test_parse_file_rejects_missing_file(parser, tmp_path)
+                • test_amarakosha_parser_uses_canonical_status_vocabulary()
+                • test_successful_result_is_terminal(parser, minimal_valid_text)
+                • test_statistics_timing_is_started(parser, minimal_valid_text)
+                • test_result_string_representation_is_available(parser, minimal_valid_text)
+                • test_parser_context_remains_available_after_parse(parser, minimal_valid_text)
     📂 tools/
       📄 diagnose_semantic_rules.py
     📂 utils/

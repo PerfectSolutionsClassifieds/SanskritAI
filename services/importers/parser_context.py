@@ -1,15 +1,24 @@
-
 """
 SanskritAI
 ==========
 
 Module:
-    services.importers.parser_context_v2
+    services.importers.parser_context
 
 Description
 -----------
-Active Domain Context manager that handles state transitions, 
-tracks deep hierarchy ownership safely, and automates event-driven statistics.
+Active parser execution context for corpus importers.
+
+ParserContext manages:
+
+    • parser state
+    • current input line
+    • Amarakośa hierarchy ownership
+    • import statistics
+    • structured parser diagnostics
+
+The context belongs to the importer execution layer and does
+not own ImportResult construction.
 
 Version
 -------
@@ -17,104 +26,276 @@ v0.5.0-alpha
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
-from models.amarakosha import Amarakosha, Kanda, Varga, Verse
-from models.imports import ImportError, ImportStatistics
-from services.importers.parser_state import ParserState
-from services.importers.parser_errors import StructureError
+from models.amarakosha import (
+    Amarakosha,
+    Kanda,
+    Varga,
+    Verse,
+)
 
-# ParserContextV2
+from models.imports import (
+    ImportError,
+    ImportStatistics,
+)
+
+# IMPORTANT:
+# Use package-relative imports for sibling importer modules.
+#
+# Do NOT use:
+#
+#     from services.importers.parser_state import ParserState
+#     from services.importers.parser_errors import StructureError
+#
+# because those imports can re-enter services.importers.__init__
+# while SanskritAI.services.importers is still initializing.
+
+from .parser_state import ParserState
+from .parser_errors import StructureError
+
+
 class ParserContext:
     """
     Active execution context for the parsing lifecycle.
-    Encapsulates state validation, statistics updates, and object tracking.
+
+    Responsibilities
+    ----------------
+    • Maintain parser FSM state.
+    • Track current source line.
+    • Own the active Amarakośa hierarchy during parsing.
+    • Collect import statistics.
+    • Collect structured parser diagnostics.
+
+    ParserContext does not construct ImportResult.
     """
 
     def __init__(self) -> None:
-        self.state: ParserState = ParserState.START
+
+        self.state: ParserState = (
+            ParserState.START
+        )
+
         self.line_number: int = 0
+
         self.current_line: str = ""
-        
+
+        # -----------------------------------------------------
+        # Domain hierarchy
+        # -----------------------------------------------------
+
         self.book: Amarakosha = Amarakosha()
+
         self._current_kanda: Kanda | None = None
+
         self._current_varga: Varga | None = None
+
         self._current_verse: Verse | None = None
 
-        self.statistics: ImportStatistics = ImportStatistics()
+        # -----------------------------------------------------
+        # Import execution metrics
+        # -----------------------------------------------------
+
+        self.statistics: ImportStatistics = (
+            ImportStatistics()
+        )
+
+        # -----------------------------------------------------
+        # Parser diagnostics
+        # -----------------------------------------------------
+
         self.errors: list[ImportError] = []
 
+    # =========================================================
+    # Current hierarchy
+    # =========================================================
+
     @property
-    def current_kanda(self) -> Kanda | None:
+    def current_kanda(
+        self,
+    ) -> Kanda | None:
+
         return self._current_kanda
 
+    # ---------------------------------------------------------
+
     @property
-    def current_varga(self) -> Varga | None:
+    def current_varga(
+        self,
+    ) -> Varga | None:
+
         return self._current_varga
 
+    # ---------------------------------------------------------
+
     @property
-    def current_verse(self) -> Verse | None:
+    def current_verse(
+        self,
+    ) -> Verse | None:
+
         return self._current_verse
 
-    def next_line(self, line: str) -> None:
+    # =========================================================
+    # Source position
+    # =========================================================
+
+    def next_line(
+        self,
+        line: str,
+    ) -> None:
+        """
+        Advance the parser to the next source line.
+        """
+
         self.line_number += 1
+
         self.current_line = line
 
-    def transition(self, next_state: ParserState) -> None:
-        """Enforces robust FSM transition constraints."""
-        if not self.state.can_transition_to(next_state):
+    # =========================================================
+    # State machine
+    # =========================================================
+
+    def transition(
+        self,
+        next_state: ParserState,
+    ) -> None:
+        """
+        Validate and perform a parser-state transition.
+        """
+
+        if not self.state.can_transition_to(
+            next_state
+        ):
+
             raise StructureError(
-                f"Illegal state transition from {self.state.name} to {next_state.name}.",
-                self.line_number
+                (
+                    "Illegal state transition "
+                    f"from {self.state.name} "
+                    f"to {next_state.name}."
+                ),
+                self.line_number,
             )
+
         self.state = next_state
 
-    # -------------------------------------------------------------------------
-    # Active Domain Tracking (Event-Driven Statistics & State Containment)
-    # -------------------------------------------------------------------------
+    # =========================================================
+    # Domain hierarchy tracking
+    # =========================================================
 
-    def enter_kanda(self, kanda: Kanda) -> None:
-        """Registers a Kanda, tracking its lifecycle safely."""
-        self.book.add_kanda(kanda)
+    def enter_kanda(
+        self,
+        kanda: Kanda,
+    ) -> None:
+        """
+        Enter and register a Kāṇḍa.
+        """
+
+        self.book.add_kanda(
+            kanda
+        )
+
         self._current_kanda = kanda
-        self._current_varga = None
-        self._current_verse = None
-        
-        # Event-driven statistics calculation
-        self.statistics.kandas = len(self.book.kandas)
 
-    def enter_varga(self, varga: Varga) -> None:
-        """Registers a Varga inside the active Kanda context."""
-        if self._current_kanda is None:
-            raise StructureError("Cannot enter a Varga without an active Kāṇḍa context.", self.line_number)
-        
-        self._current_kanda.add_varga(varga)
-        self._current_varga = varga
+        self._current_varga = None
+
         self._current_verse = None
-        
-        # Event-driven tracking update
+
+        # Event-driven statistic.
+        self.statistics.kandas = (
+            len(self.book.kandas)
+        )
+
+    # ---------------------------------------------------------
+
+    def enter_varga(
+        self,
+        varga: Varga,
+    ) -> None:
+        """
+        Enter and register a Varga inside
+        the active Kāṇḍa.
+        """
+
+        if self._current_kanda is None:
+
+            raise StructureError(
+                (
+                    "Cannot enter a Varga "
+                    "without an active "
+                    "Kāṇḍa context."
+                ),
+                self.line_number,
+            )
+
+        self._current_kanda.add_varga(
+            varga
+        )
+
+        self._current_varga = varga
+
+        self._current_verse = None
+
         self.statistics.vargas += 1
 
-    def enter_verse(self, verse: Verse) -> None:
-        """Registers a Verse inside the active Varga context."""
+    # ---------------------------------------------------------
+
+    def enter_verse(
+        self,
+        verse: Verse,
+    ) -> None:
+        """
+        Enter and register a Verse inside
+        the active Varga.
+        """
+
         if self._current_varga is None:
-            raise StructureError("Cannot enter a Verse without an active Varga context.", self.line_number)
-        
-        self._current_varga.add_verse(verse)
+
+            raise StructureError(
+                (
+                    "Cannot enter a Verse "
+                    "without an active "
+                    "Varga context."
+                ),
+                self.line_number,
+            )
+
+        self._current_varga.add_verse(
+            verse
+        )
+
         self._current_verse = verse
-        
-        # Event-driven tracking update
+
         self.statistics.verses += 1
 
-    def add_error(self, message: str, severity: str = "warning") -> None:
-        """Appends error diagnostics and increments internal stats counters."""
-        err = ImportError(
+    # =========================================================
+    # Diagnostics
+    # =========================================================
+
+    def add_error(
+        self,
+        message: str,
+        severity: str = "warning",
+    ) -> None:
+        """
+        Add a structured parser diagnostic.
+
+        Fatal diagnostics increment the error counter.
+        Non-fatal diagnostics are treated as warnings.
+        """
+
+        error = ImportError(
             line_number=self.line_number,
             message=message,
-            severity=severity
+            severity=severity,
         )
-        self.errors.append(err)
+
+        self.errors.append(
+            error
+        )
+
         if severity == "fatal":
+
             self.statistics.errors += 1
+
         else:
+
             self.statistics.warnings += 1

@@ -18,13 +18,13 @@ v0.5.0-alpha
 
 from __future__ import annotations
 from models.amarakosha import Amarakosha
-from .parser_state import ParserState
-from .parser_errors import StructureError, ValidationError
+from services.importers.parser_state import ParserState
+from services.importers.parser_errors import StructureError, ValidationError
 
 
 class ParserValidator:
     """
-    Validates structural states and structural completeness constraints
+    Validates structural states and structural completeness constraints 
     across the active parser lifecycle.
     """
 
@@ -60,7 +60,7 @@ class ParserValidator:
         for kanda in book.kandas:
             if not kanda.vargas:
                 warnings.append(f"Kāṇḍa '{kanda.title}' contains zero structural Vargas.")
-
+            
             for varga in kanda.vargas:
                 if not varga.verses:
                     warnings.append(f"Varga '{varga.title}' contains zero structural Verses.")
