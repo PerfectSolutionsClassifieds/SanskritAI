@@ -11,6 +11,8 @@ Description
 -----------
 Refactored, enterprise-grade orchestrator for the Amarakośa corpus parser.
 
+Leverages the v0.5.0-alpha decoupled architecture design.
+
 Layered Execution
 -----------------
 Public API
@@ -25,58 +27,58 @@ Domain Model
 
 Version
 -------
-v0.9.0
+v0.5.0-alpha
 """
 
 from pathlib import Path
 from typing import Callable
 
-from SanskritAI.models.imports import (
+from models.imports import (
     ImportConfiguration,
     ImportResult,
     ImportStatus,
 )
 
-from SanskritAI.services.importers.line_classifier import (
+from services.importers.line_classifier import (
     LineClassifier,
     LineType,
 )
 
-from SanskritAI.services.importers.unicode_normalizer import (
+from services.importers.unicode_normalizer import (
     UnicodeNormalizer,
 )
 
-from SanskritAI.services.importers.parser_state import (
+from services.importers.parser_state import (
     ParserState,
 )
 
-from SanskritAI.services.importers.parser_errors import (
+from services.importers.parser_errors import (
     RecoverableParserError,
     FatalParserError,
     StructureError,
 )
 
-from SanskritAI.services.importers.parser_context import (
+from services.importers.parser_context import (
     ParserContext,
 )
 
-from SanskritAI.services.importers.amarakosha_builder import (
+from services.importers.amarakosha_builder import (
     AmarakoshaBuilder,
 )
 
-from SanskritAI.services.importers.parser_validator import (
+from services.importers.parser_validator import (
     ParserValidator,
 )
 
-from SanskritAI.services.importers.structure_numbering import (
+from services.importers.structure_numbering import (
     StructureNumbering,
 )
 
-from SanskritAI.services.importers.classification_result import (
+from services.importers.classification_result import (
     ClassificationResult,
 )
 
-from SanskritAI.services.importers.import_result_builder import (
+from services.importers.import_result_builder import (
     ImportResultBuilder,
 )
 
@@ -97,11 +99,17 @@ class AmarakoshaParser:
     """
     Clean orchestration engine for parsing the Amarakośa.
 
-    The parser coordinates normalization, classification,
-    parser state, structure construction, validation,
-    statistics and diagnostics.
+    Responsibilities
+    ----------------
+    • normalize input
+    • classify lines
+    • maintain parser FSM state
+    • delegate structure construction
+    • validate parser transitions
+    • collect import statistics
+    • collect parser diagnostics
 
-    It does not own the canonical corpus identity model.
+    The parser itself does not own structural domain logic.
     """
 
     def __init__(
@@ -119,6 +127,10 @@ class AmarakoshaParser:
 
         self._normalizer = UnicodeNormalizer()
 
+        # Canonical ParserContext.
+        #
+        # IMPORTANT:
+        # ParserContextV2 was renamed to ParserContext.
         self._context: ParserContext | None = None
 
         self._handlers: dict[
@@ -141,9 +153,16 @@ class AmarakoshaParser:
     def context(
         self,
     ) -> ParserContext:
+        """
+        Return the active ParserContext.
+
+        Raises
+        ------
+        RuntimeError
+            If parsing has not yet started.
+        """
 
         if self._context is None:
-
             raise RuntimeError(
                 "ParserContext execution layer is uninitialized."
             )
@@ -162,7 +181,6 @@ class AmarakoshaParser:
         file_path = Path(path)
 
         if not file_path.exists():
-
             raise FileNotFoundError(
                 file_path,
             )
@@ -172,7 +190,6 @@ class AmarakoshaParser:
             and file_path.suffix.lower()
             not in SUPPORTED_EXTENSIONS
         ):
-
             raise ValueError(
                 f"Extension format "
                 f"'{file_path.suffix}' "
@@ -209,8 +226,12 @@ class AmarakoshaParser:
         lines: list[str],
     ) -> ImportResult:
 
+        # Canonical context implementation.
         self._context = ParserContext()
 
+        #22-AUG_2026 RECONCILATION
+        # status = ImportStatus.SUCCESS
+        
         status = ImportStatus.COMPLETED
 
         try:
@@ -252,7 +273,6 @@ class AmarakoshaParser:
 
         return (
             ImportResultBuilder()
-
             .with_status(
                 (
                     status
@@ -261,19 +281,15 @@ class AmarakoshaParser:
                     else ImportStatus.FAILED
                 )
             )
-
-            .with_imported_object(
+            .with_book(
                 self.context.book,
             )
-
             .with_statistics(
                 self.context.statistics,
             )
-
             .with_errors(
                 self.context.errors,
             )
-
             .build()
         )
 
@@ -521,7 +537,6 @@ class AmarakoshaParser:
     ) -> str:
 
         if self._context is None:
-
             return (
                 "AmarakoshaParser("
                 "state=UNINITIALIZED)"
