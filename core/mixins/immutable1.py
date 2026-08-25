@@ -13,6 +13,17 @@ Unlike ValueObject, Immutable is not a domain concept.
 Instead, it is a lightweight mixin indicating that an object
 is intended to be immutable.
 
+Typical users include:
+
+- Value Objects
+- Records
+- DTOs
+- Diagnostics
+- Validation Results
+- Build Results
+- Serialization Results
+- Tokenizer Objects
+
 Immutability itself is normally enforced using
 ``@dataclass(frozen=True)`` or other immutable Python
 constructs. This mixin provides common semantics and
@@ -42,19 +53,7 @@ from typing import Any
 class Immutable:
     """
     Semantic base class for immutable objects.
-
-    ``__slots__ = ()`` is intentional.
-
-    This mixin must not introduce an instance ``__dict__``.
-    Slot-based immutable descendants such as:
-
-        @dataclass(frozen=True, slots=True)
-
-    must remain genuinely slot-based throughout the
-    inheritance hierarchy.
     """
-
-    __slots__ = ()
 
     @property
     def is_immutable(self) -> bool:
@@ -85,10 +84,7 @@ class Immutable:
         if not is_dataclass(self):
             return ()
 
-        return tuple(
-            field.name
-            for field in fields(self)
-        )
+        return tuple(field.name for field in fields(self))
 
     def as_dict(self) -> dict[str, Any]:
         """

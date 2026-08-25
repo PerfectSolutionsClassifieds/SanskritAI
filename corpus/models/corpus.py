@@ -8,45 +8,89 @@ Corpus
 
 Root domain object representing a canonical corpus.
 
-A Corpus is the top-level container within the SanskritAI
-Canonical Corpus Model.
+Corpus is the root ContainerNode of the canonical corpus
+hierarchy:
+
+    Corpus
+        Document
+            Section
+                Verse
+                    Paragraph
+                        Line
+                            Token
+
+Structural responsibilities are delegated to ContainerNode and
+NodeCollection. Corpus retains the domain-specific ``documents``
+vocabulary as an alias for ``children``.
 
 Version
 -------
-v0.1.0
+v0.3.1
 """
 
-from dataclasses import dataclass, field
-from typing import Iterator
+from typing import TYPE_CHECKING
 
 from SanskritAI.common.identifiers.corpus_id import CorpusId
-
-from SanskritAI.corpus.models.corpus_metadata import (
-    CorpusMetadata,
-)
-
-# Imported lazily for typing only.
-from typing import TYPE_CHECKING
+from SanskritAI.corpus.models.base_node import BaseNode
+from SanskritAI.corpus.models.container_node import ContainerNode
+from SanskritAI.corpus.models.corpus_metadata import CorpusMetadata
 
 if TYPE_CHECKING:
     from SanskritAI.corpus.models.document import Document
 
 
-@dataclass(slots=True)
-class Corpus:
+class Corpus(
+    ContainerNode[
+        CorpusId,
+        CorpusMetadata,
+        "Document",
+    ],
+):
     """
-    Canonical corpus.
+    Root container of the canonical corpus hierarchy.
+
+    Corpus participates in the same structural model as every
+    other container node while preserving the domain-specific
+    ``documents`` terminology.
     """
 
-    id: CorpusId
+    # ---------------------------------------------------------
+    # Construction
+    # ---------------------------------------------------------
 
-    metadata: CorpusMetadata = field(
-        default_factory=CorpusMetadata
-    )
+    def __init__(
+        self,
+        id: CorpusId,
+        metadata: CorpusMetadata | None = None,
+    ) -> None:
+        """
+        Construct a Corpus.
 
-    documents: list["Document"] = field(
-        default_factory=list
-    )
+        ``id`` is retained as the public constructor parameter for
+        compatibility with the existing Corpus API and tests.
+
+        Internally it becomes the canonical BaseNode identifier.
+        """
+
+        super().__init__(
+            identifier=id,
+            metadata=metadata or CorpusMetadata(),
+        )
+
+    # ---------------------------------------------------------
+    # Documents
+    # ---------------------------------------------------------
+
+    @property
+    def documents(self):
+        """
+        Domain-specific alias for ``children``.
+
+        The returned object is the same NodeCollection instance;
+        no second collection is maintained.
+        """
+
+        return self.children
 
     # ---------------------------------------------------------
 
@@ -54,8 +98,11 @@ class Corpus:
         self,
         document: "Document",
     ) -> None:
+        """
+        Add a document to the corpus.
+        """
 
-        self.documents.append(document)
+        self.add_child(document)
 
     # ---------------------------------------------------------
 
@@ -63,89 +110,81 @@ class Corpus:
         self,
         document: "Document",
     ) -> None:
+        """
+        Remove a document from the corpus.
+        """
 
-        self.documents.remove(document)
+        self.remove_child(document)
 
     # ---------------------------------------------------------
 
     def clear_documents(
         self,
     ) -> None:
+        """
+        Remove all documents from the corpus.
+        """
 
-        self.documents.clear()
+        self.clear_children()
+
+    # ---------------------------------------------------------
+    # Convenience Properties
+    # ---------------------------------------------------------
+
+    @property
+    def document_count(self) -> int:
+        """
+        Number of documents in the corpus.
+        """
+
+        return self.child_count
 
     # ---------------------------------------------------------
 
     @property
-    def document_count(
-        self,
-    ) -> int:
+    def first_document(self) -> "Document | None":
+        """
+        First document in insertion order.
+        """
 
-        return len(self.documents)
-
-    # ---------------------------------------------------------
-
-    def __len__(
-        self,
-    ) -> int:
-
-        return len(self.documents)
+        return self.first_child
 
     # ---------------------------------------------------------
 
-    def __iter__(
-        self,
-    ) -> Iterator["Document"]:
+    @property
+    def last_document(self) -> "Document | None":
+        """
+        Last document in insertion order.
+        """
 
-        return iter(self.documents)
-
-    # ---------------------------------------------------------
-
-    def __getitem__(
-        self,
-        index: int,
-    ) -> "Document":
-
-        return self.documents[index]
+        return self.last_child
 
     # ---------------------------------------------------------
+    # Serialization
+    # ---------------------------------------------------------
 
-    def to_dict(
-        self,
-    ) -> dict:
+    def to_dict(self) -> dict:
+        """
+        Serialize the corpus into a dictionary.
+        """
 
         return {
-
             "id": str(self.id),
-
-            "metadata":
-                self.metadata.to_dict(),
-
-            "documents":
-                [
-
-                    document.to_dict()
-
-                    for document in self.documents
-
-                ],
-
+            "metadata": self.metadata.to_dict(),
+            "documents": [
+                document.to_dict()
+                for document in self.documents
+            ],
         }
 
     # ---------------------------------------------------------
+    # Representation
+    # ---------------------------------------------------------
 
-    def __repr__(
-        self,
-    ) -> str:
-
+    def __repr__(self) -> str:
         return (
-
             f"Corpus("
-
             f"id={self.id}, "
-
             f"title={self.metadata.title!r}, "
-
-            f"documents={len(self.documents)})"
-
+            f"documents={self.document_count})"
         )

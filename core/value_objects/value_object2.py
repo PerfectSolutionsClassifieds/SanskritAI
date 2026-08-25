@@ -48,23 +48,13 @@ from dataclasses import fields
 from SanskritAI.core.mixins.immutable import Immutable
 
 
-class ValueObject(
-    Immutable,
-):
+class ValueObject(Immutable):
     """
     Root class for immutable value objects.
 
     Concrete subclasses are expected to be implemented as
     frozen dataclasses.
-
-    ``__slots__ = ()`` is intentional.
-
-    ValueObject must not introduce an instance ``__dict__``.
-    This preserves genuine slot-based semantics for all
-    immutable domain value objects that inherit from it.
     """
-
-    __slots__ = ()
 
     # ---------------------------------------------------------
     # Value Semantics
@@ -81,9 +71,7 @@ class ValueObject(
         return self == other
 
     @property
-    def value(
-        self,
-    ) -> object:
+    def value(self) -> object:
         """
         Canonical value representation.
 
@@ -107,9 +95,7 @@ class ValueObject(
     # Representation
     # ---------------------------------------------------------
 
-    def __repr__(
-        self,
-    ) -> str:
+    def __repr__(self) -> str:
         field_values = ", ".join(
             f"{field.name}={getattr(self, field.name)!r}"
             for field in fields(self)
