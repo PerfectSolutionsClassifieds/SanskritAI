@@ -4410,13 +4410,14 @@
         📄 corpus.py
             🏗️ Classes:
               • class Corpus:
+                - __init__(self, id, metadata)
+                - documents(self)
                 - add_document(self, document)
                 - remove_document(self, document)
                 - clear_documents(self)
                 - document_count(self)
-                - __len__(self)
-                - __iter__(self)
-                - __getitem__(self, index)
+                - first_document(self)
+                - last_document(self)
                 - to_dict(self)
                 - __repr__(self)
         📄 corpus_metadata.py
@@ -10978,24 +10979,54 @@
                 • class NodeMetadata:
                 • class ConcreteNode:
                 • class OtherConcreteNode:
+          📄 test_container_node_contract.py
+              🔹 Constants:
+                • CONTAINER_CONTRACTS
+              ⚙️ Functions:
+                • make_document(identifier)
+                • make_section(identifier)
+                • make_verse(identifier)
+                • make_paragraph(identifier)
+                • make_line(identifier)
+                • make_token(identifier)
+                • test_structural_nodes_are_container_nodes(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_container_starts_empty(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_container_adds_child(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_container_preserves_insertion_order(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_container_is_iterable(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_container_extend(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_container_remove_child(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_container_clear_children(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
+                • test_domain_children_alias_is_same_collection(node_class, make_parent, make_child, children_property, add_method, remove_method, count_property, first_property, last_property)
           📄 test_corpus.py
               ⚙️ Functions:
                 • make_corpus(identifier)
                 • make_document(identifier)
                 • test_corpus_stores_identifier()
+                • test_corpus_identifier_aliases_id()
                 • test_corpus_stores_metadata()
+                • test_corpus_is_a_container_node()
+                • test_corpus_uses_container_node_children()
+                • test_documents_alias_children()
                 • test_corpus_starts_without_documents()
+                • test_document_count_aliases_child_count()
                 • test_add_document()
-                • test_add_documents_preserves_order()
                 • test_remove_document()
                 • test_clear_documents()
-                • test_iteration_returns_documents()
-                • test_index_access_returns_document()
-                • test_negative_index_access()
-                • test_to_dict_contains_identifier()
-                • test_to_dict_contains_metadata()
-                • test_to_dict_contains_documents()
-                • test_repr_contains_corpus_information()
+                • test_first_document_aliases_first_child()
+                • test_last_document_aliases_last_child()
+                • test_first_and_last_document_are_none_when_empty()
+                • test_documents_preserve_insertion_order()
+                • test_children_preserve_same_insertion_order_as_documents()
+                • test_corpus_supports_iteration()
+                • test_corpus_supports_indexing()
+                • test_corpus_length_aliases_document_count()
+                • test_corpus_id_is_read_only()
+                • test_corpus_identifier_is_read_only()
+                • test_corpus_identity_is_type_safe()
+                • test_corpus_different_identifiers_are_not_equal()
+                • test_corpus_repr_contains_identifier()
+                • test_corpus_repr_contains_document_count()
           📄 test_corpus_metadata.py
               ⚙️ Functions:
                 • test_default_construction()
@@ -11202,7 +11233,198 @@
                   - test_resolve_is_alias_for_analyze(self)
                   - test_service_is_immutable(self)
                   - test_string_representation(self)
+        📂 knowledge_graph/
+          📄 test_default_knowledge_graph_resolver.py
+              ⚙️ Functions:
+                • test_default_resolver_is_knowledge_graph_resolver()
+                • test_default_resolver_can_be_created()
+                • test_default_resolver_uses_default_strategy()
+                • test_default_resolver_analyze_returns_result()
+                • test_default_resolver_preserves_context()
+                • test_default_resolver_display_name()
+                • test_default_resolver_display_text()
+                • test_default_resolver_display_description()
+          📄 test_default_knowledge_graph_strategy.py
+              ⚙️ Functions:
+                • test_default_strategy_is_knowledge_graph_strategy()
+                • test_default_strategy_can_be_created()
+                • test_default_strategy_has_expected_display_name()
+                • test_default_strategy_has_expected_display_text()
+                • test_default_strategy_has_expected_description()
+                • test_default_strategy_analyze_returns_result()
+                • test_default_strategy_preserves_context()
+                • test_default_strategy_result_is_not_none()
+          📄 test_knowledge_graph.py
+              ⚙️ Functions:
+                • node(identifier, label)
+                • edge(identifier, relation, source, target)
+                • test_empty_graph_can_be_created()
+                • test_graph_defaults_are_applied()
+                • test_empty_graph_reports_correct_state()
+                • test_graph_display_name_uses_label()
+                • test_graph_display_name_has_default()
+                • test_graph_display_text_matches_display_name()
+                • test_graph_display_description_returns_description()
+                • test_get_node_returns_matching_node()
+                • test_get_node_returns_none_when_missing()
+                • test_get_edge_returns_matching_edge()
+                • test_get_edge_returns_none_when_missing()
+                • test_add_node_returns_new_graph()
+                • test_add_node_preserves_existing_graph_data()
+                • test_duplicate_node_is_not_added()
+                • test_add_edge_adds_missing_source_and_target_nodes()
+                • test_add_edge_preserves_existing_nodes()
+                • test_duplicate_edge_is_not_added()
+                • test_graph_is_iterable_over_nodes()
+                • test_graph_len_returns_node_count()
+                • test_graph_supports_index_access()
+                • test_merge_combines_nodes_and_edges()
+                • test_merge_does_not_duplicate_existing_nodes()
+                • test_merge_does_not_duplicate_existing_edges()
+                • test_merge_metadata_uses_other_graph_values_for_overlapping_keys()
+                • test_merge_preserves_first_label_when_present()
+                • test_merge_uses_other_label_when_first_is_empty()
+                • test_merge_preserves_first_description_when_present()
+                • test_merge_uses_other_description_when_first_is_empty()
+                • test_graph_is_immutable()
+                • test_graph_is_slot_based()
+          📄 test_knowledge_graph_builder.py
+              ⚙️ Functions:
+                • test_builder_can_be_created()
+                • test_builder_is_displayable()
+                • test_builder_display_name()
+                • test_builder_display_text()
+                • test_builder_display_description()
+                • test_builder_string_representation()
+                • test_builder_is_slot_based()
+                • test_builder_from_semantic_collection_empty()
+                • test_builder_from_chandas_empty()
+                • test_builder_from_alankara_empty()
+                • test_builder_from_derivation_empty()
+                • test_semantic_collection_creates_analysis_nodes()
+                • test_chandas_collection_creates_nodes()
+                • test_alankara_collection_creates_nodes()
+                • test_semantic_analysis_identifiers_are_sequential()
+                • test_builder_preserves_confidence()
+          📄 test_knowledge_graph_context.py
+              ⚙️ Functions:
+                • test_context_can_be_created()
+                • test_context_defaults()
+                • test_context_accepts_metadata()
+                • test_context_get_supports_default()
+                • test_context_display_name()
+                • test_context_display_text_uses_subject()
+                • test_context_display_description()
+                • test_context_is_immutable()
+                • test_context_is_slot_based()
+          📄 test_knowledge_graph_diagnostic.py
+              ⚙️ Functions:
+                • test_diagnostic_can_be_created()
+                • test_diagnostic_defaults()
+                • test_info_diagnostic()
+                • test_warning_diagnostic()
+                • test_error_diagnostic()
+                • test_severity_checks_are_case_insensitive()
+                • test_diagnostic_display_name()
+                • test_diagnostic_display_text()
+                • test_diagnostic_display_description()
+                • test_diagnostic_is_immutable()
+                • test_diagnostic_is_slot_based()
+          📄 test_knowledge_graph_edge.py
+              ⚙️ Functions:
+                • make_source()
+                • make_target()
+                • make_edge()
+                • test_edge_can_be_created()
+                • test_edge_defaults_are_applied()
+                • test_edge_accepts_full_metadata()
+                • test_display_name_returns_relation()
+                • test_display_text_contains_source_relation_and_target()
+                • test_display_description_returns_description()
+                • test_has_payload_is_false_when_payload_is_empty()
+                • test_has_payload_is_true_when_payload_exists()
+                • test_string_representation_uses_display_text()
+                • test_edges_with_same_values_are_equal()
+                • test_edge_is_immutable()
+                • test_payload_default_is_not_shared_between_instances()
+                • test_edge_is_slot_based()
+          📄 test_knowledge_graph_node.py
+              ⚙️ Functions:
+                • test_node_can_be_created_with_required_fields()
+                • test_node_defaults_are_applied()
+                • test_node_accepts_full_metadata()
+                • test_display_name_returns_label()
+                • test_display_text_returns_label()
+                • test_display_description_returns_description()
+                • test_has_payload_is_false_when_payload_is_empty()
+                • test_has_payload_is_true_when_payload_exists()
+                • test_string_representation_uses_display_text()
+                • test_nodes_with_same_values_are_equal()
+                • test_node_is_immutable()
+                • test_payload_default_is_not_shared_between_instances()
+                • test_node_is_slot_based()
+          📄 test_knowledge_graph_resolver.py
+              ⚙️ Functions:
+                • test_resolver_can_be_created()
+                • test_resolver_exposes_strategy()
+                • test_resolver_delegates_analyze()
+                • test_resolver_passes_same_context_to_strategy()
+                • test_resolver_display_name()
+                • test_resolver_display_text()
+                • test_resolver_display_description()
+                • test_resolver_string_representation()
+              🏗️ Classes:
+                • class StubKnowledgeGraphStrategy:
+                  - __init__(self)
+                  - analyze(self, context)
+          📄 test_knowledge_graph_result.py
+              ⚙️ Functions:
+                • make_context()
+                • make_graph()
+                • make_non_empty_graph()
+                • test_result_can_be_created()
+                • test_result_defaults()
+                • test_result_identifier_comes_from_context()
+                • test_result_context_properties()
+                • test_empty_result_has_no_graph()
+                • test_result_can_contain_graph()
+                • test_successful_result_with_graph_is_resolved()
+                • test_successful_empty_result_is_unresolved()
+                • test_failed_result_is_unresolved()
+                • test_result_without_diagnostics()
+                • test_result_with_diagnostics()
+                • test_multiple_diagnostics_preserve_order()
+                • test_result_confidence()
+                • test_low_confidence_result()
+                • test_confidence_boundary()
+                • test_result_display_name()
+                • test_successful_result_display_text()
+                • test_failed_result_display_text()
+                • test_diagnostic_has_display_priority()
+                • test_graph_has_display_priority_when_no_diagnostics()
+                • test_empty_result_has_empty_display_description()
+                • test_result_is_slot_based()
+                • test_result_is_immutable()
+          📄 test_knowledge_graph_strategy.py
+              ⚙️ Functions:
+                • test_strategy_is_abstract()
+                • test_strategy_display_name_uses_class_name()
+                • test_strategy_display_text()
+                • test_strategy_display_description()
+                • test_strategy_string_representation()
+                • test_strategy_analyze_contract()
         📂 lexical/
+          📄 test_default_lexical_repository.py
+              ⚙️ Functions:
+                • make_repository()
+                • test_get_entry_delegates()
+                • test_find_entries_by_lemma_delegates()
+                • test_find_entries_by_word_form_delegates()
+                • test_find_senses_delegates()
+                • test_search_delegates()
+                • test_all_entries_delegates()
+                • test_count_uses_canonical_repository_count()
+                • test_display_contract()
           📄 test_default_lexical_resolution_strategy.py
               🏗️ Classes:
                 • class TestDefaultLexicalResolutionStrategy:
@@ -11223,6 +11445,24 @@
                   - test_inherits_lookup_engine_behavior(self)
                   - test_can_resolve_using_inherited_service_logic(self)
                   - test_string_representation(self)
+          📄 test_lexical_lookup_engine.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • make_entry(entry_id, headword)
+                • test_engine_accepts_repository()
+                • test_lookup_with_no_entries()
+                • test_lookup_constructs_candidates()
+                • test_lookup_detects_ambiguity()
+                • test_custom_ranking_policy_is_used()
+              🏗️ Classes:
+                • class StudRankingPolicy:
+                  - __init__(self)
+                  - rank(self, candidates)
+          📄 test_lexical_repository.py
+              ⚙️ Functions:
+                • test_lexical_repository_is_abstract()
+                • test_concrete_repository_can_implement_contract()
+                • test_repository_display_contract()
           📄 test_lexical_resolution_composition.py
               🏗️ Classes:
                 • class TestLexicalResolutionComposition:
@@ -11232,6 +11472,20 @@
                   - test_lexical_service_is_resolution_contributor(self)
                   - test_default_resolution_pipeline_accepts_lexical_service(self)
                   - test_lexical_service_is_first_pipeline_stage(self)
+          📄 test_lexical_resolution_result.py
+              ⚙️ Functions:
+                • make_context()
+                • make_candidate(score, sense)
+                • test_empty_result()
+                • test_result_with_candidate()
+                • test_result_exposes_lexical_information()
+                • test_result_detects_ambiguity()
+                • test_low_confidence_is_not_confident()
+                • test_display_text_for_resolved_result()
+                • test_display_text_for_unresolved_result()
+          📄 test_lexical_resolution_strategy.py
+              ⚙️ Functions:
+                • test_strategy_is_abstract()
           📄 test_lexical_resolver.py
               🏗️ Classes:
                 • class TestLexicalResolver:
@@ -11265,6 +11519,22 @@
                   - test_resolve_uses_context_subject_as_word_form(self)
                   - test_contribute_enriches_resolution_result(self)
                   - test_contribute_preserves_context(self)
+          📄 test_lookup_candidate.py
+              ⚙️ Functions:
+                • make_entry()
+                • test_candidate_defaults()
+                • test_candidate_properties()
+                • test_candidate_with_sense()
+                • test_candidate_is_immutable()
+                • test_candidate_string_representation()
+          📄 test_lookup_ranking_policy.py
+              ⚙️ Functions:
+                • candidate(headword, score, identifier)
+                • test_default_policy_is_lookup_ranking_policy()
+                • test_higher_score_is_ranked_first()
+                • test_equal_scores_use_alphabetical_headword()
+                • test_empty_candidates_return_empty_tuple()
+                • test_generator_input_is_supported()
           📂 adapters/
             📄 test_monier_williams_adapter.py
                 ⚙️ Functions:

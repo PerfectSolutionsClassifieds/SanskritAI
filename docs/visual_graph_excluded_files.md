@@ -1,5 +1,5 @@
 # Excluded Files
-Generated: 2026-08-23T08:06:04.912475Z
+Generated: 2026-08-25T14:29:22.146897Z
 
 - test_derivation_pratyaya_vakya_flow1.py  — stem_ends_with_digits
 - services/importers/amarakosha_parser1.py  — stem_ends_with_digits
@@ -21,6 +21,10 @@ Generated: 2026-08-23T08:06:04.912475Z
 - tests/panini/mocks/mock_rule4.py  — stem_ends_with_digits
 - tests/panini/mocks/mock_rule5.py  — stem_ends_with_digits
 - tests/corpus/models/test_base_node1.py  — stem_ends_with_digits
+- tests/corpus/models/test_corpus1.py  — stem_ends_with_digits
+- tests/domain/knowledge_graph/test_default_knowledge_graph_resolver1.py  — stem_ends_with_digits
+- tests/domain/knowledge_graph/test_default_knowledge_graph_strategy1.py  — stem_ends_with_digits
+- tests/domain/knowledge_graph/test_knowledge_graph_builder1.py  — stem_ends_with_digits
 - tests/domain/reader/test_default_reader_repository_navigation1.py  — stem_ends_with_digits
 - tests/domain/reader/test_default_reader_repository_navigation2.py  — stem_ends_with_digits
 - tests/domain/reader/test_reader_controller1.py  — stem_ends_with_digits
@@ -45,6 +49,12 @@ Generated: 2026-08-23T08:06:04.912475Z
 - tests/domain/morphology/test_default_morphological_service1.py  — stem_ends_with_digits
 - tests/domain/morphology/test_default_morphological_service2.py  — stem_ends_with_digits
 - tests/domain/morphology/test_default_morphological_service3.py  — stem_ends_with_digits
+- tests/domain/lexical/test_default_lexical_resolution_strategy2.py  — stem_ends_with_digits
+- tests/domain/lexical/test_default_lexical_service2.py  — stem_ends_with_digits
+- tests/domain/lexical/test_lexical_lookup_engine1.py  — stem_ends_with_digits
+- tests/domain/lexical/test_lexical_resolver2.py  — stem_ends_with_digits
+- tests/domain/lexical/test_lexical_service2.py  — stem_ends_with_digits
+- tests/domain/lexical/test_lookup_ranking_policy1.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator1.py  — stem_ends_with_digits
 - tests/domain/lexical/validators/test_lexical_composite_validator2.py  — stem_ends_with_digits
 - tests/domain/lexical/adapters/test_monier_williams_adapter1.py  — stem_ends_with_digits
@@ -67,6 +77,7 @@ Generated: 2026-08-23T08:06:04.912475Z
 - corpus/builders/token_builder1.py  — stem_ends_with_digits
 - corpus/models/base_node1.py  — stem_ends_with_digits
 - corpus/models/container_node1.py  — stem_ends_with_digits
+- corpus/models/corpus1.py  — stem_ends_with_digits
 - corpus/models/document1.py  — stem_ends_with_digits
 - corpus/models/document2.py  — stem_ends_with_digits
 - corpus/models/document_metadata1.py  — stem_ends_with_digits
@@ -310,6 +321,7 @@ Generated: 2026-08-23T08:06:04.912475Z
 - core/validators/validation_result1.py  — stem_ends_with_digits
 - core/validators/validator1.py  — stem_ends_with_digits
 - core/mixins/displayable1.py  — stem_ends_with_digits
+- core/mixins/immutable1.py  — stem_ends_with_digits
 - core/types/boolean_type1.py  — stem_ends_with_digits
 - core/types/integer_type1.py  — stem_ends_with_digits
 - core/types/string_type1.py  — stem_ends_with_digits
@@ -323,6 +335,7 @@ Generated: 2026-08-23T08:06:04.912475Z
 - core/configuration/configuration_metadata1.py  — stem_ends_with_digits
 - core/configuration/configuration_value1.py  — stem_ends_with_digits
 - core/value_objects/value_object1.py  — stem_ends_with_digits
+- core/value_objects/value_object2.py  — stem_ends_with_digits
 - acquisition/acquirers/default_source_acquirer1.py  — stem_ends_with_digits
 - acquisition/acquirers/default_source_acquirer2.py  — stem_ends_with_digits
 - acquisition/acquirers/default_source_acquirer3.py  — stem_ends_with_digits
