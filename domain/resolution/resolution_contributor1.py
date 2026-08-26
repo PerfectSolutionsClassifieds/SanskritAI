@@ -31,17 +31,9 @@ ResolutionResult
 Every contributor enriches the existing immutable aggregate
 rather than constructing an entirely new pipeline object.
 
-Design
-------
-
-ResolutionContributor is a stateless contract. It therefore
-must not provide an instance dictionary. Concrete contributors
-that require state should declare their own explicit slotted
-dataclass fields.
-
 Version
 -------
-v1.0.1
+v1.0.0
 """
 
 from abc import ABC
@@ -64,44 +56,22 @@ class ResolutionContributor(
 ):
     """
     Contract implemented by every linguistic service.
-
-    The contributor abstraction is intentionally slot-based
-    because it represents a stateless architectural contract.
     """
 
-    __slots__ = ()
-
-    # ---------------------------------------------------------
-    # Display
-    # ---------------------------------------------------------
-
     @property
-    def display_name(
-        self,
-    ) -> str:
-
+    def display_name(self) -> str:
         return self.__class__.__name__
 
     @property
-    def display_text(
-        self,
-    ) -> str:
-
+    def display_text(self) -> str:
         return self.display_name
 
     @property
-    def display_description(
-        self,
-    ) -> str:
-
+    def display_description(self) -> str:
         return (
             "Contributes one linguistic resolution stage "
             "to the aggregate ResolutionResult."
         )
-
-    # ---------------------------------------------------------
-    # Resolution Contribution
-    # ---------------------------------------------------------
 
     @abstractmethod
     def contribute(
@@ -131,10 +101,5 @@ class ResolutionContributor(
         """
         raise NotImplementedError
 
-    # ---------------------------------------------------------
-
-    def __str__(
-        self,
-    ) -> str:
-
+    def __str__(self) -> str:
         return self.display_text

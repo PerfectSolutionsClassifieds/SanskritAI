@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -7,13 +6,25 @@ SanskritAI
 
 Resolution Strategy
 
-Defines the abstract strategy contract used by the
-resolution framework.
+Defines the abstract strategy responsible for resolving a
+ResolutionContext into a ResolutionResult.
 
-A ResolutionStrategy encapsulates the algorithm used to
-resolve a ResolutionContext into a ResolutionResult.
+ResolutionStrategy represents the algorithm used by a resolver.
 
-Strategies are intentionally stateless and reusable.
+Concrete domain kernels implement their own strategies, for
+example:
+
+    • LexicalResolutionStrategy
+
+    • MorphologicalResolutionStrategy
+
+    • SandhiResolutionStrategy
+
+    • SamāsaResolutionStrategy
+
+    • DhātuResolutionStrategy
+
+    • GrammarResolutionStrategy
 
 Version
 -------
@@ -39,10 +50,15 @@ class ResolutionStrategy(
     Displayable,
 ):
     """
-    Abstract domain resolution strategy.
+    Abstract resolution strategy.
+
+    A strategy encapsulates the algorithm used to resolve a
+    domain object.
     """
 
-    __slots__ = ()
+    # ---------------------------------------------------------
+    # Display
+    # ---------------------------------------------------------
 
     @property
     def display_name(self) -> str:
@@ -58,25 +74,25 @@ class ResolutionStrategy(
             "Abstract domain resolution strategy."
         )
 
+    # ---------------------------------------------------------
+    # Resolution
+    # ---------------------------------------------------------
+
     @abstractmethod
     def resolve(
         self,
         context: ResolutionContext,
     ) -> ResolutionResult:
         """
-        Resolves a ResolutionContext.
+        Resolves the supplied context.
 
         Parameters
         ----------
-        context
-            Immutable ResolutionContext.
+        context:
+            Resolution context.
 
         Returns
         -------
         ResolutionResult
-            Resolution produced by the strategy.
         """
         raise NotImplementedError
-
-    def __str__(self) -> str:
-        return self.display_text

@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -9,22 +10,11 @@ Default Sandhi Repository
 Default in-memory implementation of the canonical
 SandhiRepository.
 
-Important
----------
+The repository exposes the canonical Sandhi rule bundle
+defined by default_sandhi_rule_set().
 
-The repository itself is intentionally EMPTY by default.
-
-Canonical rule population belongs to the composition/service
-layer. This keeps the repository a neutral read-only storage
-boundary while allowing DefaultSandhiService to provide the
-canonical default Sandhi rule bundle.
-
-Future versions may populate repositories from:
-
-• Pāṇinian Sandhi rules
-• Siddhānta Kaumudī
-• Kāśikā
-• Custom SanskritAI rule databases
+The repository itself contains no Sandhi logic. It only
+provides access to the canonical rule collection.
 
 Version
 -------
@@ -33,6 +23,10 @@ v1.1.0
 
 from dataclasses import dataclass
 from dataclasses import field
+
+from SanskritAI.domain.sandhi.default_sandhi_rule_set import (
+    default_sandhi_rule_set,
+)
 
 from SanskritAI.domain.sandhi.sandhi_repository import (
     SandhiRepository,
@@ -55,14 +49,13 @@ class DefaultSandhiRepository(
     SandhiRepository,
 ):
     """
-    Default immutable in-memory Sandhi repository.
+    Default canonical Sandhi repository.
 
-    A plain DefaultSandhiRepository contains no rules unless
-    a rule set is explicitly supplied.
+    Provides read-only access to the canonical Sandhi rule set.
     """
 
     rule_set: SandhiRuleSet = field(
-        default_factory=SandhiRuleSet,
+        default_factory=default_sandhi_rule_set,
     )
 
     # ---------------------------------------------------------
@@ -101,11 +94,6 @@ class DefaultSandhiRepository(
         self,
         identifier: str,
     ) -> SandhiRule | None:
-        """
-        Returns the rule matching the supplied identifier.
-
-        Returns None when no matching rule exists.
-        """
 
         for rule in self.rule_set:
             if rule.identifier == identifier:
@@ -117,43 +105,23 @@ class DefaultSandhiRepository(
         self,
         identifier: str,
     ) -> bool:
-        """
-        Determines whether a rule with the supplied identifier
-        exists.
-        """
 
-        return self.get(
-            identifier,
-        ) is not None
+        return self.get(identifier) is not None
 
     def search(
         self,
         query: str,
     ) -> SandhiRuleSet:
-        """
-        Searches the configured rules by identifier, display
-        text, or display description.
-        """
 
-        normalized_query = (
-            str(query).strip().lower()
-        )
-
-        if not normalized_query:
-            return SandhiRuleSet(
-                rules=(),
-            )
+        query = query.lower()
 
         matches = tuple(
             rule
             for rule in self.rule_set
             if (
-                normalized_query
-                in rule.identifier.lower()
-                or normalized_query
-                in rule.display_text.lower()
-                or normalized_query
-                in rule.display_description.lower()
+                query in rule.identifier.lower()
+                or query in rule.display_text.lower()
+                or query in rule.display_description.lower()
             )
         )
 
@@ -164,14 +132,9 @@ class DefaultSandhiRepository(
     def all(
         self,
     ) -> SandhiRuleSet:
-        """
-        Returns the repository's complete rule set.
-        """
 
         return self.rule_set
 
-    # ---------------------------------------------------------
-    # Metadata
     # ---------------------------------------------------------
 
     @property
@@ -179,27 +142,12 @@ class DefaultSandhiRepository(
         self,
     ) -> int:
 
-        return len(
-            self.rule_set,
-        )
+        return len(self.rule_set)
 
-    # ---------------------------------------------------------
-    # Representation
     # ---------------------------------------------------------
 
     def __str__(
         self,
     ) -> str:
-        """
-        Preserve the canonical dataclass representation.
 
-        This is intentionally not ``display_text`` because the
-        repository contract exposes its configured rule set
-        through its string representation.
-        """
-
-        return (
-            f"{self.__class__.__name__}("
-            f"rule_set={self.rule_set!r}"
-            f")"
-        )
+        return self.display_text

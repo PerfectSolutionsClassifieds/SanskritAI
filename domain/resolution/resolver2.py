@@ -13,15 +13,10 @@ The Resolver is intentionally thin. It owns a single
 immutable strategy dependency and delegates resolution
 to that strategy.
 
-Resolver also participates in the common Displayable
-architectural contract.
-
 Version
 -------
 v1.0.0
 """
-
-from SanskritAI.core.mixins.displayable import Displayable
 
 from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
@@ -36,9 +31,7 @@ from SanskritAI.domain.resolution.resolution_strategy import (
 )
 
 
-class Resolver(
-    Displayable,
-):
+class Resolver:
     """
     Executes a ResolutionStrategy.
 
@@ -55,14 +48,6 @@ class Resolver(
         self,
         strategy: ResolutionStrategy,
     ) -> None:
-
-        if not isinstance(
-            strategy,
-            ResolutionStrategy,
-        ):
-            raise TypeError(
-                "strategy must be a ResolutionStrategy."
-            )
 
         object.__setattr__(
             self,
@@ -81,22 +66,7 @@ class Resolver(
         """
         Return the configured resolution strategy.
         """
-
         return self._strategy
-
-    @property
-    def display_name(self) -> str:
-        return self.__class__.__name__
-
-    @property
-    def display_text(self) -> str:
-        return self.display_name
-
-    @property
-    def display_description(self) -> str:
-        return (
-            "Abstract domain resolver."
-        )
 
     def resolve(
         self,
@@ -105,7 +75,6 @@ class Resolver(
         """
         Delegate resolution to the configured strategy.
         """
-
         return self._strategy.resolve(
             context,
         )
@@ -118,8 +87,8 @@ class Resolver(
         """
         Prevent mutation after initialization.
 
-        Resolver dependencies are architectural
-        configuration rather than mutable runtime state.
+        Resolver dependencies are architectural configuration,
+        not runtime state.
         """
 
         if getattr(
@@ -136,6 +105,3 @@ class Resolver(
             name,
             value,
         )
-
-    def __str__(self) -> str:
-        return self.display_text

@@ -12,6 +12,10 @@ A SandhiRule performs one atomic Sandhi transformation or
 analysis. Rules are intentionally independent and stateless,
 allowing them to be composed into reusable SandhiRuleSets.
 
+Every concrete rule receives a stable identifier derived from
+its class name unless it explicitly overrides the identifier
+property.
+
 Future specializations
 ----------------------
 
@@ -22,7 +26,7 @@ Future specializations
 
 Version
 -------
-v1.0.0
+v1.1.0
 """
 
 from abc import ABC, abstractmethod
@@ -40,7 +44,50 @@ class SandhiRule(
 ):
     """
     Abstract Sandhi rule.
+
+    A SandhiRule is stateless and therefore does not own
+    mutable runtime state.
+
+    Concrete rules may override ``identifier`` when a
+    canonical externally-defined identifier is required.
     """
+
+    # ---------------------------------------------------------
+    # Identity
+    # ---------------------------------------------------------
+
+    @property
+    def identifier(self) -> str:
+        """
+        Stable identifier for this Sandhi rule.
+
+        The default implementation derives a deterministic
+        snake_case identifier from the concrete class name.
+
+        Example
+        -------
+        SavarnaDirghaRule
+            -> savarna_dirgha_rule
+        """
+
+        name = self.__class__.__name__
+
+        if name.endswith("Rule"):
+            name = name[:-4]
+
+        characters: list[str] = []
+
+        for index, character in enumerate(name):
+            if character.isupper() and index > 0:
+                characters.append("_")
+
+            characters.append(character.lower())
+
+        return "".join(characters) + "_rule"
+
+    # ---------------------------------------------------------
+    # Display
+    # ---------------------------------------------------------
 
     @property
     def display_name(self) -> str:
@@ -55,6 +102,10 @@ class SandhiRule(
         return (
             "Abstract Sandhi rule."
         )
+
+    # ---------------------------------------------------------
+    # Rule Contract
+    # ---------------------------------------------------------
 
     @abstractmethod
     def applies_to(
@@ -81,5 +132,13 @@ class SandhiRule(
         """
         raise NotImplementedError
 
-    def __str__(self) -> str:
+    # ---------------------------------------------------------
+    # Representation
+    # ---------------------------------------------------------
+
+    def __str__(
+        self,
+    ) -> str:
+
         return self.display_text
+

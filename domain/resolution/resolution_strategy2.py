@@ -20,8 +20,7 @@ Version
 v1.0.0
 """
 
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from SanskritAI.core.mixins.displayable import Displayable
 
@@ -39,7 +38,13 @@ class ResolutionStrategy(
     Displayable,
 ):
     """
-    Abstract domain resolution strategy.
+    Abstract resolution strategy.
+
+    A strategy receives a ResolutionContext and produces
+    a ResolutionResult.
+
+    Implementations should remain stateless so that the
+    same strategy instance can safely be reused.
     """
 
     __slots__ = ()
@@ -55,7 +60,8 @@ class ResolutionStrategy(
     @property
     def display_description(self) -> str:
         return (
-            "Abstract domain resolution strategy."
+            "Strategy for resolving a linguistic "
+            "ResolutionContext."
         )
 
     @abstractmethod
@@ -64,17 +70,17 @@ class ResolutionStrategy(
         context: ResolutionContext,
     ) -> ResolutionResult:
         """
-        Resolves a ResolutionContext.
+        Resolve the supplied context.
 
         Parameters
         ----------
-        context
-            Immutable ResolutionContext.
+        context:
+            Resolution context to resolve.
 
         Returns
         -------
         ResolutionResult
-            Resolution produced by the strategy.
+            Result produced by this strategy.
         """
         raise NotImplementedError
 

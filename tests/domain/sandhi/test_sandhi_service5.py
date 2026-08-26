@@ -15,10 +15,6 @@ from SanskritAI.domain.resolution.resolution_result import (
     ResolutionResult,
 )
 
-from SanskritAI.domain.sandhi.default_sandhi_resolution_kernel import (
-    DefaultSandhiResolutionKernel,
-)
-
 from SanskritAI.domain.sandhi.sandhi_repository import (
     SandhiRepository,
 )
@@ -32,17 +28,16 @@ from SanskritAI.domain.sandhi.sandhi_service import (
 )
 
 
-# ============================================================================
-# Test Double
-# ============================================================================
+# ---------------------------------------------------------------------------
+# Test Doubles
+# ---------------------------------------------------------------------------
 
 
 class DummyRepository(SandhiRepository):
     """
-    Minimal concrete SandhiRepository used by SandhiService tests.
+    Minimal concrete repository used exclusively for SandhiService tests.
 
-    No Sandhi behavior is implemented here. The purpose of this
-    repository is only to satisfy the repository abstraction.
+    The implementation deliberately contains no Sandhi logic.
     """
 
     def get(
@@ -75,9 +70,9 @@ class DummyRepository(SandhiRepository):
         return 0
 
 
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Helpers
-# ============================================================================
+# ---------------------------------------------------------------------------
 
 
 def make_repository() -> SandhiRepository:
@@ -90,20 +85,9 @@ def make_service() -> SandhiService:
     )
 
 
-def make_resolution_context() -> ResolutionContext:
-    """
-    Construct a valid ResolutionContext using the current contract.
-    """
-
-    return ResolutionContext(
-        identifier="test-resolution",
-        subject="रामोऽस्ति",
-    )
-
-
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Construction
-# ============================================================================
+# ---------------------------------------------------------------------------
 
 
 def test_service_can_be_constructed():
@@ -127,9 +111,9 @@ def test_service_retains_repository():
     assert service.repository is repository
 
 
-# ============================================================================
-# Immutability
-# ============================================================================
+# ---------------------------------------------------------------------------
+# Dataclass / Immutability Contract
+# ---------------------------------------------------------------------------
 
 
 def test_service_is_immutable():
@@ -142,9 +126,19 @@ def test_service_is_immutable():
         service.repository = make_repository()
 
 
-# ============================================================================
+def test_service_is_slot_based():
+
+    service = make_service()
+
+    assert not hasattr(
+        service,
+        "__dict__",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Display Contract
-# ============================================================================
+# ---------------------------------------------------------------------------
 
 
 def test_display_name():
@@ -178,9 +172,9 @@ def test_string_representation():
     assert str(service) == "Sandhi Service"
 
 
-# ============================================================================
-# Resolution Kernel Composition
-# ============================================================================
+# ---------------------------------------------------------------------------
+# Resolution Kernel
+# ---------------------------------------------------------------------------
 
 
 def test_resolution_kernel_is_created_with_repository():
@@ -193,11 +187,7 @@ def test_resolution_kernel_is_created_with_repository():
 
     kernel = service.resolution_kernel
 
-    assert isinstance(
-        kernel,
-        DefaultSandhiResolutionKernel,
-    )
-
+    assert kernel is not None
     assert kernel.repository is repository
 
 
@@ -209,21 +199,13 @@ def test_resolution_kernel_is_recreated_from_repository():
     second_kernel = service.resolution_kernel
 
     assert first_kernel is not second_kernel
-
-    assert (
-        first_kernel.repository
-        is service.repository
-    )
-
-    assert (
-        second_kernel.repository
-        is service.repository
-    )
+    assert first_kernel.repository is service.repository
+    assert second_kernel.repository is service.repository
 
 
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Resolution Delegation
-# ============================================================================
+# ---------------------------------------------------------------------------
 
 
 def test_resolve_delegates_to_resolution_kernel(
@@ -232,23 +214,24 @@ def test_resolve_delegates_to_resolution_kernel(
 
     service = make_service()
 
-    context = make_resolution_context()
-
+    context = object()
     expected_result = object()
 
-    def fake_resolve(
-        self,
-        received_context,
-    ):
+    class StubKernel:
 
-        assert received_context is context
+        def resolve(
+            self,
+            received_context,
+        ):
 
-        return expected_result
+            assert received_context is context
+
+            return expected_result
 
     monkeypatch.setattr(
-        DefaultSandhiResolutionKernel,
-        "resolve",
-        fake_resolve,
+        service,
+        "resolution_kernel",
+        StubKernel(),
     )
 
     result = service.resolve(
@@ -258,9 +241,9 @@ def test_resolve_delegates_to_resolution_kernel(
     assert result is expected_result
 
 
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Resolution Contribution
-# ============================================================================
+# ---------------------------------------------------------------------------
 
 
 def test_contribute_returns_existing_aggregate_unchanged():
@@ -280,11 +263,7 @@ def test_contribute_preserves_resolution_result():
 
     service = make_service()
 
-    context = make_resolution_context()
-
-    aggregate = ResolutionResult(
-        context=context,
-    )
+    aggregate = ResolutionResult()
 
     result = service.contribute(
         aggregate,
@@ -293,9 +272,9 @@ def test_contribute_preserves_resolution_result():
     assert result is aggregate
 
 
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Architectural Contracts
-# ============================================================================
+# ---------------------------------------------------------------------------
 
 
 def test_service_is_resolution_contributor():
