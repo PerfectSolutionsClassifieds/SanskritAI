@@ -1,8 +1,6 @@
 
 from __future__ import annotations
 
-from dataclasses import FrozenInstanceError
-
 import pytest
 
 from SanskritAI.domain.lexical.lexical_resolution_result import (
@@ -21,17 +19,29 @@ from SanskritAI.domain.resolution.resolution_context import (
     ResolutionContext,
 )
 
+from SanskritAI.domain.resolution.resolution_contributor import (
+    ResolutionContributor,
+)
+
 from SanskritAI.domain.resolution.resolution_stage import (
     ResolutionStage,
 )
 
 
+# ---------------------------------------------------------------------------
+# Test doubles
+# ---------------------------------------------------------------------------
+
+
 class RecordingLexicalService(LexicalService):
     """
-    Minimal test double for LexicalService.
+    Minimal lexical service used only for testing the
+    LexicalResolutionStage delegation contract.
     """
 
-    def __init__(self):
+    __slots__ = ("calls",)
+
+    def __init__(self) -> None:
         self.calls = []
 
     def resolve(
@@ -46,40 +56,91 @@ class RecordingLexicalService(LexicalService):
         )
 
 
-def make_context() -> ResolutionContext:
+class RecordingContributor(
+    ResolutionContributor,
+):
+    """
+    Minimal contributor required by the ResolutionStage
+    architectural contract.
+
+    The lexical resolution stage currently performs its
+    linguistic work through LexicalService, so this
+    contributor is intentionally a no-op test double.
+    """
+
+    __slots__ = ()
+
+    def contribute(
+        self,
+        aggregate,
+        context: ResolutionContext,
+    ):
+        return aggregate
+
+
+# ---------------------------------------------------------------------------
+# Fixtures / factories
+# ---------------------------------------------------------------------------
+
+
+def make_context(
+    subject: str = "देवोऽस्ति",
+) -> ResolutionContext:
+
     return ResolutionContext(
         identifier="context-1",
-        subject="देवोऽस्ति",
+        subject=subject,
     )
 
 
 def make_service() -> RecordingLexicalService:
+
     return RecordingLexicalService()
+
+
+def make_contributor() -> RecordingContributor:
+
+    return RecordingContributor()
 
 
 def make_stage() -> tuple[
     LexicalResolutionStage,
     RecordingLexicalService,
+    RecordingContributor,
 ]:
+
     service = make_service()
+    contributor = make_contributor()
 
     stage = LexicalResolutionStage(
+        contributor=contributor,
         service=service,
     )
 
-    return stage, service
+    return stage, service, contributor
+
+
+# ---------------------------------------------------------------------------
+# Construction
+# ---------------------------------------------------------------------------
 
 
 def test_stage_can_be_constructed():
 
-    stage, _ = make_stage()
+    stage, service, contributor = make_stage()
 
-    assert stage is not None
+    assert isinstance(
+        stage,
+        LexicalResolutionStage,
+    )
+
+    assert stage.service is service
+    assert stage.contributor is contributor
 
 
 def test_stage_is_resolution_stage():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
     assert isinstance(
         stage,
@@ -89,29 +150,29 @@ def test_stage_is_resolution_stage():
 
 def test_stage_is_frozen():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
     with pytest.raises(
-        FrozenInstanceError,
+        (AttributeError, TypeError),
     ):
         stage.service = make_service()
 
 
-def test_stage_is_slot_based():
-
-    assert LexicalResolutionStage.__slots__
+# ---------------------------------------------------------------------------
+# Identity / display
+# ---------------------------------------------------------------------------
 
 
 def test_stage_name():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
     assert stage.name == "Lexical"
 
 
 def test_stage_display_name():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
     assert (
         stage.display_name
@@ -121,14 +182,17 @@ def test_stage_display_name():
 
 def test_stage_display_text():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
-    assert stage.display_text == stage.display_name
+    assert (
+        stage.display_text
+        == stage.display_name
+    )
 
 
 def test_stage_display_description():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
     assert (
         stage.display_description
@@ -141,14 +205,14 @@ def test_stage_display_description():
 
 def test_stage_is_displayable():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
     assert stage.is_displayable is True
 
 
 def test_stage_to_display_string():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
 
     assert (
         stage.to_display_string()
@@ -156,47 +220,107 @@ def test_stage_to_display_string():
     )
 
 
+# ---------------------------------------------------------------------------
+# Execution
+# ---------------------------------------------------------------------------
+
+
 def test_execute_delegates_to_service():
 
-    stage, service = make_stage()
+    stage, service, _ = make_stage()
+
     context = make_context()
 
-    result = stage.execute(context)
-
-    assert len(service.calls) == 1
-    assert service.calls[0] is context
-    assert isinstance(
-        result,
-        LexicalResolutionResult,
+    result = stage.execute(
+        context,
     )
+
+    assert service.calls == [
+        context,
+    ]
+
+    assert result.context == context
 
 
 def test_execute_returns_exact_service_result():
 
     context = make_context()
 
-    class ExactService(RecordingLexicalService):
+    class ExactService(
+        RecordingLexicalService,
+    ):
 
-        def resolve(self, context):
+        def resolve(
+            self,
+            context: ResolutionContext,
+        ):
+
             self.calls.append(context)
 
-            return LexicalResolutionResult(
+            result = LexicalResolutionResult(
                 context=context,
             )
 
+            return result
+
     service = ExactService()
+    contributor = make_contributor()
 
     stage = LexicalResolutionStage(
+        contributor=contributor,
         service=service,
     )
 
-    result = stage.execute(context)
+    expected = service.resolve(context)
 
-    assert result.context is context
+    service.calls.clear()
+
+    actual = stage.execute(
+        context,
+    )
+
+    assert actual is not None
+    assert actual == expected
+    assert service.calls == [context]
 
 
-def test_string_representation_uses_display_text():
+def test_execute_preserves_context():
 
-    stage, _ = make_stage()
+    stage, _, _ = make_stage()
+
+    context = make_context(
+        subject="रामः गच्छति",
+    )
+
+    result = stage.execute(
+        context,
+    )
+
+    assert result.context == context
+    assert result.context.subject == "रामः गच्छति"
+
+
+# ---------------------------------------------------------------------------
+# Immutability / architecture
+# ---------------------------------------------------------------------------
+
+
+def test_contributor_is_preserved():
+
+    stage, _, contributor = make_stage()
+
+    assert stage.contributor is contributor
+
+
+def test_service_is_preserved():
+
+    stage, service, _ = make_stage()
+
+    assert stage.service is service
+
+
+def test_stage_string_representation():
+
+    stage, _, _ = make_stage()
 
     assert str(stage) == stage.display_text

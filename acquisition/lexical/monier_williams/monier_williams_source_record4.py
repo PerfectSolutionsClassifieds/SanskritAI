@@ -6,20 +6,12 @@ SanskritAI
 ==========
 
 Monier-Williams Source Record
------------------------------
 
-Immutable acquisition-stage representation of a single
-Monier-Williams source record.
+Raw acquisition-stage representation of a Monier-Williams
+dictionary record.
 
-This object belongs strictly to the acquisition boundary.
-
-It preserves source fields without converting them into
-domain-level DictionaryEntry / DictionarySense objects.
-
-The parser may expose convenient read-only properties, but
-dynamic attributes are never assigned to the instance. This
-keeps the object compatible with frozen/slotted dataclasses
-and avoids collisions with read-only properties.
+This object intentionally remains separate from the normalized
+domain adapter record.
 """
 
 from dataclasses import dataclass
@@ -30,19 +22,7 @@ from typing import Mapping
 @dataclass(frozen=True, slots=True, init=False)
 class MonierWilliamsSourceRecord:
     """
-    Raw acquisition-stage Monier-Williams record.
-
-    Parameters
-    ----------
-    sequence:
-        One-based source record sequence number.
-
-    raw_text:
-        Original source representation when explicitly supplied
-        by the parser.
-
-    fields:
-        Normalized source fields.
+    Immutable raw Monier-Williams acquisition record.
     """
 
     sequence: int
@@ -72,22 +52,39 @@ class MonierWilliamsSourceRecord:
             for key, value in fields.items()
         }
 
-        # Optional compatibility values may be supplied by
-        # older acquisition callers. They are stored only when
-        # they do not collide with declared dataclass fields.
-        for key, value in kwargs.items():
-            normalized.setdefault(
-                str(key).strip(),
-                "" if value is None else str(value).strip(),
-            )
+        object.__setattr__(
+            self,
+            "sequence",
+            sequence,
+        )
 
-        object.__setattr__(self, "sequence", sequence)
-        object.__setattr__(self, "raw_text", raw_text)
+        object.__setattr__(
+            self,
+            "raw_text",
+            raw_text,
+        )
+
         object.__setattr__(
             self,
             "fields",
             MappingProxyType(normalized),
         )
+
+        # Preserve non-conflicting compatibility arguments.
+        for key, value in kwargs.items():
+            if key in {
+                "sequence",
+                "raw_text",
+                "fields",
+            }:
+                continue
+
+            if not hasattr(type(self), key):
+                object.__setattr__(
+                    self,
+                    key,
+                    value,
+                )
 
     @property
     def headword(self) -> str:
@@ -125,13 +122,6 @@ class MonierWilliamsSourceRecord:
         )
 
     @property
-    def source(self) -> str:
-        return self.fields.get(
-            "source",
-            "monier-williams",
-        )
-
-    @property
     def source_id(self) -> str:
         return self.fields.get(
             "source_id",
@@ -152,12 +142,16 @@ class MonierWilliamsSourceRecord:
             self.fields.get("L", ""),
         )
 
+    @property
+    def source(self) -> str:
+        return "monier-williams"
+
     def get(
         self,
         key: str,
         default: str = "",
     ) -> str:
-        """
-        Return a normalized source field.
-        """
-        return self.fields.get(key, default)
+        return self.fields.get(
+            key,
+            default,
+        )

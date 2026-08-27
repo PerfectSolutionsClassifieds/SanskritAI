@@ -6,7 +6,10 @@ from io import StringIO
 from typing import Iterator
 
 from .monier_williams_parser import MonierWilliamsParser
-from .monier_williams_source_record import MonierWilliamsSourceRecord
+from .monier_williams_source_record import (
+    MonierWilliamsSourceRecord,
+)
+
 from SanskritAI.domain.lexical.adapters.monier_williams_record import (
     MonierWilliamsRecord,
 )
@@ -14,15 +17,18 @@ from SanskritAI.domain.lexical.adapters.monier_williams_record import (
 
 class DelimitedMonierWilliamsParser(MonierWilliamsParser):
     """
-    Parser for controlled tabular Monier-Williams source data.
+    Parser for delimited Monier-Williams source data.
+
+    The parser operates at the acquisition boundary and produces
+    normalized MonierWilliamsRecord adapter objects.
 
     Required columns
     ----------------
     headword
     definition
 
-    Supported optional columns
-    --------------------------
+    Optional columns
+    ----------------
     transliteration
     grammatical_label
     grammatical_category
@@ -49,12 +55,15 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         "homonym",
     )
 
+    SOURCE = "monier-williams"
+
     def __init__(
         self,
         *,
         delimiter: str = DEFAULT_DELIMITER,
-        strict_headers: bool = True,
+        strict_headers: bool = False,
     ) -> None:
+
         if not isinstance(delimiter, str):
             raise TypeError(
                 "delimiter must be a string"
@@ -80,17 +89,16 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         """
         Parse complete Monier-Williams source text.
 
-        Empty or whitespace-only source is considered invalid.
+        Empty and whitespace-only sources return an empty tuple.
         """
+
         if not isinstance(source_text, str):
             raise TypeError(
                 "source_text must be a string"
             )
 
         if not source_text.strip():
-            raise ValueError(
-                "Monier-Williams source must not be empty"
-            )
+            return ()
 
         return tuple(
             self.iter_parse(source_text)
@@ -101,16 +109,20 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         lines: tuple[str, ...] | list[str],
     ) -> tuple[MonierWilliamsRecord, ...]:
         """
-        Parse a sequence of delimited source lines.
+        Parse a sequence of source lines.
         """
+
         if lines is None:
             raise TypeError(
                 "lines must not be None"
             )
 
-        if not isinstance(lines, (tuple, list)):
+        if not isinstance(
+            lines,
+            (tuple, list),
+        ):
             raise TypeError(
-                "lines must be a list or tuple"
+                "lines must be a tuple or list"
             )
 
         return self.parse(
@@ -122,17 +134,16 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         source_text: str,
     ) -> Iterator[MonierWilliamsRecord]:
         """
-        Lazily parse source records.
+        Lazily parse normalized Monier-Williams records.
         """
+
         if not isinstance(source_text, str):
             raise TypeError(
                 "source_text must be a string"
             )
 
         if not source_text.strip():
-            raise ValueError(
-                "Monier-Williams source must not be empty"
-            )
+            return
 
         reader = csv.reader(
             StringIO(source_text),
@@ -142,9 +153,7 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         try:
             raw_header = next(reader)
         except StopIteration:
-            raise ValueError(
-                "Monier-Williams source contains no header"
-            ) from None
+            return
 
         header = tuple(
             self._normalize_header(value)
@@ -162,7 +171,6 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
             reader,
             start=1,
         ):
-            # Ignore completely blank rows.
             if (
                 not row
                 or not any(
@@ -172,12 +180,10 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
             ):
                 continue
 
-            source_row_number = sequence + 1
-
             if len(row) != len(header):
                 raise ValueError(
                     "Invalid column count at source row "
-                    f"{source_row_number}: expected "
+                    f"{sequence + 1}: expected "
                     f"{len(header)}, got {len(row)}"
                 )
 
@@ -198,69 +204,65 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
 
             if not headword:
                 raise ValueError(
-                    "Missing headword at source row "
-                    f"{source_row_number}"
+                    f"Missing headword at source row "
+                    f"{sequence + 1}"
                 )
 
             if not definition:
                 raise ValueError(
-                    "Missing definition at source row "
-                    f"{source_row_number}"
+                    f"Missing definition at source row "
+                    f"{sequence + 1}"
                 )
 
-            # Only explicitly supplied raw_text is preserved.
-            #
-            # This is intentional:
-            # raw_text is an optional source field and must
-            # remain empty when the source does not provide it.
-            raw_text = values.get(
-                "raw_text",
-                "",
-            )
-
-            # Preserve only recognized source columns.
             fields = {
                 key: value
                 for key, value in values.items()
                 if key in known_columns
             }
 
-            # Build the normalized domain adapter record.
-            yield MonierWilliamsRecord(
-                headword=headword,
-                transliteration=values.get(
-                    "transliteration",
-                    "",
-                ),
-                definition=definition,
-                grammatical_label=values.get(
-                    "grammatical_label",
-                    "",
-                ),
-                grammatical_category=values.get(
-                    "grammatical_category",
-                    "",
-                ),
-                source="monier-williams",
-                source_id=values.get(
-                    "source_id",
-                    "",
-                ),
-                source_reference=values.get(
-                    "source_reference",
-                    "",
-                ),
-                raw_text=raw_text,
+            source_record = (
+                MonierWilliamsSourceRecord(
+                    sequence=sequence,
+                    raw_text=fields.get(
+                        "raw_text",
+                        "",
+                    ),
+                    fields=fields,
+                )
             )
+
+            yield self._to_domain_record(
+                source_record
+            )
+
+    def _to_domain_record(
+        self,
+        record: MonierWilliamsSourceRecord,
+    ) -> MonierWilliamsRecord:
+        """
+        Convert the raw acquisition record into the
+        Monier-Williams adapter record.
+
+        The domain adapter receives an empty raw_text when the
+        source did not explicitly provide a raw_text field.
+        """
+
+        return MonierWilliamsRecord(
+            headword=record.headword,
+            transliteration=record.transliteration,
+            definition=record.definition,
+            grammatical_label=record.grammatical_label,
+            source=self.SOURCE,
+            source_id=record.source_id,
+            raw_text=record.raw_text,
+        )
 
     def _validate_header(
         self,
         header: tuple[str, ...],
     ) -> None:
-        """
-        Validate the normalized source header.
-        """
-        if not header:
+
+        if not header or not any(header):
             raise ValueError(
                 "Monier-Williams source contains no header"
             )
@@ -299,7 +301,4 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
     def _normalize_header(
         value: str,
     ) -> str:
-        """
-        Normalize header names.
-        """
         return value.strip().lower()

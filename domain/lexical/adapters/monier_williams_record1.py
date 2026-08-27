@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -14,7 +13,7 @@ Monier-Williams dictionary source.
 This class belongs to the adapter boundary.
 
 It is intentionally separate from DictionaryEntry and
-DictionarySense so that dictionary-specific acquisition
+DictionarySense so that external dictionary-specific
 structures do not leak into the lexical domain.
 """
 
@@ -38,20 +37,13 @@ class MonierWilliamsRecord:
         Primary dictionary definition.
 
     grammatical_label:
-        Optional grammatical label.
-
-    grammatical_category:
-        Optional grammatical category.
+        Optional grammatical/category information.
 
     source:
-        Canonical source identifier. Defaults to
-        ``monier-williams``.
+        Source identifier. Defaults to ``monier-williams``.
 
     source_id:
         Optional source-specific identifier.
-
-    source_reference:
-        Optional human-readable source reference.
 
     raw_text:
         Optional original source representation.
@@ -61,8 +53,6 @@ class MonierWilliamsRecord:
     transliteration: str = ""
     definition: str = ""
     grammatical_label: str = ""
-    grammatical_category: str = ""
     source: str = "monier-williams"
     source_id: str = ""
-    source_reference: str = ""
     raw_text: str = ""
