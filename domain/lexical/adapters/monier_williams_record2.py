@@ -8,7 +8,7 @@ SanskritAI
 Monier-Williams Adapter Record
 ------------------------------
 
-Represents one normalized lexical record obtained from a
+Represents one normalized record obtained from the
 Monier-Williams dictionary source.
 
 This class belongs to the adapter boundary.
@@ -16,10 +16,6 @@ This class belongs to the adapter boundary.
 It is intentionally separate from DictionaryEntry and
 DictionarySense so that dictionary-specific acquisition
 structures do not leak into the lexical domain.
-
-Version
--------
-v0.6.x
 """
 
 from dataclasses import dataclass
@@ -48,19 +44,17 @@ class MonierWilliamsRecord:
         Optional grammatical category.
 
     source:
-        Canonical source identifier.
+        Canonical source identifier. Defaults to
+        ``monier-williams``.
 
     source_id:
         Optional source-specific identifier.
 
     source_reference:
-        Optional source reference supplied by the source data.
+        Optional human-readable source reference.
 
     raw_text:
         Optional original source representation.
-
-    homonym:
-        Optional homonym identifier.
     """
 
     headword: str
@@ -72,4 +66,3 @@ class MonierWilliamsRecord:
     source_id: str = ""
     source_reference: str = ""
     raw_text: str = ""
-    homonym: str = ""

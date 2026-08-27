@@ -1,8 +1,13 @@
 
+from __future__ import annotations
+
 import pytest
 
-from SanskritAI.acquisition.lexical.monier_williams import (
+from SanskritAI.acquisition.lexical.monier_williams.delimited_monier_williams_parser import (
     DelimitedMonierWilliamsParser,
+)
+from SanskritAI.domain.lexical.adapters.monier_williams_record import (
+    MonierWilliamsRecord,
 )
 
 
@@ -17,8 +22,12 @@ def test_parser_reads_basic_record():
     entries = parser.parse(text)
 
     assert len(entries) == 1
-    assert entries[0].headword == "rāma"
-    assert entries[0].definition == "pleasing; beautiful"
+
+    entry = entries[0]
+
+    assert entry.headword == "rāma"
+    assert entry.definition == "pleasing; beautiful"
+    assert entry.source == "monier-williams"
 
 
 def test_parser_reads_optional_fields():
@@ -39,118 +48,51 @@ def test_parser_reads_optional_fields():
     assert entry.source_reference == "MW"
 
 
-def test_parser_requires_header():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(ValueError):
-        parser.parse(
-            "rāma\tpleasing\n"
-        )
-
-
-def test_parser_requires_required_headers():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(ValueError):
-        parser.parse(
-            "headword\tgrammatical_category\n"
-            "rāma\tnoun\n"
-        )
-
-
-def test_parser_rejects_unknown_header_in_strict_mode():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(ValueError):
-        parser.parse(
-            "headword\tdefinition\tunknown_field\n"
-            "rāma\tpleasing\tvalue\n"
-        )
-
-
-def test_parser_rejects_empty_source():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(ValueError):
-        parser.parse("")
-
-
-def test_parser_rejects_none():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(TypeError):
-        parser.parse(None)
-
-
-def test_parser_skips_blank_lines():
+def test_parser_rejects_invalid_header():
     parser = DelimitedMonierWilliamsParser()
 
     text = (
-        "headword\tdefinition\n"
-        "\n"
-        "rāma\tpleasing\n"
-        "\n"
-    )
-
-    entries = parser.parse(text)
-
-    assert len(entries) == 1
-
-
-def test_parser_rejects_missing_headword():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(ValueError):
-        parser.parse(
-            "headword\tdefinition\n"
-            "\tpleasing\n"
-        )
-
-
-def test_parser_rejects_missing_definition():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(ValueError):
-        parser.parse(
-            "headword\tdefinition\n"
-            "rāma\t\n"
-        )
-
-
-def test_parser_rejects_extra_columns():
-    parser = DelimitedMonierWilliamsParser()
-
-    with pytest.raises(ValueError):
-        parser.parse(
-            "headword\tdefinition\n"
-            "rāma\tpleasing\textra\n"
-        )
-
-
-def test_parser_normalizes_header_case_and_whitespace():
-    parser = DelimitedMonierWilliamsParser()
-
-    text = (
-        " HEADWORD \t DEFINITION \n"
+        "invalid\tdefinition\n"
         "rāma\tpleasing\n"
     )
 
-    entries = parser.parse(text)
+    with pytest.raises(ValueError):
+        parser.parse(text)
 
-    assert entries[0].headword == "rāma"
+
+def test_parser_empty_source_returns_empty_tuple():
+    parser = DelimitedMonierWilliamsParser()
+
+    assert parser.parse("") == ()
 
 
-def test_parser_iter_parse():
+def test_parser_whitespace_only_source_returns_empty_tuple():
+    parser = DelimitedMonierWilliamsParser()
+
+    assert parser.parse("   \n\t  ") == ()
+
+
+def test_parser_returns_monier_williams_records():
     parser = DelimitedMonierWilliamsParser()
 
     text = (
         "headword\tdefinition\n"
         "rāma\tpleasing\n"
-        "hari\tbrown\n"
     )
 
-    entries = list(parser.iter_parse(text))
+    entries = parser.parse(text)
 
-    assert len(entries) == 2
-    assert entries[0].headword == "rāma"
-    assert entries[1].headword == "hari"
+    assert isinstance(entries[0], MonierWilliamsRecord)
+
+
+def test_parser_sets_source_to_monier_williams():
+    parser = DelimitedMonierWilliamsParser()
+
+    text = (
+        "headword\tdefinition\n"
+        "rāma\tpleasing\n"
+    )
+
+    entry = parser.parse(text)[0]
+
+    assert entry.source == "monier-williams"

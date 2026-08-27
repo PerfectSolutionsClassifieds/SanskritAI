@@ -1,3 +1,4 @@
+
 from .delimited_monier_williams_parser import (
     DelimitedMonierWilliamsParser,
 )
@@ -8,6 +9,10 @@ from .file_monier_williams_source import (
 
 from .local_monier_williams_source_acquirer import (
     LocalMonierWilliamsSourceAcquirer,
+)
+
+from .monier_williams_acquisition_result import (
+    MonierWilliamsAcquisitionResult,
 )
 
 from .monier_williams_acquisition_service import (
@@ -46,10 +51,12 @@ from .monier_williams_source_record import (
     MonierWilliamsSourceRecord,
 )
 
+
 __all__ = [
     "DelimitedMonierWilliamsParser",
     "FileMonierWilliamsSource",
     "LocalMonierWilliamsSourceAcquirer",
+    "MonierWilliamsAcquisitionResult",
     "MonierWilliamsAcquisitionService",
     "MonierWilliamsParsedEntry",
     "MonierWilliamsParser",

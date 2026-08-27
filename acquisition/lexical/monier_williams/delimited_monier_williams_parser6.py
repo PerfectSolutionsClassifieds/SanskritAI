@@ -1,34 +1,12 @@
 
 from __future__ import annotations
 
-"""
-SanskritAI
-==========
-
-Delimited Monier-Williams Parser
---------------------------------
-
-Parses controlled tabular Monier-Williams source data and converts
-each source row into a normalized ``MonierWilliamsRecord``.
-
-The parser belongs to the acquisition boundary.
-
-It does not create DictionaryEntry or DictionarySense objects.
-
-Version
--------
-v0.6.x
-"""
-
 import csv
 from io import StringIO
 from typing import Iterator
 
-from SanskritAI.domain.lexical.adapters.monier_williams_record import (
-    MonierWilliamsRecord,
-)
-
 from .monier_williams_parser import MonierWilliamsParser
+from .monier_williams_source_record import MonierWilliamsSourceRecord
 
 
 class DelimitedMonierWilliamsParser(MonierWilliamsParser):
@@ -50,13 +28,10 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
     raw_text
     homonym
 
-    Parameters
-    ----------
-    delimiter:
-        Single-character delimiter used by the source.
+    Empty or whitespace-only source is treated as an empty dataset and
+    returns an empty tuple.
 
-    strict_headers:
-        When True, unknown columns cause ``ValueError``.
+    Unknown headers are rejected by default when ``strict_headers=True``.
     """
 
     DEFAULT_DELIMITER = "\t"
@@ -82,11 +57,8 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         delimiter: str = DEFAULT_DELIMITER,
         strict_headers: bool = True,
     ) -> None:
-
         if not isinstance(delimiter, str):
-            raise TypeError(
-                "delimiter must be a string"
-            )
+            raise TypeError("delimiter must be a string")
 
         if len(delimiter) != 1:
             raise ValueError(
@@ -104,32 +76,12 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
     def parse(
         self,
         source_text: str,
-    ) -> tuple[MonierWilliamsRecord, ...]:
+    ) -> tuple[MonierWilliamsSourceRecord, ...]:
         """
-        Parse complete delimited Monier-Williams source text.
+        Parse complete Monier-Williams delimited source text.
 
-        Empty or whitespace-only source is treated as an empty
-        collection.
-
-        Parameters
-        ----------
-        source_text:
-            Complete delimited source representation.
-
-        Returns
-        -------
-        tuple[MonierWilliamsRecord, ...]
-            Normalized Monier-Williams records.
-
-        Raises
-        ------
-        TypeError
-            If ``source_text`` is not a string.
-
-        ValueError
-            If the header or source rows are invalid.
+        Empty or whitespace-only input returns an empty tuple.
         """
-
         if not isinstance(source_text, str):
             raise TypeError(
                 "source_text must be a string"
@@ -138,35 +90,43 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         if not source_text.strip():
             return ()
 
-        return tuple(
-            self.iter_parse(source_text)
-        )
+        return tuple(self.iter_parse(source_text))
 
     def parse_lines(
         self,
         lines: tuple[str, ...] | list[str],
-    ) -> tuple[MonierWilliamsRecord, ...]:
+    ) -> tuple[MonierWilliamsSourceRecord, ...]:
         """
-        Parse a collection of source lines.
+        Parse an iterable of source lines.
+
+        ``None`` is rejected explicitly so callers receive a useful
+        contract-level error instead of the lower-level ``join()``
+        exception.
         """
+        if lines is None:
+            raise TypeError(
+                "lines must not be None"
+            )
 
         if not isinstance(lines, (tuple, list)):
             raise TypeError(
                 "lines must be a tuple or list of strings"
             )
 
-        return self.parse(
-            "\n".join(lines)
-        )
+        if not all(isinstance(line, str) for line in lines):
+            raise TypeError(
+                "lines must contain only strings"
+            )
+
+        return self.parse("\n".join(lines))
 
     def iter_parse(
         self,
         source_text: str,
-    ) -> Iterator[MonierWilliamsRecord]:
+    ) -> Iterator[MonierWilliamsSourceRecord]:
         """
-        Lazily parse source rows into normalized records.
+        Lazily parse source text into Monier-Williams source records.
         """
-
         if not isinstance(source_text, str):
             raise TypeError(
                 "source_text must be a string"
@@ -197,15 +157,11 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
             | set(self.OPTIONAL_COLUMNS)
         )
 
-        for sequence, row in enumerate(
-            reader,
-            start=1,
-        ):
+        for sequence, row in enumerate(reader, start=1):
 
-            # Ignore completely blank rows.
+            # Ignore completely empty rows.
             if not row or not any(
-                cell.strip()
-                for cell in row
+                cell.strip() for cell in row
             ):
                 continue
 
@@ -221,76 +177,38 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
                 for index in range(len(header))
             }
 
-            # Keep only recognized source fields.
-            values = {
-                key: value
-                for key, value in values.items()
-                if key in known_columns
-            }
-
-            headword = values.get(
-                "headword",
-                "",
-            )
-
-            definition = values.get(
-                "definition",
-                "",
-            )
+            headword = values.get("headword", "")
+            definition = values.get("definition", "")
 
             if not headword:
                 raise ValueError(
-                    "Missing headword at source row "
+                    f"Missing headword at source row "
                     f"{sequence + 1}"
                 )
 
             if not definition:
                 raise ValueError(
-                    "Missing definition at source row "
+                    f"Missing definition at source row "
                     f"{sequence + 1}"
                 )
 
-            # ``raw_text`` is deliberately preserved only when
-            # explicitly supplied by the source.
+            # Preserve explicitly supplied raw_text.
             #
-            # We do NOT automatically copy the tab-delimited row
-            # here because MonierWilliamsRecord.raw_text represents
-            # an optional original source representation, whereas
-            # this parser's primary responsibility is normalization.
-            raw_text = values.get(
-                "raw_text",
-                "",
-            )
+            # If raw_text is not supplied, the canonical source record
+            # should expose an empty raw_text rather than silently
+            # manufacturing one from the tabular row.
+            raw_text = values.get("raw_text", "")
 
-            yield MonierWilliamsRecord(
-                headword=headword,
-                transliteration=values.get(
-                    "transliteration",
-                    "",
-                ),
-                definition=definition,
-                grammatical_label=values.get(
-                    "grammatical_label",
-                    "",
-                ),
-                grammatical_category=values.get(
-                    "grammatical_category",
-                    "",
-                ),
-                source="monier-williams",
-                source_id=values.get(
-                    "source_id",
-                    "",
-                ),
-                source_reference=values.get(
-                    "source_reference",
-                    "",
-                ),
+            fields = {
+                key: value
+                for key, value in values.items()
+                if key in known_columns
+            }
+
+            yield MonierWilliamsSourceRecord(
+                sequence=sequence,
                 raw_text=raw_text,
-                homonym=values.get(
-                    "homonym",
-                    "",
-                ),
+                fields=fields,
             )
 
     def _validate_header(
@@ -298,9 +216,8 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         header: tuple[str, ...],
     ) -> None:
         """
-        Validate source header.
+        Validate required and optional header columns.
         """
-
         if not header:
             raise ValueError(
                 "Monier-Williams source contains no header"
@@ -337,11 +254,6 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
                 )
 
     @staticmethod
-    def _normalize_header(
-        value: str,
-    ) -> str:
-        """
-        Normalize a source header name.
-        """
-
+    def _normalize_header(value: str) -> str:
+        """Normalize a source header."""
         return value.strip().lower()
