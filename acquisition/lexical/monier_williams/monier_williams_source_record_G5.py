@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -60,9 +61,6 @@ class MonierWilliamsSourceRecord:
 
         if not isinstance(raw_text, str):
             raise TypeError("raw_text must be a string")
-
-        if not raw_text or not raw_text.strip():
-            raise ValueError("raw_text must not be empty or whitespace")
 
         if not isinstance(fields, Mapping):
             raise TypeError("fields must be a mapping")
