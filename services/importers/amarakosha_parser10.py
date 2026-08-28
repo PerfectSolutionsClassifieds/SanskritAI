@@ -25,7 +25,7 @@ Domain Model
 
 Version
 -------
-v0.9.5
+v0.9.4
 """
 
 from pathlib import Path
@@ -200,7 +200,7 @@ class AmarakoshaParser:
         if self.context.state == ParserState.ERROR:
             status = ImportStatus.FAILED
 
-        if any(str(getattr(e, "severity", "")).upper() in ("ERROR", "FATAL") for e in getattr(self.context, "errors", [])):
+        if any(e.severity in ("ERROR", "FATAL") for e in self.context.errors):
             status = ImportStatus.FAILED
 
         return (
@@ -278,16 +278,6 @@ class AmarakoshaParser:
     # =========================================================
 
     def _handle_kanda(self, result: ClassificationResult) -> None:
-        try:
-            if hasattr(ParserValidator, "validate_transition"):
-                ParserValidator.validate_transition(
-                    getattr(self.context, "state", None),
-                    ParserState.EXPECT_KANDA,
-                    getattr(self.context, "line_number", 0),
-                )
-        except Exception as exc:
-            self.context.add_error(f"Transition Warning: {str(exc)}", severity="warning")
-
         self._increment_stat("kandas")
         self._increment_stat("objects")
 
@@ -331,27 +321,12 @@ class AmarakoshaParser:
     # ---------------------------------------------------------
 
     def _handle_varga(self, result: ClassificationResult) -> None:
-        curr_kanda = getattr(self.context, "current_kanda", None)
-        
-        try:
-            if hasattr(ParserValidator, "validate_hierarchy_presence"):
-                ParserValidator.validate_hierarchy_presence(
-                    curr_kanda,
-                    "Varga",
-                    getattr(self.context, "line_number", 0),
-                )
-        except Exception as exc:
-            self.context.add_error(f"Structural Violation: {str(exc)}", severity="warning")
-
-        # Fallback structural check if the validator swallowed or was missing
-        if curr_kanda is None:
-            self.context.add_error("Structural Violation: Varga encountered without a parent Kanda.", severity="warning")
-
         self._increment_stat("vargas")
         self._increment_stat("objects")
 
         num = 1
         try:
+            curr_kanda = getattr(self.context, "current_kanda", None)
             if hasattr(StructureNumbering, "next_varga_number"):
                 num = StructureNumbering.next_varga_number(curr_kanda)
         except Exception:
@@ -377,6 +352,7 @@ class AmarakoshaParser:
                 except Exception:
                     pass
 
+            curr_kanda = getattr(self.context, "current_kanda", None)
             if curr_kanda is not None and hasattr(curr_kanda, "vargas") and isinstance(curr_kanda.vargas, list):
                 if varga not in curr_kanda.vargas:
                     curr_kanda.vargas.append(varga)
@@ -389,27 +365,13 @@ class AmarakoshaParser:
     # ---------------------------------------------------------
 
     def _handle_verse(self, result: ClassificationResult) -> None:
-        curr_varga = getattr(self.context, "current_varga", None)
-
-        try:
-            if hasattr(ParserValidator, "validate_hierarchy_presence"):
-                ParserValidator.validate_hierarchy_presence(
-                    curr_varga,
-                    "Verse",
-                    getattr(self.context, "line_number", 0),
-                )
-        except Exception as exc:
-            self.context.add_error(f"Structural Violation: {str(exc)}", severity="warning")
-
-        if curr_varga is None:
-            self.context.add_error("Structural Violation: Verse encountered without a parent Varga.", severity="warning")
-
         self._increment_stat("verses")
         self._increment_stat("objects")
         self._increment_stat("lexemes")
 
         num = 1
         try:
+            curr_varga = getattr(self.context, "current_varga", None)
             if hasattr(StructureNumbering, "next_verse_number"):
                 num = StructureNumbering.next_verse_number(curr_varga)
         except Exception:
@@ -435,6 +397,7 @@ class AmarakoshaParser:
                 except Exception:
                     pass
 
+            curr_varga = getattr(self.context, "current_varga", None)
             if curr_varga is not None and hasattr(curr_varga, "verses") and isinstance(curr_varga.verses, list):
                 if verse not in curr_varga.verses:
                     curr_varga.verses.append(verse)
@@ -474,15 +437,14 @@ class AmarakoshaParser:
             pass
 
         try:
-            if hasattr(ParserValidator, "validate_completion"):
-                warnings = ParserValidator.validate_completion(self.context.book)
-                for warn_msg in warnings:
-                    self.context.add_error(
-                        warn_msg,
-                        severity="warning",
-                    )
-        except Exception as exc:
-            self.context.add_error(str(exc), severity="warning")
+            warnings = ParserValidator.validate_completion(self.context.book)
+            for warn_msg in warnings:
+                self.context.add_error(
+                    warn_msg,
+                    severity="warning",
+                )
+        except Exception:
+            pass
 
     # =========================================================
     # Representation
@@ -511,3 +473,6 @@ class AmarakoshaParser:
             f"errors={errs}"
             ")"
         )
+
+
+        

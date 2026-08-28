@@ -25,11 +25,11 @@ Domain Model
 
 Version
 -------
-v0.9.5
+v0.9.2
 """
 
 from pathlib import Path
-from typing import Callable, Any
+from typing import Callable
 
 from SanskritAI.models.imports import (
     ImportConfiguration,
@@ -84,6 +84,8 @@ class AmarakoshaParser:
     The parser coordinates normalization, classification,
     parser state, structure construction, validation,
     statistics and diagnostics.
+
+    It does not own the canonical corpus identity model.
     """
 
     def __init__(
@@ -119,29 +121,6 @@ class AmarakoshaParser:
                 "ParserContext execution layer is uninitialized."
             )
         return self._context
-
-    # =========================================================
-    # Helper Utilities
-    # =========================================================
-
-    def _increment_stat(self, stat_name: str, delta: int = 1) -> None:
-        """Safely update statistical counter metrics."""
-        if hasattr(self.context, "statistics") and self.context.statistics is not None:
-            stats = self.context.statistics
-            curr = getattr(stats, stat_name, 0)
-            try:
-                setattr(stats, stat_name, curr + delta)
-            except Exception:
-                pass
-            if isinstance(stats, dict):
-                stats[stat_name] = stats.get(stat_name, 0) + delta
-
-        if hasattr(self.context, stat_name):
-            try:
-                curr = getattr(self.context, stat_name, 0)
-                setattr(self.context, stat_name, curr + delta)
-            except Exception:
-                pass
 
     # =========================================================
     # Public Ingestion APIs
@@ -197,10 +176,12 @@ class AmarakoshaParser:
             )
             status = ImportStatus.FAILED
 
+        # Fallback ensuring state alignment matches the return status
         if self.context.state == ParserState.ERROR:
             status = ImportStatus.FAILED
 
-        if any(str(getattr(e, "severity", "")).upper() in ("ERROR", "FATAL") for e in getattr(self.context, "errors", [])):
+        # Hard status overwrite if fatal or true error level diagnostics exist
+        if any(e.severity in ("ERROR", "FATAL") for e in self.context.errors):
             status = ImportStatus.FAILED
 
         return (
@@ -215,13 +196,14 @@ class AmarakoshaParser:
     # ---------------------------------------------------------
 
     def _safe_error_transition(self) -> None:
-        """Ensure contextual consistency during exceptions."""
+        """Helper to ensure contextual consistency during chaotic exceptions."""
         try:
             if self.context.state != ParserState.ERROR:
                 self.context.transition(ParserState.ERROR)
         except Exception:
             pass
-
+            
+        # Prevent ValueError in ImportError construction if crashed prior to line 1
         if self.context.line_number < 1:
             self.context.next_line("")
 
@@ -230,10 +212,7 @@ class AmarakoshaParser:
     # =========================================================
 
     def _engine_loop(self, lines: list[str]) -> None:
-        try:
-            self.context.transition(ParserState.EXPECT_KANDA)
-        except Exception:
-            pass
+        self.context.transition(ParserState.EXPECT_KANDA)
 
         for raw_line in lines:
             self.context.next_line(raw_line)
@@ -266,8 +245,9 @@ class AmarakoshaParser:
                 f"Structural Violation: {str(exc)}",
                 severity="warning",
             )
-
+            
         except Exception as exc:
+            # Trap validation errors specifically so they don't crash the orchestrator
             self.context.add_error(
                 f"Validation Warning: {str(exc)}",
                 severity="warning",
@@ -278,186 +258,113 @@ class AmarakoshaParser:
     # =========================================================
 
     def _handle_kanda(self, result: ClassificationResult) -> None:
-        try:
-            if hasattr(ParserValidator, "validate_transition"):
-                ParserValidator.validate_transition(
-                    getattr(self.context, "state", None),
-                    ParserState.EXPECT_KANDA,
-                    getattr(self.context, "line_number", 0),
-                )
-        except Exception as exc:
-            self.context.add_error(f"Transition Warning: {str(exc)}", severity="warning")
+        ParserValidator.validate_transition(
+            self.context.state,
+            ParserState.EXPECT_VARGA,
+            self.context.line_number,
+        )
 
-        self._increment_stat("kandas")
-        self._increment_stat("objects")
+        num = StructureNumbering.next_kanda_number(self.context.book)
+        kanda = AmarakoshaBuilder.build_kanda(
+            number=num,
+            title=result.content,
+        )
 
-        num = 1
-        try:
-            if hasattr(StructureNumbering, "next_kanda_number"):
-                num = StructureNumbering.next_kanda_number(getattr(self.context, "book", None))
-        except Exception:
-            pass
+        self.context.enter_kanda(kanda)
 
-        kanda = None
-        try:
-            if hasattr(AmarakoshaBuilder, "build_kanda"):
-                kanda = AmarakoshaBuilder.build_kanda(number=num, title=result.content)
-        except Exception:
-            pass
+        # Assure object linkages exist in memory structurally
+        if hasattr(self.context.book, "kandas") and isinstance(self.context.book.kandas, list):
+            if kanda not in self.context.book.kandas:
+                self.context.book.kandas.append(kanda)
 
-        if kanda is not None:
-            if hasattr(self.context, "enter_kanda") and callable(getattr(self.context, "enter_kanda")):
-                try:
-                    self.context.enter_kanda(kanda)
-                except Exception:
-                    pass
+        # Manually tick structural statistics to prevent missing stats tracking
+        if hasattr(self.context, "statistics"):
+            self.context.statistics.kandas += 1
 
-            if hasattr(self.context, "current_kanda"):
-                try:
-                    setattr(self.context, "current_kanda", kanda)
-                except Exception:
-                    pass
-
-            book = getattr(self.context, "book", None)
-            if book is not None and hasattr(book, "kandas") and isinstance(book.kandas, list):
-                if kanda not in book.kandas:
-                    book.kandas.append(kanda)
-
-        try:
-            self.context.transition(ParserState.EXPECT_VARGA)
-        except Exception:
-            pass
+        self.context.transition(ParserState.EXPECT_VARGA)
 
     # ---------------------------------------------------------
 
     def _handle_varga(self, result: ClassificationResult) -> None:
-        curr_kanda = getattr(self.context, "current_kanda", None)
-        
-        try:
-            if hasattr(ParserValidator, "validate_hierarchy_presence"):
-                ParserValidator.validate_hierarchy_presence(
-                    curr_kanda,
-                    "Varga",
-                    getattr(self.context, "line_number", 0),
-                )
-        except Exception as exc:
-            self.context.add_error(f"Structural Violation: {str(exc)}", severity="warning")
+        ParserValidator.validate_transition(
+            self.context.state,
+            ParserState.EXPECT_VERSE,
+            self.context.line_number,
+        )
 
-        # Fallback structural check if the validator swallowed or was missing
-        if curr_kanda is None:
-            self.context.add_error("Structural Violation: Varga encountered without a parent Kanda.", severity="warning")
+        ParserValidator.validate_hierarchy_presence(
+            self.context.current_kanda,
+            "Varga",
+            self.context.line_number,
+        )
 
-        self._increment_stat("vargas")
-        self._increment_stat("objects")
+        num = StructureNumbering.next_varga_number(self.context.current_kanda)
+        varga = AmarakoshaBuilder.build_varga(
+            number=num,
+            title=result.content,
+        )
 
-        num = 1
-        try:
-            if hasattr(StructureNumbering, "next_varga_number"):
-                num = StructureNumbering.next_varga_number(curr_kanda)
-        except Exception:
-            pass
+        self.context.enter_varga(varga)
 
-        varga = None
-        try:
-            if hasattr(AmarakoshaBuilder, "build_varga"):
-                varga = AmarakoshaBuilder.build_varga(number=num, title=result.content)
-        except Exception:
-            pass
+        if self.context.current_kanda and hasattr(self.context.current_kanda, "vargas") and isinstance(self.context.current_kanda.vargas, list):
+            if varga not in self.context.current_kanda.vargas:
+                self.context.current_kanda.vargas.append(varga)
 
-        if varga is not None:
-            if hasattr(self.context, "enter_varga") and callable(getattr(self.context, "enter_varga")):
-                try:
-                    self.context.enter_varga(varga)
-                except Exception:
-                    pass
+        if hasattr(self.context, "statistics"):
+            self.context.statistics.vargas += 1
 
-            if hasattr(self.context, "current_varga"):
-                try:
-                    setattr(self.context, "current_varga", varga)
-                except Exception:
-                    pass
-
-            if curr_kanda is not None and hasattr(curr_kanda, "vargas") and isinstance(curr_kanda.vargas, list):
-                if varga not in curr_kanda.vargas:
-                    curr_kanda.vargas.append(varga)
-
-        try:
-            self.context.transition(ParserState.EXPECT_VERSE)
-        except Exception:
-            pass
+        self.context.transition(ParserState.EXPECT_VERSE)
 
     # ---------------------------------------------------------
 
     def _handle_verse(self, result: ClassificationResult) -> None:
-        curr_varga = getattr(self.context, "current_varga", None)
+        ParserValidator.validate_transition(
+            self.context.state,
+            ParserState.EXPECT_VERSE,
+            self.context.line_number,
+        )
 
-        try:
-            if hasattr(ParserValidator, "validate_hierarchy_presence"):
-                ParserValidator.validate_hierarchy_presence(
-                    curr_varga,
-                    "Verse",
-                    getattr(self.context, "line_number", 0),
-                )
-        except Exception as exc:
-            self.context.add_error(f"Structural Violation: {str(exc)}", severity="warning")
+        ParserValidator.validate_hierarchy_presence(
+            self.context.current_varga,
+            "Verse",
+            self.context.line_number,
+        )
 
-        if curr_varga is None:
-            self.context.add_error("Structural Violation: Verse encountered without a parent Varga.", severity="warning")
+        num = StructureNumbering.next_verse_number(self.context.current_varga)
+        verse = AmarakoshaBuilder.build_verse(
+            number=num,
+            text=result.content,
+        )
 
-        self._increment_stat("verses")
-        self._increment_stat("objects")
-        self._increment_stat("lexemes")
+        self.context.enter_verse(verse)
 
-        num = 1
-        try:
-            if hasattr(StructureNumbering, "next_verse_number"):
-                num = StructureNumbering.next_verse_number(curr_varga)
-        except Exception:
-            pass
+        if self.context.current_varga and hasattr(self.context.current_varga, "verses") and isinstance(self.context.current_varga.verses, list):
+            if verse not in self.context.current_varga.verses:
+                self.context.current_varga.verses.append(verse)
 
-        verse = None
-        try:
-            if hasattr(AmarakoshaBuilder, "build_verse"):
-                verse = AmarakoshaBuilder.build_verse(number=num, text=result.content)
-        except Exception:
-            pass
+        if hasattr(self.context, "statistics"):
+            self.context.statistics.verses += 1
 
-        if verse is not None:
-            if hasattr(self.context, "enter_verse") and callable(getattr(self.context, "enter_verse")):
-                try:
-                    self.context.enter_verse(verse)
-                except Exception:
-                    pass
-
-            if hasattr(self.context, "current_verse"):
-                try:
-                    setattr(self.context, "current_verse", verse)
-                except Exception:
-                    pass
-
-            if curr_varga is not None and hasattr(curr_varga, "verses") and isinstance(curr_varga.verses, list):
-                if verse not in curr_varga.verses:
-                    curr_varga.verses.append(verse)
-
-        try:
-            self.context.transition(ParserState.EXPECT_VERSE)
-        except Exception:
-            pass
+        self.context.transition(ParserState.EXPECT_VERSE)
 
     # ---------------------------------------------------------
 
     def _handle_empty(self, result: ClassificationResult) -> None:
-        self._increment_stat("empty_lines")
+        if hasattr(self.context, "statistics"):
+            self.context.statistics.empty_lines += 1
 
     # ---------------------------------------------------------
 
     def _handle_comment(self, result: ClassificationResult) -> None:
-        self._increment_stat("comment_lines")
+        if hasattr(self.context, "statistics"):
+            self.context.statistics.comment_lines += 1
 
     # ---------------------------------------------------------
 
     def _handle_unknown(self, result: ClassificationResult) -> None:
-        self._increment_stat("unknown_lines")
+        if hasattr(self.context, "statistics"):
+            self.context.statistics.unknown_lines += 1
+            
         self.context.add_error(
             f"Lexical analysis unknown token match: {result.content}",
             severity="warning",
@@ -474,15 +381,18 @@ class AmarakoshaParser:
             pass
 
         try:
-            if hasattr(ParserValidator, "validate_completion"):
-                warnings = ParserValidator.validate_completion(self.context.book)
-                for warn_msg in warnings:
-                    self.context.add_error(
-                        warn_msg,
-                        severity="warning",
-                    )
+            warnings = ParserValidator.validate_completion(self.context.book)
+            for warn_msg in warnings:
+                self.context.add_error(
+                    warn_msg,
+                    severity="warning",
+                )
         except Exception as exc:
-            self.context.add_error(str(exc), severity="warning")
+            # Downgrade terminal validation violations to warnings to preserve the parse
+            self.context.add_error(
+                str(exc),
+                severity="warning",
+            )
 
     # =========================================================
     # Representation
@@ -491,23 +401,22 @@ class AmarakoshaParser:
     def __repr__(self) -> str:
         if self._context is None:
             return "AmarakoshaParser(state=UNINITIALIZED)"
-
-        k = getattr(self.context.statistics, "kandas", 0) if hasattr(self.context, "statistics") else 0
-        v = getattr(self.context.statistics, "vargas", 0) if hasattr(self.context, "statistics") else 0
-        vs = getattr(self.context.statistics, "verses", 0) if hasattr(self.context, "statistics") else 0
-        errs = len(self.context.errors) if hasattr(self.context, "errors") else 0
-
-        state_name = "UNKNOWN"
-        if hasattr(self.context, "state") and hasattr(self.context.state, "name"):
-            state_name = self.context.state.name
+            
+        try:
+            k = self.context.statistics.kandas
+            v = self.context.statistics.vargas
+            vs = self.context.statistics.verses
+        except AttributeError:
+            k = v = vs = 0
 
         return (
             "AmarakoshaParser("
-            f"state={state_name}, "
-            f"line={getattr(self.context, 'line_number', 0)}, "
+            f"state={self.context.state.name}, "
+            f"line={self.context.line_number}, "
             f"kandas={k}, "
             f"vargas={v}, "
             f"verses={vs}, "
-            f"errors={errs}"
+            f"errors={len(self.context.errors)}"
+         
             ")"
         )
