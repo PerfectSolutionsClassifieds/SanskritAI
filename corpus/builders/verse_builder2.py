@@ -64,31 +64,14 @@ class VerseBuilder(
         """
         Create a fresh canonical Verse instance.
 
-        The canonical Verse model uses `identifier`
-        rather than `id`.
+        The canonical Verse model uses `identifier`,
+        not `id`, as its constructor parameter.
         """
 
         return Verse(
             identifier=VerseId.generate(),
             metadata=VerseMetadata(),
         )
-
-    # ---------------------------------------------------------
-    # Validation
-    # ---------------------------------------------------------
-
-    def validate(self) -> None:
-        """
-        Validate a Verse.
-
-        A Verse is not a titled node, so generic title
-        validation must not be applied here.
-
-        Structural validation remains the responsibility
-        of the canonical node/model infrastructure.
-        """
-
-        return None
 
     # ---------------------------------------------------------
     # Verse Metadata
@@ -103,7 +86,6 @@ class VerseBuilder(
         """
 
         self._instance.metadata.verse_number = number
-
         return self
 
     # ---------------------------------------------------------
@@ -117,7 +99,6 @@ class VerseBuilder(
         """
 
         self._instance.metadata.verse_type = verse_type
-
         return self
 
     # ---------------------------------------------------------
@@ -127,11 +108,10 @@ class VerseBuilder(
         meter: Meter,
     ) -> Self:
         """
-        Set the canonical meter classification.
+        Set the canonical meter.
         """
 
         self._instance.metadata.meter = meter
-
         return self
 
     # ---------------------------------------------------------
@@ -141,14 +121,10 @@ class VerseBuilder(
         meter_name: str,
     ) -> Self:
         """
-        Set the textual meter name.
-
-        This is a canonical VerseMetadata field rather than
-        an ad-hoc dynamic attribute.
+        Set the meter name.
         """
 
         self._instance.metadata.meter_name = meter_name
-
         return self
 
     # ---------------------------------------------------------
@@ -175,7 +151,7 @@ class VerseBuilder(
         paragraphs: Iterable[Paragraph],
     ) -> Self:
         """
-        Add multiple Paragraphs while preserving order.
+        Add multiple Paragraphs.
         """
 
         return self._add_children(
@@ -195,9 +171,8 @@ class VerseBuilder(
         """
         Create a VerseBuilder from an existing Verse.
 
-        BaseBuilder.from_instance() performs a deep copy,
-        ensuring the resulting builder does not alias the
-        original Verse.
+        ChildNodeBuilder is responsible for creating the
+        independent builder state.
         """
 
         return cls().from_instance(

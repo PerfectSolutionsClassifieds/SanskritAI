@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -22,7 +21,7 @@ Examples
 
 Version
 -------
-v0.3.0
+v0.2.0
 """
 
 from dataclasses import dataclass
@@ -46,7 +45,7 @@ class VerseMetadata(BaseNodeMetadata):
     # Canonical Identification
     # ---------------------------------------------------------
 
-    verse_number: str | None = None
+    verse_number: str = ""
 
     canonical_number: str = ""
 
@@ -57,8 +56,6 @@ class VerseMetadata(BaseNodeMetadata):
     # ---------------------------------------------------------
 
     meter: Meter = Meter.UNKNOWN
-
-    meter_name: str = ""
 
     language_variant: str = ""
 
@@ -79,20 +76,9 @@ class VerseMetadata(BaseNodeMetadata):
     image_reference: str = ""
 
     # ---------------------------------------------------------
-    # Derived Properties
-    # ---------------------------------------------------------
 
     @property
     def page_count(self) -> int | None:
-        """
-        Return the number of pages covered by this verse.
-
-        Returns
-        -------
-        int | None
-            Inclusive page count when both page boundaries
-            are available; otherwise None.
-        """
 
         if (
             self.start_page is None
@@ -106,9 +92,6 @@ class VerseMetadata(BaseNodeMetadata):
 
     @property
     def has_page_range(self) -> bool:
-        """
-        Return True when a complete page range is available.
-        """
 
         return (
             self.start_page is not None
@@ -119,9 +102,6 @@ class VerseMetadata(BaseNodeMetadata):
 
     @property
     def has_audio(self) -> bool:
-        """
-        Return True when an audio reference is present.
-        """
 
         return bool(self.audio_reference)
 
@@ -129,30 +109,26 @@ class VerseMetadata(BaseNodeMetadata):
 
     @property
     def has_image(self) -> bool:
-        """
-        Return True when an image reference is present.
-        """
 
         return bool(self.image_reference)
 
     # ---------------------------------------------------------
-    # Serialization
-    # ---------------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
         """
-        Serialize metadata into a canonical dictionary.
+        Serialize metadata.
         """
 
-        # Explicit base-class invocation is intentional.
+        # Explicit base-class call.
         #
-        # dataclass(slots=True) can create a zero-argument
-        # super() compatibility issue in some inheritance
-        # scenarios, therefore the explicit base call is used.
+        # Using BaseNodeMetadata.to_dict(self) avoids the
+        # zero-argument super() issue with dataclass(slots=True).
         data = BaseNodeMetadata.to_dict(self)
 
         data.update(
+
             {
+
                 "verse_number":
                     self.verse_number,
 
@@ -164,9 +140,6 @@ class VerseMetadata(BaseNodeMetadata):
 
                 "meter":
                     self.meter.value,
-
-                "meter_name":
-                    self.meter_name,
 
                 "language_variant":
                     self.language_variant,
@@ -185,20 +158,25 @@ class VerseMetadata(BaseNodeMetadata):
 
                 "image_reference":
                     self.image_reference,
+
             }
+
         )
 
         return data
 
     # ---------------------------------------------------------
-    # Representation
-    # ---------------------------------------------------------
 
     def __repr__(self) -> str:
+
         return (
+
             f"VerseMetadata("
+
             f"verse={self.verse_number!r}, "
+
             f"type={self.verse_type.value!r}, "
-            f"meter={self.meter.value!r}, "
-            f"meter_name={self.meter_name!r})"
+
+            f"meter={self.meter.value!r})"
+
         )

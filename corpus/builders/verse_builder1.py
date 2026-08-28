@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -24,13 +23,8 @@ from SanskritAI.corpus.builders.child_node_builder import (
     ChildNodeBuilder,
 )
 
-from SanskritAI.corpus.enums.meter import (
-    Meter,
-)
-
-from SanskritAI.corpus.enums.verse_type import (
-    VerseType,
-)
+from SanskritAI.corpus.enums.meter import Meter
+from SanskritAI.corpus.enums.verse_type import VerseType
 
 from SanskritAI.corpus.models.paragraph import (
     Paragraph,
@@ -61,34 +55,11 @@ class VerseBuilder(
     # ---------------------------------------------------------
 
     def _create_instance(self) -> Verse:
-        """
-        Create a fresh canonical Verse instance.
-
-        The canonical Verse model uses `identifier`
-        rather than `id`.
-        """
 
         return Verse(
-            identifier=VerseId.generate(),
+            id=VerseId.generate(),
             metadata=VerseMetadata(),
         )
-
-    # ---------------------------------------------------------
-    # Validation
-    # ---------------------------------------------------------
-
-    def validate(self) -> None:
-        """
-        Validate a Verse.
-
-        A Verse is not a titled node, so generic title
-        validation must not be applied here.
-
-        Structural validation remains the responsibility
-        of the canonical node/model infrastructure.
-        """
-
-        return None
 
     # ---------------------------------------------------------
     # Verse Metadata
@@ -98,9 +69,6 @@ class VerseBuilder(
         self,
         number: str,
     ) -> Self:
-        """
-        Set the verse number.
-        """
 
         self._instance.metadata.verse_number = number
 
@@ -112,9 +80,6 @@ class VerseBuilder(
         self,
         verse_type: VerseType,
     ) -> Self:
-        """
-        Set the verse type.
-        """
 
         self._instance.metadata.verse_type = verse_type
 
@@ -126,9 +91,6 @@ class VerseBuilder(
         self,
         meter: Meter,
     ) -> Self:
-        """
-        Set the canonical meter classification.
-        """
 
         self._instance.metadata.meter = meter
 
@@ -140,12 +102,6 @@ class VerseBuilder(
         self,
         meter_name: str,
     ) -> Self:
-        """
-        Set the textual meter name.
-
-        This is a canonical VerseMetadata field rather than
-        an ad-hoc dynamic attribute.
-        """
 
         self._instance.metadata.meter_name = meter_name
 
@@ -175,7 +131,7 @@ class VerseBuilder(
         paragraphs: Iterable[Paragraph],
     ) -> Self:
         """
-        Add multiple Paragraphs while preserving order.
+        Add multiple Paragraphs.
         """
 
         return self._add_children(
@@ -184,21 +140,12 @@ class VerseBuilder(
         )
 
     # ---------------------------------------------------------
-    # Factory From Existing Instance
-    # ---------------------------------------------------------
 
     @classmethod
     def from_verse(
         cls,
         verse: Verse,
     ) -> "VerseBuilder":
-        """
-        Create a VerseBuilder from an existing Verse.
-
-        BaseBuilder.from_instance() performs a deep copy,
-        ensuring the resulting builder does not alias the
-        original Verse.
-        """
 
         return cls().from_instance(
             verse,

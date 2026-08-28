@@ -44,7 +44,18 @@ class SectionBuilder(
     ]
 ):
     """
-    Builder for canonical Section objects.
+    Builder for Section objects.
+
+    A SectionBuilder constructs a Section with:
+
+    - a generated canonical identifier
+    - initialized SectionMetadata
+    - optional section-specific metadata
+    - zero or more child sections
+    - zero or more verses
+
+    The builder follows the fluent-builder contract established
+    by NodeBuilder.
     """
 
     # ---------------------------------------------------------
@@ -55,8 +66,8 @@ class SectionBuilder(
         """
         Create a fresh Section instance.
 
-        Section uses ``identifier`` as its canonical identity
-        field.
+        Section.__init__() expects the canonical field name
+        ``identifier`` rather than ``id``.
         """
 
         return Section(
@@ -65,7 +76,7 @@ class SectionBuilder(
         )
 
     # ---------------------------------------------------------
-    # Section Metadata
+    # Section-specific Metadata
     # ---------------------------------------------------------
 
     def with_section_type(
@@ -73,15 +84,14 @@ class SectionBuilder(
         section_type: str,
     ) -> Self:
         """
-        Set the semantic type of the section.
+        Set the section type.
 
         Examples:
             Parva
             Kanda
             Sarga
             Mandala
-            Skandha
-            Chapter
+            Sukta
         """
 
         self._instance.metadata.section_type = section_type
@@ -95,14 +105,13 @@ class SectionBuilder(
         number: str,
     ) -> Self:
         """
-        Set the section numbering scheme.
+        Set the section number.
 
-        The public builder API calls this value the
-        ``section_number`` for readability, while the canonical
-        SectionMetadata model stores it as ``numbering_scheme``.
+        The canonical SectionMetadata model is responsible for
+        interpreting this value through its numbering scheme.
         """
 
-        self._instance.metadata.numbering_scheme = number
+        self._instance.metadata.section_number = number
 
         return self
 
@@ -115,7 +124,7 @@ class SectionBuilder(
         section: Section,
     ) -> Self:
         """
-        Add a single child section.
+        Add a child section.
         """
 
         self._instance.add_section(section)
@@ -146,7 +155,7 @@ class SectionBuilder(
         verse: Verse,
     ) -> Self:
         """
-        Add a single verse to the section.
+        Add a verse to the section.
         """
 
         self._instance.add_verse(verse)
@@ -169,7 +178,7 @@ class SectionBuilder(
         return self
 
     # ---------------------------------------------------------
-    # Reconstruction
+    # Copy / Reconstruction
     # ---------------------------------------------------------
 
     @classmethod
@@ -178,10 +187,12 @@ class SectionBuilder(
         section: Section,
     ) -> "SectionBuilder":
         """
-        Create a builder from an existing Section.
+        Create a SectionBuilder initialized from an existing
+        Section.
 
-        The underlying NodeBuilder performs the defensive
-        reconstruction/copy operation.
+        NodeBuilder.from_instance() performs the defensive
+        copy required by the builder contract.
         """
 
         return cls().from_instance(section)
+

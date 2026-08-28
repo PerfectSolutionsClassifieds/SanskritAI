@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -9,13 +8,9 @@ Paragraph Builder
 
 Builder for constructing canonical Paragraph objects.
 
-A Paragraph is a structural/content node within a Verse.
-It is not a titled node; therefore validation must not impose
-the generic NodeBuilder title requirement.
-
 Version
 -------
-v0.3.0
+v0.1.0
 """
 
 from typing import Iterable, Self
@@ -61,36 +56,11 @@ class ParagraphBuilder(
     # ---------------------------------------------------------
 
     def _create_instance(self) -> Paragraph:
-        """
-        Create a fresh canonical Paragraph instance.
-
-        The canonical Paragraph model uses `identifier`
-        rather than `id`.
-        """
 
         return Paragraph(
-            identifier=ParagraphId.generate(),
+            id=ParagraphId.generate(),
             metadata=ParagraphMetadata(),
         )
-
-    # ---------------------------------------------------------
-    # Validation
-    # ---------------------------------------------------------
-
-    def validate(self) -> None:
-        """
-        Validate a Paragraph.
-
-        A Paragraph is a structural/content node and does not
-        require a title. Therefore the generic NodeBuilder
-        title validation must not be applied.
-
-        Structural validation remains delegated to the
-        canonical Paragraph model / child-node infrastructure
-        where applicable.
-        """
-
-        return None
 
     # ---------------------------------------------------------
     # Paragraph Metadata
@@ -100,9 +70,6 @@ class ParagraphBuilder(
         self,
         number: int,
     ) -> Self:
-        """
-        Set the paragraph number.
-        """
 
         self._instance.metadata.paragraph_number = number
 
@@ -114,9 +81,6 @@ class ParagraphBuilder(
         self,
         paragraph_type: ParagraphType,
     ) -> Self:
-        """
-        Set the paragraph type.
-        """
 
         self._instance.metadata.paragraph_type = paragraph_type
 
@@ -128,9 +92,6 @@ class ParagraphBuilder(
         self,
         language: str,
     ) -> Self:
-        """
-        Set the language variant.
-        """
 
         self._instance.metadata.language_variant = language
 
@@ -142,9 +103,6 @@ class ParagraphBuilder(
         self,
         value: bool = True,
     ) -> Self:
-        """
-        Mark the paragraph as a translation.
-        """
 
         self._instance.metadata.is_translation = value
 
@@ -156,9 +114,6 @@ class ParagraphBuilder(
         self,
         value: bool = True,
     ) -> Self:
-        """
-        Mark the paragraph as commentary.
-        """
 
         self._instance.metadata.is_commentary = value
 
@@ -197,17 +152,12 @@ class ParagraphBuilder(
         )
 
     # ---------------------------------------------------------
-    # Factory From Existing Instance
-    # ---------------------------------------------------------
 
     @classmethod
     def from_paragraph(
         cls,
         paragraph: Paragraph,
     ) -> "ParagraphBuilder":
-        """
-        Create a ParagraphBuilder from an existing Paragraph.
-        """
 
         return cls().from_instance(
             paragraph,

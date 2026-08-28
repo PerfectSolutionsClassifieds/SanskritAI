@@ -9,10 +9,6 @@ Paragraph Builder
 
 Builder for constructing canonical Paragraph objects.
 
-A Paragraph is a structural/content node within a Verse.
-It is not a titled node; therefore validation must not impose
-the generic NodeBuilder title requirement.
-
 Version
 -------
 v0.3.0
@@ -74,25 +70,6 @@ class ParagraphBuilder(
         )
 
     # ---------------------------------------------------------
-    # Validation
-    # ---------------------------------------------------------
-
-    def validate(self) -> None:
-        """
-        Validate a Paragraph.
-
-        A Paragraph is a structural/content node and does not
-        require a title. Therefore the generic NodeBuilder
-        title validation must not be applied.
-
-        Structural validation remains delegated to the
-        canonical Paragraph model / child-node infrastructure
-        where applicable.
-        """
-
-        return None
-
-    # ---------------------------------------------------------
     # Paragraph Metadata
     # ---------------------------------------------------------
 
@@ -143,7 +120,7 @@ class ParagraphBuilder(
         value: bool = True,
     ) -> Self:
         """
-        Mark the paragraph as a translation.
+        Mark this paragraph as a translation.
         """
 
         self._instance.metadata.is_translation = value
@@ -157,7 +134,7 @@ class ParagraphBuilder(
         value: bool = True,
     ) -> Self:
         """
-        Mark the paragraph as commentary.
+        Mark this paragraph as commentary.
         """
 
         self._instance.metadata.is_commentary = value
@@ -206,7 +183,7 @@ class ParagraphBuilder(
         paragraph: Paragraph,
     ) -> "ParagraphBuilder":
         """
-        Create a ParagraphBuilder from an existing Paragraph.
+        Create a builder from an existing Paragraph.
         """
 
         return cls().from_instance(

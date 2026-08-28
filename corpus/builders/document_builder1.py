@@ -53,7 +53,7 @@ class DocumentBuilder(
     def _create_instance(self) -> Document:
 
         return Document(
-            identifier=DocumentId.generate(),
+            id=DocumentId.generate(),
             metadata=DocumentMetadata(),
         )
 

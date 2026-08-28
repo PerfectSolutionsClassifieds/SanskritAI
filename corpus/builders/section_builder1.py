@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -11,7 +10,7 @@ Builder for constructing canonical Section objects.
 
 Version
 -------
-v0.3.0
+v0.2.0
 """
 
 from typing import Self
@@ -44,7 +43,7 @@ class SectionBuilder(
     ]
 ):
     """
-    Builder for canonical Section objects.
+    Builder for Section objects.
     """
 
     # ---------------------------------------------------------
@@ -52,37 +51,20 @@ class SectionBuilder(
     # ---------------------------------------------------------
 
     def _create_instance(self) -> Section:
-        """
-        Create a fresh Section instance.
-
-        Section uses ``identifier`` as its canonical identity
-        field.
-        """
 
         return Section(
-            identifier=SectionId.generate(),
+            id=SectionId.generate(),
             metadata=SectionMetadata(),
         )
 
     # ---------------------------------------------------------
-    # Section Metadata
+    # Section-specific Metadata
     # ---------------------------------------------------------
 
     def with_section_type(
         self,
         section_type: str,
     ) -> Self:
-        """
-        Set the semantic type of the section.
-
-        Examples:
-            Parva
-            Kanda
-            Sarga
-            Mandala
-            Skandha
-            Chapter
-        """
 
         self._instance.metadata.section_type = section_type
 
@@ -94,15 +76,8 @@ class SectionBuilder(
         self,
         number: str,
     ) -> Self:
-        """
-        Set the section numbering scheme.
 
-        The public builder API calls this value the
-        ``section_number`` for readability, while the canonical
-        SectionMetadata model stores it as ``numbering_scheme``.
-        """
-
-        self._instance.metadata.numbering_scheme = number
+        self._instance.metadata.section_number = number
 
         return self
 
@@ -114,9 +89,6 @@ class SectionBuilder(
         self,
         section: Section,
     ) -> Self:
-        """
-        Add a single child section.
-        """
 
         self._instance.add_section(section)
 
@@ -128,11 +100,9 @@ class SectionBuilder(
         self,
         sections: list[Section],
     ) -> Self:
-        """
-        Add multiple child sections while preserving order.
-        """
 
         for section in sections:
+
             self._instance.add_section(section)
 
         return self
@@ -145,9 +115,6 @@ class SectionBuilder(
         self,
         verse: Verse,
     ) -> Self:
-        """
-        Add a single verse to the section.
-        """
 
         self._instance.add_verse(verse)
 
@@ -159,17 +126,13 @@ class SectionBuilder(
         self,
         verses: list[Verse],
     ) -> Self:
-        """
-        Add multiple verses while preserving order.
-        """
 
         for verse in verses:
+
             self._instance.add_verse(verse)
 
         return self
 
-    # ---------------------------------------------------------
-    # Reconstruction
     # ---------------------------------------------------------
 
     @classmethod
@@ -177,11 +140,5 @@ class SectionBuilder(
         cls,
         section: Section,
     ) -> "SectionBuilder":
-        """
-        Create a builder from an existing Section.
-
-        The underlying NodeBuilder performs the defensive
-        reconstruction/copy operation.
-        """
 
         return cls().from_instance(section)

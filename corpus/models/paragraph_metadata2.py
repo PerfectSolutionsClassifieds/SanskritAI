@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -15,7 +14,7 @@ critical apparatus, and parallel editions.
 
 Version
 -------
-v0.3.0
+v0.2.0
 """
 
 from dataclasses import dataclass
@@ -40,7 +39,7 @@ class ParagraphMetadata(BaseNodeMetadata):
     # Identification
     # ---------------------------------------------------------
 
-    paragraph_number: int | None = None
+    paragraph_number: int = 1
 
     paragraph_type: ParagraphType = (
         ParagraphType.DEFAULT
@@ -83,7 +82,9 @@ class ParagraphMetadata(BaseNodeMetadata):
         data = BaseNodeMetadata.to_dict(self)
 
         data.update(
+
             {
+
                 "paragraph_number":
                     self.paragraph_number,
 
@@ -98,7 +99,9 @@ class ParagraphMetadata(BaseNodeMetadata):
 
                 "is_commentary":
                     self.is_commentary,
+
             }
+
         )
 
         return data
@@ -106,12 +109,13 @@ class ParagraphMetadata(BaseNodeMetadata):
     # ---------------------------------------------------------
 
     def __repr__(self) -> str:
-        """
-        Compact developer representation.
-        """
 
         return (
+
             f"ParagraphMetadata("
-            f"number={self.paragraph_number!r}, "
+
+            f"number={self.paragraph_number}, "
+
             f"type={self.paragraph_type.value!r})"
+
         )
