@@ -77,20 +77,6 @@ class LineBuilder(
         )
 
     # ---------------------------------------------------------
-    # Validation
-    # ---------------------------------------------------------
-
-    def validate(self) -> None:
-        """
-        Validate a Line.
-
-        A Line is an untitled textual unit; generic title
-        validation must not be applied.
-        """
-
-        return None
-
-    # ---------------------------------------------------------
     # Line Identification
     # ---------------------------------------------------------
 

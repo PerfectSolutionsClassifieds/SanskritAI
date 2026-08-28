@@ -58,19 +58,6 @@ class TokenBuilder(
         )
 
     # ---------------------------------------------------------
-    # Validation
-    # ---------------------------------------------------------
-
-    def validate(self) -> None:
-        """
-        Validate token instance.
-
-        Token nodes do not require a title, overriding NodeBuilder's
-        generic title validation.
-        """
-        pass
-
-    # ---------------------------------------------------------
     # Token Content
     # ---------------------------------------------------------
 

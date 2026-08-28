@@ -22,7 +22,7 @@ Corpus
 
 Version
 -------
-v0.3.1
+v0.3.0
 """
 
 from typing import Iterable, Self
@@ -33,6 +33,10 @@ from SanskritAI.common.identifiers.line_id import (
 
 from SanskritAI.corpus.builders.child_node_builder import (
     ChildNodeBuilder,
+)
+
+from SanskritAI.corpus.enums.line_type import (
+    LineType,
 )
 
 from SanskritAI.corpus.models.line import (
@@ -57,9 +61,6 @@ class LineBuilder(
 ):
     """
     Builder for canonical Line objects.
-
-    The builder exposes only metadata fields that are part of
-    the canonical LineMetadata model.
     """
 
     # ---------------------------------------------------------
@@ -69,6 +70,9 @@ class LineBuilder(
     def _create_instance(self) -> Line:
         """
         Create a fresh canonical Line instance.
+
+        The canonical Line model uses `identifier`
+        rather than `id`.
         """
 
         return Line(
@@ -77,21 +81,7 @@ class LineBuilder(
         )
 
     # ---------------------------------------------------------
-    # Validation
-    # ---------------------------------------------------------
-
-    def validate(self) -> None:
-        """
-        Validate a Line.
-
-        A Line is an untitled textual unit; generic title
-        validation must not be applied.
-        """
-
-        return None
-
-    # ---------------------------------------------------------
-    # Line Identification
+    # Line Metadata
     # ---------------------------------------------------------
 
     def with_line_number(
@@ -100,6 +90,9 @@ class LineBuilder(
     ) -> Self:
         """
         Set the canonical line number.
+
+        `line_number` is the semantic builder API used by
+        the corpus builder layer.
         """
 
         self._instance.metadata.line_number = number
@@ -113,116 +106,24 @@ class LineBuilder(
         number: int,
     ) -> Self:
         """
-        Compatibility alias for line-number terminology.
+        Compatibility alias for sequence-number terminology.
 
-        The canonical representation is ``line_number``.
+        The canonical representation is `line_number`.
         """
 
         return self.with_line_number(number)
 
     # ---------------------------------------------------------
-    # Visual / Layout Information
-    # ---------------------------------------------------------
 
-    def with_visual_line_number(
+    def with_line_type(
         self,
-        number: int | None,
+        line_type: LineType,
     ) -> Self:
         """
-        Set the source/display visual line number.
+        Set the line type.
         """
 
-        self._instance.metadata.visual_line_number = number
-
-        return self
-
-    # ---------------------------------------------------------
-
-    def with_indentation(
-        self,
-        level: int,
-    ) -> Self:
-        """
-        Set the indentation level of the line.
-        """
-
-        self._instance.metadata.indentation_level = level
-
-        return self
-
-    # ---------------------------------------------------------
-    # Metrical Information
-    # ---------------------------------------------------------
-
-    def with_pada_number(
-        self,
-        number: int | None,
-    ) -> Self:
-        """
-        Set the metrical pāda number.
-        """
-
-        self._instance.metadata.pada_number = number
-
-        return self
-
-    # ---------------------------------------------------------
-    # Line Characteristics
-    # ---------------------------------------------------------
-
-    def as_continuation(
-        self,
-        value: bool = True,
-    ) -> Self:
-        """
-        Mark the line as a continuation line.
-        """
-
-        self._instance.metadata.is_continuation = value
-
-        return self
-
-    # ---------------------------------------------------------
-
-    def as_refrain(
-        self,
-        value: bool = True,
-    ) -> Self:
-        """
-        Mark the line as a refrain.
-        """
-
-        self._instance.metadata.is_refrain = value
-
-        return self
-
-    # ---------------------------------------------------------
-
-    def as_fragment(
-        self,
-        value: bool = True,
-    ) -> Self:
-        """
-        Mark the line as a fragment.
-        """
-
-        self._instance.metadata.is_fragment = value
-
-        return self
-
-    # ---------------------------------------------------------
-    # Language
-    # ---------------------------------------------------------
-
-    def with_language(
-        self,
-        language: str,
-    ) -> Self:
-        """
-        Set the language of the line.
-        """
-
-        self._instance.metadata.language = language
+        self._instance.metadata.line_type = line_type
 
         return self
 
@@ -233,12 +134,12 @@ class LineBuilder(
         language: str,
     ) -> Self:
         """
-        Compatibility alias.
-
-        The canonical LineMetadata field is ``language``.
+        Set the language variant.
         """
 
-        return self.with_language(language)
+        self._instance.metadata.language_variant = language
+
+        return self
 
     # ---------------------------------------------------------
     # Tokens
@@ -285,4 +186,6 @@ class LineBuilder(
         Create a LineBuilder from an existing Line.
         """
 
-        return cls().from_instance(line)
+        return cls().from_instance(
+            line,
+        )

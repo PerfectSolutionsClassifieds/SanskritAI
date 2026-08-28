@@ -1,3 +1,4 @@
+
 from SanskritAI.corpus.builders.token_builder import TokenBuilder
 from SanskritAI.corpus.models.token import Token
 from SanskritAI.corpus.models.token_metadata import TokenMetadata
@@ -168,7 +169,7 @@ def test_reset_creates_fresh_token():
 
     assert isinstance(fresh, Token)
     assert fresh.id != original_id
-    assert fresh.metadata.text == ""
+    assert fresh.metadata.text is None
 
 
 def test_from_token_returns_builder():

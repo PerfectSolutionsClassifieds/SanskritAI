@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -19,7 +20,7 @@ Depending on the source, a Line may represent:
 
 Version
 -------
-v0.3.1
+v0.3.0
 """
 
 from dataclasses import dataclass
@@ -46,7 +47,7 @@ class LineMetadata(BaseNodeMetadata):
     # Identification
     # ---------------------------------------------------------
 
-    line_number: int | None = None
+    line_number: int = 1
 
     # ---------------------------------------------------------
     # Layout Information
@@ -81,17 +82,13 @@ class LineMetadata(BaseNodeMetadata):
         """
         True if this line corresponds to a metrical pāda.
         """
-
         return self.pada_number is not None
-
-    # ---------------------------------------------------------
 
     @property
     def is_indented(self) -> bool:
         """
         True if the line has indentation.
         """
-
         return self.indentation_level > 0
 
     # ---------------------------------------------------------
@@ -101,8 +98,11 @@ class LineMetadata(BaseNodeMetadata):
     def to_dict(self) -> dict[str, Any]:
         """
         Serialize metadata.
-        """
 
+        Explicit BaseNodeMetadata invocation is used instead of
+        zero-argument super() because this class uses
+        dataclass(slots=True).
+        """
         data = BaseNodeMetadata.to_dict(self)
 
         data.update(
@@ -126,7 +126,7 @@ class LineMetadata(BaseNodeMetadata):
 
     def __repr__(self) -> str:
         return (
-            "LineMetadata("
+            f"LineMetadata("
             f"language={self.language!r}, "
             f"line={self.line_number}, "
             f"pada={self.pada_number}, "
