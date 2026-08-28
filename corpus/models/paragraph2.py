@@ -32,12 +32,11 @@ Version
 v0.3.0
 """
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from SanskritAI.corpus.models.container_node import (
     ContainerNode,
 )
-
 from SanskritAI.corpus.models.paragraph_metadata import (
     ParagraphMetadata,
 )
@@ -145,9 +144,7 @@ class Paragraph(
     # ---------------------------------------------------------
 
     @property
-    def paragraph_type(
-        self,
-    ):
+    def paragraph_type(self):
         """
         Alias for the paragraph type stored in metadata.
         """
@@ -157,34 +154,9 @@ class Paragraph(
     # ---------------------------------------------------------
 
     @property
-    def language(
-        self,
-    ):
+    def language(self):
         """
         Alias for the language stored in metadata.
         """
 
         return self.metadata.language
-
-    # ---------------------------------------------------------
-    # Serialization
-    # ---------------------------------------------------------
-
-    def to_dict(
-        self,
-    ) -> dict[str, Any]:
-        """
-        Serialize the paragraph and its lines.
-
-        Child lines are serialized recursively through their
-        own to_dict() implementations.
-        """
-
-        return {
-            "id": str(self.id),
-            "metadata": self.metadata.to_dict(),
-            "lines": [
-                line.to_dict()
-                for line in self.lines
-            ],
-        }

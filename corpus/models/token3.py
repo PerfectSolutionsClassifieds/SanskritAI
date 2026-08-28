@@ -32,8 +32,6 @@ Version
 v0.3.0
 """
 
-from typing import Any
-
 from SanskritAI.corpus.models.base_node import (
     BaseNode,
 )
@@ -151,21 +149,3 @@ class Token(
         """
 
         return self.metadata.is_word
-
-    # ---------------------------------------------------------
-    # Serialization
-    # ---------------------------------------------------------
-
-    def to_dict(
-        self,
-    ) -> dict[str, Any]:
-        """
-        Serialize the token.
-
-        Token is a leaf node and therefore has no children.
-        """
-
-        return {
-            "id": str(self.id),
-            "metadata": self.metadata.to_dict(),
-        }

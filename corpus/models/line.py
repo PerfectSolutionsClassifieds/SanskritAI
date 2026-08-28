@@ -29,14 +29,15 @@ on Line objects without becoming part of the model.
 
 Version
 -------
-v0.3.0
+v0.3.1
 """
 
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from SanskritAI.corpus.models.container_node import (
     ContainerNode,
 )
+
 from SanskritAI.corpus.models.line_metadata import (
     LineMetadata,
 )
@@ -164,3 +165,26 @@ class Line(
         """
 
         return self.metadata.language
+
+    # ---------------------------------------------------------
+    # Serialization
+    # ---------------------------------------------------------
+
+    def to_dict(
+        self,
+    ) -> dict[str, Any]:
+        """
+        Serialize the line and its tokens.
+
+        Child tokens are serialized recursively through their
+        own to_dict() implementations.
+        """
+
+        return {
+            "id": str(self.id),
+            "metadata": self.metadata.to_dict(),
+            "tokens": [
+                token.to_dict()
+                for token in self.tokens
+            ],
+        }

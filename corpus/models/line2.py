@@ -4,12 +4,12 @@ from __future__ import annotations
 SanskritAI
 ==========
 
-Paragraph
+Line
 
-Represents a logical paragraph within a Verse.
+Represents a canonical line within a Paragraph.
 
-A Paragraph groups one or more Lines and serves as the bridge
-between the canonical corpus hierarchy and the lexical layer.
+A Line groups one or more Tokens and forms the final
+container node in the Canonical Corpus Model.
 
 Hierarchy
 ---------
@@ -22,45 +22,44 @@ Corpus
                     Line
                         Token
 
-Future linguistic processing such as sentence segmentation,
-morphological analysis, dependency parsing, translation
-alignment, and semantic annotation may begin at the paragraph
-level.
+The Line class intentionally remains lightweight.
+Future linguistic services (tokenization validation,
+syntax, morphology, semantic analysis, etc.) operate
+on Line objects without becoming part of the model.
 
 Version
 -------
 v0.3.0
 """
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from SanskritAI.corpus.models.container_node import (
     ContainerNode,
 )
-
-from SanskritAI.corpus.models.paragraph_metadata import (
-    ParagraphMetadata,
+from SanskritAI.corpus.models.line_metadata import (
+    LineMetadata,
 )
 
 if TYPE_CHECKING:
-    from SanskritAI.corpus.models.line import Line
+    from SanskritAI.corpus.models.token import Token
 
 
-class Paragraph(
+class Line(
     ContainerNode[
         str,
-        ParagraphMetadata,
-        "Line",
+        LineMetadata,
+        "Token",
     ]
 ):
     """
-    Canonical paragraph.
+    Canonical line.
     """
 
     def __init__(
         self,
         identifier: str,
-        metadata: ParagraphMetadata,
+        metadata: LineMetadata,
     ) -> None:
 
         super().__init__(
@@ -73,45 +72,45 @@ class Paragraph(
     # ---------------------------------------------------------
 
     @property
-    def lines(self):
+    def tokens(self):
         """
-        Alias for child lines.
+        Alias for child tokens.
         """
 
         return self.children
 
     # ---------------------------------------------------------
 
-    def add_line(
+    def add_token(
         self,
-        line: "Line",
+        token: "Token",
     ) -> None:
         """
-        Add a line.
+        Add a token.
         """
 
-        self.add_child(line)
+        self.add_child(token)
 
     # ---------------------------------------------------------
 
-    def remove_line(
+    def remove_token(
         self,
-        line: "Line",
+        token: "Token",
     ) -> None:
         """
-        Remove a line.
+        Remove a token.
         """
 
-        self.remove_child(line)
+        self.remove_child(token)
 
     # ---------------------------------------------------------
 
     @property
-    def line_count(
+    def token_count(
         self,
     ) -> int:
         """
-        Number of lines.
+        Number of tokens.
         """
 
         return self.child_count
@@ -119,11 +118,11 @@ class Paragraph(
     # ---------------------------------------------------------
 
     @property
-    def first_line(
+    def first_token(
         self,
-    ) -> "Line | None":
+    ) -> "Token | None":
         """
-        Return the first line.
+        Return the first token.
         """
 
         return self.first_child
@@ -131,11 +130,11 @@ class Paragraph(
     # ---------------------------------------------------------
 
     @property
-    def last_line(
+    def last_token(
         self,
-    ) -> "Line | None":
+    ) -> "Token | None":
         """
-        Return the last line.
+        Return the last token.
         """
 
         return self.last_child
@@ -145,46 +144,23 @@ class Paragraph(
     # ---------------------------------------------------------
 
     @property
-    def paragraph_type(
+    def line_number(
         self,
-    ):
+    ) -> int | None:
         """
-        Alias for the paragraph type stored in metadata.
+        Alias for the line number stored in metadata.
         """
 
-        return self.metadata.paragraph_type
+        return self.metadata.line_number
 
     # ---------------------------------------------------------
 
     @property
     def language(
         self,
-    ):
+    ) -> str:
         """
         Alias for the language stored in metadata.
         """
 
         return self.metadata.language
-
-    # ---------------------------------------------------------
-    # Serialization
-    # ---------------------------------------------------------
-
-    def to_dict(
-        self,
-    ) -> dict[str, Any]:
-        """
-        Serialize the paragraph and its lines.
-
-        Child lines are serialized recursively through their
-        own to_dict() implementations.
-        """
-
-        return {
-            "id": str(self.id),
-            "metadata": self.metadata.to_dict(),
-            "lines": [
-                line.to_dict()
-                for line in self.lines
-            ],
-        }

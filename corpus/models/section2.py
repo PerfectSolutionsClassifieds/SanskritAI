@@ -30,12 +30,11 @@ Version
 v0.3.0
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from SanskritAI.corpus.models.container_node import (
     ContainerNode,
 )
-
 from SanskritAI.corpus.models.section_metadata import (
     SectionMetadata,
 )
@@ -140,26 +139,3 @@ class Section(
         """
 
         return self.last_child
-
-    # ---------------------------------------------------------
-    # Serialization
-    # ---------------------------------------------------------
-
-    def to_dict(
-        self,
-    ) -> dict[str, Any]:
-        """
-        Serialize the section and its verses.
-
-        Child verses are serialized recursively through their
-        own to_dict() implementations.
-        """
-
-        return {
-            "id": str(self.id),
-            "metadata": self.metadata.to_dict(),
-            "verses": [
-                verse.to_dict()
-                for verse in self.verses
-            ],
-        }
