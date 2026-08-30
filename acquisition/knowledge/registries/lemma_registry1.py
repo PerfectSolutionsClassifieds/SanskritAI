@@ -1,45 +1,64 @@
-
 from __future__ import annotations
 
 """
 SanskritAI
 ==========
 
-Lexical Registry
+Lemma Registry
 
 Purpose
 -------
-Canonical in-memory registry of all CanonicalLexicon objects
-loaded into the Canonical Knowledge Repository.
+Canonical in-memory registry of all CanonicalLemma
+objects loaded into the Canonical Knowledge Repository.
+
+A Lemma represents the normalized lexical identity of a
+Sanskrit word.
+
+Architecture
+------------
+
+Acquisition Pipelines
+        │
+        ▼
+CanonicalLemma
+        │
+        ▼
+LemmaRegistry
+        │
+        ▼
+CanonicalKnowledgeRepository
 
 Responsibilities
 ----------------
-• Register canonical lexicons
-• Retrieve canonical lexicons
-• Lookup by name
-• Enumerate lexicons
+
+• Register canonical lemmas
+• Retrieve canonical lemmas
+• Enumerate lemmas
 • Prevent duplicate registrations
 
 Version
 -------
-1.1.0
+1.0.0
 """
 
 from dataclasses import dataclass
 from dataclasses import field
 
-from SanskritAI.acquisition.knowledge.models.canonical_lexicon import (
-    CanonicalLexicon,
+from SanskritAI.acquisition.knowledge.models.canonical_lemma import (
+    CanonicalLemma,
 )
 
 
 @dataclass(slots=True)
-class LexicalRegistry:
+class LemmaRegistry:
     """
-    Registry of CanonicalLexicon objects.
+    Registry of CanonicalLemma objects.
     """
 
-    _lexicons: dict[str, CanonicalLexicon] = field(
+    _lemmas: dict[
+        str,
+        CanonicalLemma,
+    ] = field(
         default_factory=dict,
         init=False,
         repr=False,
@@ -51,23 +70,20 @@ class LexicalRegistry:
 
     def register(
         self,
-        lexicon: CanonicalLexicon,
+        lemma: CanonicalLemma,
     ) -> None:
         """
-        Register one canonical lexicon.
+        Registers one canonical lemma.
 
-        The CanonicalLexicon.identifier field is used as
-        the registry identifier.
-
-        Duplicate registrations are ignored.
+        Duplicate identifiers are ignored.
         """
 
-        lexicon_id = lexicon.identifier
-
-        if lexicon_id in self._lexicons:
+        if lemma.lemma_id in self._lemmas:
             return
 
-        self._lexicons[lexicon_id] = lexicon
+        self._lemmas[
+            lemma.lemma_id
+        ] = lemma
 
     # ---------------------------------------------------------
     # Lookup
@@ -75,28 +91,26 @@ class LexicalRegistry:
 
     def lookup(
         self,
-        lexicon_id: str,
-    ) -> CanonicalLexicon | None:
-        """
-        Lookup a lexicon by canonical identifier.
-        """
+        lemma_id: str,
+    ) -> CanonicalLemma | None:
 
-        return self._lexicons.get(
-            lexicon_id,
+        return self._lemmas.get(
+            lemma_id,
         )
 
-    def lookup_by_name(
+    def lookup_by_text(
         self,
-        name: str,
-    ) -> CanonicalLexicon | None:
+        text: str,
+    ) -> CanonicalLemma | None:
         """
-        Lookup by canonical lexicon name.
+        Lookup by normalized lemma text.
         """
 
-        for lexicon in self._lexicons.values():
+        for lemma in self._lemmas.values():
 
-            if lexicon.name == name:
-                return lexicon
+            if lemma.text == text:
+
+                return lemma
 
         return None
 
@@ -106,29 +120,26 @@ class LexicalRegistry:
 
     def all(
         self,
-    ) -> tuple[CanonicalLexicon, ...]:
-        """
-        Return all registered lexicons sorted by name.
-        """
+    ) -> tuple[
+        CanonicalLemma,
+        ...,
+    ]:
 
         return tuple(
             sorted(
-                self._lexicons.values(),
-                key=lambda x: x.name,
+                self._lemmas.values(),
+                key=lambda x: x.text,
             )
         )
 
     @property
-    def lexicon_ids(
+    def lemma_ids(
         self,
     ) -> tuple[str, ...]:
-        """
-        Return canonical lexicon identifiers.
-        """
 
         return tuple(
             sorted(
-                self._lexicons.keys()
+                self._lemmas.keys(),
             )
         )
 
@@ -141,8 +152,13 @@ class LexicalRegistry:
     ) -> dict:
 
         return {
-            "lexicons": len(self),
-            "ids": self.lexicon_ids,
+
+            "lemmas": len(
+                self,
+            ),
+
+            "ids": self.lemma_ids,
+
         }
 
     # ---------------------------------------------------------
@@ -154,7 +170,7 @@ class LexicalRegistry:
     ) -> int:
 
         return len(
-            self._lexicons,
+            self._lemmas,
         )
 
     def __iter__(
@@ -165,16 +181,22 @@ class LexicalRegistry:
 
     def __contains__(
         self,
-        lexicon_id: str,
+        lemma_id: str,
     ) -> bool:
 
-        return lexicon_id in self._lexicons
+        return (
+            lemma_id
+            in self._lemmas
+        )
 
     def __str__(
         self,
     ) -> str:
 
         return (
-            "LexicalRegistry("
-            f"{len(self)} lexicons)"
+
+            "LemmaRegistry("
+
+            f"{len(self)} lemmas)"
+
         )

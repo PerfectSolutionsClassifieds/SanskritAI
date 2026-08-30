@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -9,21 +8,57 @@ Source Registry
 
 Purpose
 -------
-Canonical in-memory registry of all CanonicalSource objects
-loaded into the Canonical Knowledge Repository.
+Canonical in-memory registry of all CanonicalSource
+objects loaded into the Canonical Knowledge Repository.
+
+A CanonicalSource represents an authoritative lexical,
+grammatical, or textual resource.
+
+Examples
+--------
+
+    • Monier–Williams
+
+    • Apte
+
+    • Amarakośa
+
+    • Śabdakalpadruma
+
+    • Vācaspatyam
+
+    • Dhātupāṭha
+
+    • Gaṇapāṭha
+
+Architecture
+------------
+
+Acquisition Pipelines
+        │
+        ▼
+CanonicalSource
+        │
+        ▼
+SourceRegistry
+        │
+        ▼
+CanonicalKnowledgeRepository
 
 Responsibilities
 ----------------
+
 • Register canonical sources
+
 • Lookup sources
-• Lookup by name
-• Lookup by short name
+
 • Enumerate sources
+
 • Prevent duplicate registrations
 
 Version
 -------
-1.1.0
+1.0.0
 """
 
 from dataclasses import dataclass
@@ -40,7 +75,10 @@ class SourceRegistry:
     Registry of CanonicalSource objects.
     """
 
-    _sources: dict[str, CanonicalSource] = field(
+    _sources: dict[
+        str,
+        CanonicalSource,
+    ] = field(
         default_factory=dict,
         init=False,
         repr=False,
@@ -55,19 +93,17 @@ class SourceRegistry:
         source: CanonicalSource,
     ) -> None:
         """
-        Register one canonical source.
+        Registers one canonical source.
 
-        CanonicalSource.source_id is the registry identifier.
-
-        Duplicate registrations are ignored.
+        Duplicate identifiers are ignored.
         """
 
-        source_id = source.source_id
-
-        if source_id in self._sources:
+        if source.source_id in self._sources:
             return
 
-        self._sources[source_id] = source
+        self._sources[
+            source.source_id
+        ] = source
 
     # ---------------------------------------------------------
     # Lookup
@@ -77,9 +113,6 @@ class SourceRegistry:
         self,
         source_id: str,
     ) -> CanonicalSource | None:
-        """
-        Lookup by canonical source identifier.
-        """
 
         return self._sources.get(
             source_id,
@@ -96,6 +129,7 @@ class SourceRegistry:
         for source in self._sources.values():
 
             if source.name == name:
+
                 return source
 
         return None
@@ -111,6 +145,7 @@ class SourceRegistry:
         for source in self._sources.values():
 
             if source.short_name == short_name:
+
                 return source
 
         return None
@@ -121,10 +156,10 @@ class SourceRegistry:
 
     def all(
         self,
-    ) -> tuple[CanonicalSource, ...]:
-        """
-        Return all registered sources sorted by display name.
-        """
+    ) -> tuple[
+        CanonicalSource,
+        ...,
+    ]:
 
         return tuple(
             sorted(
@@ -137,13 +172,10 @@ class SourceRegistry:
     def source_ids(
         self,
     ) -> tuple[str, ...]:
-        """
-        Return canonical source identifiers.
-        """
 
         return tuple(
             sorted(
-                self._sources.keys()
+                self._sources.keys(),
             )
         )
 
@@ -156,8 +188,13 @@ class SourceRegistry:
     ) -> dict:
 
         return {
-            "sources": len(self),
+
+            "sources": len(
+                self,
+            ),
+
             "ids": self.source_ids,
+
         }
 
     # ---------------------------------------------------------
@@ -183,13 +220,19 @@ class SourceRegistry:
         source_id: str,
     ) -> bool:
 
-        return source_id in self._sources
+        return (
+            source_id
+            in self._sources
+        )
 
     def __str__(
         self,
     ) -> str:
 
         return (
+
             "SourceRegistry("
+
             f"{len(self)} sources)"
+
         )

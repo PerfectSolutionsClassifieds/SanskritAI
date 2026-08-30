@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -9,20 +8,41 @@ Lexical Registry
 
 Purpose
 -------
-Canonical in-memory registry of all CanonicalLexicon objects
-loaded into the Canonical Knowledge Repository.
+Canonical in-memory registry of all CanonicalLexicon
+objects loaded into the Canonical Knowledge Repository.
+
+This registry is intentionally unaware of acquisition
+pipelines, parsers, transformers or source-specific
+implementations.
+
+Architecture
+------------
+
+Acquisition Pipelines
+        │
+        ▼
+CanonicalLexicon
+        │
+        ▼
+LexicalRegistry
+        │
+        ▼
+CanonicalKnowledgeRepository
 
 Responsibilities
 ----------------
+
 • Register canonical lexicons
+
 • Retrieve canonical lexicons
-• Lookup by name
+
 • Enumerate lexicons
+
 • Prevent duplicate registrations
 
 Version
 -------
-1.1.0
+1.0.0
 """
 
 from dataclasses import dataclass
@@ -39,7 +59,10 @@ class LexicalRegistry:
     Registry of CanonicalLexicon objects.
     """
 
-    _lexicons: dict[str, CanonicalLexicon] = field(
+    _lexicons: dict[
+        str,
+        CanonicalLexicon,
+    ] = field(
         default_factory=dict,
         init=False,
         repr=False,
@@ -54,20 +77,17 @@ class LexicalRegistry:
         lexicon: CanonicalLexicon,
     ) -> None:
         """
-        Register one canonical lexicon.
+        Registers one canonical lexicon.
 
-        The CanonicalLexicon.identifier field is used as
-        the registry identifier.
-
-        Duplicate registrations are ignored.
+        Duplicate identifiers are ignored.
         """
 
-        lexicon_id = lexicon.identifier
-
-        if lexicon_id in self._lexicons:
+        if lexicon.lexicon_id in self._lexicons:
             return
 
-        self._lexicons[lexicon_id] = lexicon
+        self._lexicons[
+            lexicon.lexicon_id
+        ] = lexicon
 
     # ---------------------------------------------------------
     # Lookup
@@ -77,9 +97,6 @@ class LexicalRegistry:
         self,
         lexicon_id: str,
     ) -> CanonicalLexicon | None:
-        """
-        Lookup a lexicon by canonical identifier.
-        """
 
         return self._lexicons.get(
             lexicon_id,
@@ -89,13 +106,11 @@ class LexicalRegistry:
         self,
         name: str,
     ) -> CanonicalLexicon | None:
-        """
-        Lookup by canonical lexicon name.
-        """
 
         for lexicon in self._lexicons.values():
 
             if lexicon.name == name:
+
                 return lexicon
 
         return None
@@ -106,10 +121,10 @@ class LexicalRegistry:
 
     def all(
         self,
-    ) -> tuple[CanonicalLexicon, ...]:
-        """
-        Return all registered lexicons sorted by name.
-        """
+    ) -> tuple[
+        CanonicalLexicon,
+        ...,
+    ]:
 
         return tuple(
             sorted(
@@ -122,13 +137,10 @@ class LexicalRegistry:
     def lexicon_ids(
         self,
     ) -> tuple[str, ...]:
-        """
-        Return canonical lexicon identifiers.
-        """
 
         return tuple(
             sorted(
-                self._lexicons.keys()
+                self._lexicons.keys(),
             )
         )
 
@@ -141,8 +153,13 @@ class LexicalRegistry:
     ) -> dict:
 
         return {
-            "lexicons": len(self),
+
+            "lexicons": len(
+                self,
+            ),
+
             "ids": self.lexicon_ids,
+
         }
 
     # ---------------------------------------------------------
@@ -168,13 +185,19 @@ class LexicalRegistry:
         lexicon_id: str,
     ) -> bool:
 
-        return lexicon_id in self._lexicons
+        return (
+            lexicon_id
+            in self._lexicons
+        )
 
     def __str__(
         self,
     ) -> str:
 
         return (
+
             "LexicalRegistry("
+
             f"{len(self)} lexicons)"
+
         )
