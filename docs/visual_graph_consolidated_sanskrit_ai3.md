@@ -695,12 +695,19 @@
                   - path(self)
                   - encoding(self)
                   - acquire(self)
+          📄 monier_williams_acquisition_result.py
+              🏗️ Classes:
+                • class MonierWilliamsAcquisitionResult:
+                  - __post_init__(self)
           📄 monier_williams_acquisition_service.py
               🏗️ Classes:
                 • class MonierWilliamsAcquisitionService:
                   - read(self)
                   - acquire(self)
                   - count(self)
+                  - _source_identifier(self)
+                  - _source_name(self)
+                  - _line_count(text)
           📄 monier_williams_parsed_entry.py
               🏗️ Classes:
                 • class MonierWilliamsParsedEntry:
@@ -727,8 +734,16 @@
                   - acquire(self)
           📄 monier_williams_source_parser.py
               🏗️ Classes:
+                • class _SourceProtocol:
+                  - acquire(self)
+                  - read(self)
+                • class _ParserProtocol:
+                  - parse(self, source_text)
                 • class MonierWilliamsSourceParser:
-                  - __post_init__(self)
+                  - __init__(self, acquirer, parser)
+                  - _read_source(self)
+                  - _is_tagged_source(source_text)
+                  - _create_default_parser(self, source_text)
                   - parse(self, source_text)
                   - parse_record(self, source_text)
                 • class _TaggedMonierWilliamsParser:
@@ -738,7 +753,9 @@
               🏗️ Classes:
                 • class MonierWilliamsSourcePipeline:
                   - run(self)
+                  - parse(self)
                   - records(self)
+                  - _parse_raw_text(text)
           📄 monier_williams_source_record.py
               🏗️ Classes:
                 • class MonierWilliamsSourceRecord:
@@ -748,7 +765,9 @@
                   - definition(self)
                   - grammatical_label(self)
                   - grammatical_category(self)
+                  - source(self)
                   - source_id(self)
+                  - source_reference(self)
                   - homonym(self)
                   - get(self, key, default)
       📂 metadata/
@@ -8307,15 +8326,17 @@
                 - display_text(self)
                 - display_description(self)
                 - resolve(self, context)
+                - __str__(self)
         📄 resolver.py
             🏗️ Classes:
               • class Resolver:
                 - __init__(self, strategy)
+                - strategy(self)
                 - display_name(self)
                 - display_text(self)
                 - display_description(self)
-                - strategy(self)
                 - resolve(self, context)
+                - __setattr__(self, name, value)
                 - __str__(self)
         📄 samasa_resolution_stage.py
             🏗️ Classes:
@@ -8624,6 +8645,7 @@
                 - search(self, query)
                 - all(self)
                 - count(self)
+                - __str__(self)
         📄 default_sandhi_resolution_kernel.py
             🏗️ Classes:
               • class DefaultSandhiResolutionKernel:
@@ -8649,16 +8671,19 @@
             ⚙️ Functions:
               • default_sandhi_rule_set()
         📄 default_sandhi_service.py
+            ⚙️ Functions:
+              • _default_sandhi_repository()
             🏗️ Classes:
               • class DefaultSandhiService:
+                - __init__(self, repository)
                 - display_name(self)
                 - display_text(self)
                 - display_description(self)
-                - repository(self)
                 - get_rule(self, identifier)
                 - search_rules(self, query)
                 - all_rules(self)
                 - rule_count(self)
+                - __str__(self)
         📄 default_sandhi_strategy.py
             🏗️ Classes:
               • class DefaultSandhiStrategy:
@@ -8692,6 +8717,37 @@
                 - _extract_words(self, context)
                 - applies_to(self, context)
                 - apply(self, context)
+        📄 sandhi_analysis.py
+            🏗️ Classes:
+              • class SandhiAnalysis:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - has_outputs(self)
+                - output_count(self)
+                - is_confident(self)
+                - has_notes(self)
+                - __iter__(self)
+                - __len__(self)
+                - __getitem__(self, index)
+                - __str__(self)
+        📄 sandhi_analysis_collection.py
+            🏗️ Classes:
+              • class SandhiAnalysisCollection:
+                - display_name(self)
+                - display_text(self)
+                - display_description(self)
+                - is_empty(self)
+                - count(self)
+                - has_analyses(self)
+                - first(self)
+                - last(self)
+                - add(self, analysis)
+                - extend(self, other)
+                - __iter__(self)
+                - __len__(self)
+                - __getitem__(self, index)
+                - __str__(self)
         📄 sandhi_context.py
             🏗️ Classes:
               • class SandhiContext:
@@ -8786,6 +8842,7 @@
         📄 sandhi_rule.py
             🏗️ Classes:
               • class SandhiRule:
+                - identifier(self)
                 - display_name(self)
                 - display_text(self)
                 - display_description(self)
@@ -10720,17 +10777,11 @@
                 ⚙️ Functions:
                   • test_parser_reads_basic_record()
                   • test_parser_reads_optional_fields()
-                  • test_parser_requires_header()
-                  • test_parser_requires_required_headers()
-                  • test_parser_rejects_unknown_header_in_strict_mode()
-                  • test_parser_rejects_empty_source()
-                  • test_parser_rejects_none()
-                  • test_parser_skips_blank_lines()
-                  • test_parser_rejects_missing_headword()
-                  • test_parser_rejects_missing_definition()
-                  • test_parser_rejects_extra_columns()
-                  • test_parser_normalizes_header_case_and_whitespace()
-                  • test_parser_iter_parse()
+                  • test_parser_rejects_invalid_header()
+                  • test_parser_empty_source_returns_empty_tuple()
+                  • test_parser_whitespace_only_source_returns_empty_tuple()
+                  • test_parser_returns_monier_williams_records()
+                  • test_parser_sets_source_to_monier_williams()
             📄 test_file_monier_williams_source.py
                 ⚙️ Functions:
                   • test_file_source_reads_text(tmp_path)
@@ -12531,6 +12582,376 @@
                 • test_lexical_key_falls_back_to_surface()
                 • test_word_position_helpers_are_inherited()
                 • test_word_is_immutable()
+        📂 resolution/
+          📄 test_default_resolution_pipeline.py
+              ⚙️ Functions:
+                • make_services()
+                • test_default_pipeline_returns_resolution_pipeline()
+                • test_default_pipeline_contains_five_stages()
+                • test_default_pipeline_is_not_empty()
+                • test_default_pipeline_contains_resolution_stages()
+                • test_default_pipeline_stage_order()
+                • test_lexical_service_is_first_contributor()
+                • test_morphological_service_is_second_contributor()
+                • test_sandhi_service_is_third_contributor()
+                • test_samasa_service_is_fourth_contributor()
+                • test_semantic_service_is_fifth_contributor()
+                • test_default_pipeline_preserves_all_service_instances()
+                • test_default_pipeline_executes_all_contributors()
+                • test_default_pipeline_executes_contributors_in_order()
+                • test_default_pipeline_uses_exact_registered_contributors()
+                • test_default_pipeline_can_be_iterated()
+                • test_default_pipeline_length_matches_stage_count()
+              🏗️ Classes:
+                • class RecordingContributor:
+                  - __init__(self, label)
+                  - contribute(self, aggregate, context)
+          📄 test_lexical_resolution_stage.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • make_service()
+                • make_contributor()
+                • make_stage()
+                • test_stage_can_be_constructed()
+                • test_stage_is_resolution_stage()
+                • test_stage_is_frozen()
+                • test_stage_name()
+                • test_stage_display_name()
+                • test_stage_display_text()
+                • test_stage_display_description()
+                • test_stage_is_displayable()
+                • test_stage_to_display_string()
+                • test_execute_delegates_to_service()
+                • test_execute_returns_exact_service_result()
+                • test_execute_preserves_context()
+                • test_contributor_is_preserved()
+                • test_service_is_preserved()
+                • test_stage_string_representation()
+              🏗️ Classes:
+                • class RecordingLexicalService:
+                  - __init__(self)
+                  - resolve(self, context)
+                • class RecordingContributor:
+                  - contribute(self, aggregate, context)
+          📄 test_morphology_resolution_stage.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • make_service()
+                • make_contributor()
+                • make_stage()
+                • test_stage_can_be_constructed()
+                • test_stage_is_resolution_stage()
+                • test_stage_is_frozen()
+                • test_stage_name()
+                • test_stage_display_name()
+                • test_stage_display_text()
+                • test_stage_display_description()
+                • test_stage_is_displayable()
+                • test_stage_to_display_string()
+                • test_execute_delegates_to_service()
+                • test_execute_returns_exact_service_result()
+                • test_execute_preserves_context()
+                • test_contributor_is_preserved()
+                • test_service_is_preserved()
+                • test_stage_string_representation()
+              🏗️ Classes:
+                • class RecordingMorphologicalService:
+                  - __init__(self)
+                  - resolve(self, context)
+                • class RecordingContributor:
+                  - contribute(self, aggregate, context)
+          📄 test_resolution_context.py
+              ⚙️ Functions:
+                • make_context(**overrides)
+                • test_context_can_be_created_with_required_fields()
+                • test_context_defaults_are_empty()
+                • test_context_preserves_optional_context()
+                • test_display_properties()
+                • test_subject_is_used_as_display_text()
+                • test_source_language_and_script_flags()
+                • test_empty_source_language_and_script_flags_are_false()
+                • test_metadata_flag()
+                • test_get_metadata_returns_value()
+                • test_get_metadata_returns_default_for_missing_key()
+                • test_get_metadata_returns_default_when_metadata_is_none()
+                • test_context_is_immutable()
+                • test_context_is_slot_based()
+                • test_context_is_immutable_and_displayable()
+                • test_string_representation_uses_display_text()
+          📄 test_resolution_contributor.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • make_result(context)
+                • test_resolution_contributor_is_abstract()
+                • test_resolution_contributor_cannot_be_instantiated()
+                • test_concrete_contributor_is_instance_of_contract()
+                • test_contributor_has_no_instance_dict()
+                • test_contributor_uses_empty_slots()
+                • test_concrete_contributor_uses_empty_slots()
+                • test_contributor_has_no_own_dict_descriptor()
+                • test_concrete_contributor_has_no_own_dict_descriptor()
+                • test_default_display_name_is_class_name()
+                • test_display_text_delegates_to_display_name()
+                • test_display_description_is_canonical()
+                • test_contributor_is_displayable()
+                • test_to_display_string_uses_display_text()
+                • test_contribute_receives_aggregate_and_context()
+                • test_contributor_preserves_aggregate_context()
+                • test_contributor_accepts_equivalent_immutable_context()
+                • test_contributor_rejects_different_context()
+                • test_contributor_is_stateless()
+                • test_contributor_does_not_mutate_aggregate()
+                • test_string_representation_uses_display_text()
+              🏗️ Classes:
+                • class ConcreteResolutionContributor:
+                  - contribute(self, aggregate, context)
+          📄 test_resolution_diagnostic.py
+              ⚙️ Functions:
+                • make_diagnostic(**overrides)
+                • test_diagnostic_can_be_created_with_required_fields()
+                • test_default_values()
+                • test_identifier_is_code()
+                • test_display_name_is_code()
+                • test_display_text_contains_uppercase_severity_and_message()
+                • test_display_description_is_message()
+                • test_information_severity()
+                • test_warning_severity()
+                • test_error_severity()
+                • test_severity_checks_are_case_insensitive()
+                • test_recoverable_error_is_not_fatal()
+                • test_nonrecoverable_error_is_fatal()
+                • test_non_error_is_never_fatal()
+                • test_source_flag()
+                • test_empty_source_flag()
+                • test_diagnostic_is_immutable()
+                • test_diagnostic_is_slot_based()
+                • test_diagnostic_is_immutable_and_displayable()
+                • test_string_representation_uses_display_text()
+          📄 test_resolution_pipeline.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • make_stage(label, calls)
+                • make_pipeline(labels)
+                • test_pipeline_can_be_constructed()
+                • test_pipeline_is_frozen()
+                • test_pipeline_is_slot_based()
+                • test_pipeline_stages_are_preserved()
+                • test_display_name()
+                • test_display_text()
+                • test_display_description()
+                • test_pipeline_is_displayable()
+                • test_string_representation()
+                • test_stage_count()
+                • test_empty_pipeline()
+                • test_non_empty_pipeline()
+                • test_pipeline_is_iterable()
+                • test_pipeline_len()
+                • test_execute_returns_resolution_result()
+                • test_execute_preserves_context()
+                • test_execute_empty_pipeline_returns_initial_result()
+                • test_execute_runs_stages_in_order()
+                • test_execute_passes_context_to_every_stage()
+                • test_execute_passes_same_aggregate_through_stages()
+              🏗️ Classes:
+                • class RecordingContributor:
+                  - __init__(self, label, calls)
+                  - contribute(self, aggregate, context)
+          📄 test_resolution_result.py
+              ⚙️ Functions:
+                • make_context()
+                • make_result(**overrides)
+                • make_diagnostic()
+                • test_result_can_be_created_with_context()
+                • test_stage_results_default_to_none()
+                • test_default_diagnostics_are_empty()
+                • test_default_confidence_and_success()
+                • test_display_properties()
+                • test_stage_presence_flags_are_false_initially()
+                • test_fully_resolved_is_false_initially()
+                • test_diagnostic_properties()
+                • test_with_lexical_returns_new_result()
+                • test_with_morphology_preserves_existing_lexical_result()
+                • test_with_sandhi_preserves_previous_results()
+                • test_with_samasa_preserves_previous_results()
+                • test_with_semantic_preserves_previous_results()
+                • test_fully_resolved_requires_all_five_stages()
+                • test_enrichment_preserves_context()
+                • test_enrichment_preserves_diagnostics()
+                • test_enrichment_preserves_confidence()
+                • test_enrichment_preserves_success_state()
+                • test_result_is_immutable()
+                • test_result_is_slot_based()
+                • test_result_is_immutable_and_displayable()
+                • test_string_representation()
+          📄 test_resolution_stage.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • make_result()
+                • test_resolution_stage_can_be_constructed()
+                • test_resolution_stage_stores_contributor()
+                • test_resolution_stage_is_frozen()
+                • test_resolution_stage_is_slot_based()
+                • test_resolution_stage_display_name_delegates()
+                • test_resolution_stage_display_text_delegates()
+                • test_resolution_stage_display_description()
+                • test_resolution_stage_context_type()
+                • test_execute_delegates_to_contributor()
+                • test_execute_passes_same_aggregate()
+                • test_execute_passes_aggregate_context()
+                • test_execute_returns_contributor_result()
+                • test_string_representation_uses_display_text()
+              🏗️ Classes:
+                • class RecordingContributor:
+                  - __init__(self)
+                  - contribute(self, aggregate, context)
+          📄 test_resolution_state.py
+              ⚙️ Functions:
+                • make_context()
+                • make_state()
+                • make_diagnostic()
+                • test_state_can_be_created_with_context()
+                • test_stage_results_default_to_none()
+                • test_pipeline_metadata_defaults()
+                • test_stage_flags_are_false_initially()
+                • test_stage_count_is_zero_initially()
+                • test_state_succeeds_initially()
+                • test_state_is_slot_based()
+                • test_state_is_mutable()
+                • test_mark_completed_adds_stage()
+                • test_mark_completed_preserves_stage_order()
+                • test_mark_failed_records_failed_stage()
+                • test_mark_completed_does_not_clear_failure()
+                • test_add_diagnostic()
+                • test_multiple_diagnostics_are_preserved()
+                • test_set_metadata()
+                • test_get_metadata_returns_value()
+                • test_get_metadata_returns_default()
+                • test_stage_result_flags_reflect_assigned_results()
+                • test_state_can_accumulate_complete_pipeline_progress()
+          📄 test_resolution_strategy.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • test_resolution_strategy_is_abstract()
+                • test_resolution_strategy_cannot_be_instantiated()
+                • test_concrete_strategy_is_instance_of_contract()
+                • test_strategy_display_name_defaults_to_class_name()
+                • test_strategy_display_text_delegates()
+                • test_strategy_display_description_is_canonical()
+                • test_strategy_is_displayable()
+                • test_strategy_to_display_string()
+                • test_resolve_returns_resolution_result()
+                • test_resolve_preserves_context()
+                • test_strategy_is_stateless()
+                • test_string_representation_uses_display_text()
+              🏗️ Classes:
+                • class ConcreteResolutionStrategy:
+                  - resolve(self, context)
+          📄 test_resolver.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • test_resolver_can_be_constructed()
+                • test_resolver_stores_strategy()
+                • test_strategy_is_read_only()
+                • test_resolver_display_name()
+                • test_resolver_display_text()
+                • test_resolver_display_description()
+                • test_resolver_is_displayable()
+                • test_resolver_to_display_string()
+                • test_resolve_delegates_to_strategy()
+                • test_resolve_passes_exact_context_to_strategy()
+                • test_resolve_invokes_strategy_exactly_once()
+                • test_resolve_returns_strategy_result()
+                • test_resolver_string_representation()
+              🏗️ Classes:
+                • class RecordingStrategy:
+                  - __init__(self)
+                  - resolve(self, context)
+                • class ConcreteResolver:
+                  - display_name(self)
+          📄 test_samasa_resolution_stage.py
+              ⚙️ Functions:
+                • make_context()
+                • make_service()
+                • make_contributor()
+                • make_stage()
+                • test_stage_can_be_constructed()
+                • test_stage_is_resolution_stage()
+                • test_stage_is_frozen()
+                • test_stage_is_slot_based()
+                • test_stage_name()
+                • test_stage_display_name()
+                • test_stage_display_text()
+                • test_stage_display_description()
+                • test_stage_is_displayable()
+                • test_stage_to_display_string()
+                • test_execute_delegates_to_service()
+                • test_execute_returns_exact_service_result()
+                • test_execute_preserves_context()
+                • test_contributor_is_preserved()
+                • test_service_is_preserved()
+                • test_stage_string_representation()
+              🏗️ Classes:
+                • class RecordingSamasaService:
+                  - __init__(self)
+                  - resolve(self, context)
+                • class RecordingContributor:
+                  - contribute(self, aggregate, context)
+          📄 test_sandhi_resolution_stage.py
+              ⚙️ Functions:
+                • make_context()
+                • make_service()
+                • make_contributor()
+                • make_stage()
+                • test_stage_can_be_constructed()
+                • test_stage_is_resolution_stage()
+                • test_stage_is_frozen()
+                • test_stage_is_slot_based()
+                • test_stage_name()
+                • test_stage_display_name()
+                • test_stage_display_text()
+                • test_stage_display_description()
+                • test_stage_is_displayable()
+                • test_stage_to_display_string()
+                • test_execute_delegates_to_service()
+                • test_execute_returns_exact_service_result()
+                • test_execute_preserves_context()
+                • test_contributor_is_preserved()
+                • test_service_is_preserved()
+                • test_stage_string_representation()
+              🏗️ Classes:
+                • class RecordingSandhiService:
+                  - __init__(self)
+                  - resolve(self, context)
+                • class RecordingContributor:
+                  - contribute(self, aggregate, context)
+          📄 test_semantic_resolution_stage.py
+              ⚙️ Functions:
+                • make_context()
+                • make_service()
+                • make_contributor()
+                • make_stage()
+                • test_stage_can_be_constructed()
+                • test_stage_is_resolution_stage()
+                • test_stage_is_frozen()
+                • test_stage_is_slot_based()
+                • test_stage_name()
+                • test_stage_display_name()
+                • test_stage_display_text()
+                • test_stage_display_description()
+                • test_stage_is_displayable()
+                • test_stage_to_display_string()
+                • test_execute_delegates_to_service()
+                • test_execute_returns_exact_service_result()
+                • test_execute_preserves_context()
+                • test_contributor_is_preserved()
+                • test_service_is_preserved()
+                • test_stage_string_representation()
+              🏗️ Classes:
+                • class RecordingSemanticService:
+                  - __init__(self)
+                  - resolve(self, context)
+                • class RecordingContributor:
+                  - contribute(self, aggregate, context)
         📂 samasa/
           📄 test_default_samasa_resolution_kernel.py
               ⚙️ Functions:
@@ -12582,26 +13003,293 @@
               🏗️ Classes:
                 • class StubSamasaRepository:
         📂 sandhi/
+          📄 test_default_sandhi_repository.py
+              ⚙️ Functions:
+                • test_default_repository_can_be_constructed()
+                • test_default_repository_implements_repository_contract()
+                • test_default_repository_has_rule_set()
+                • test_default_repository_is_empty_by_default()
+                • test_default_repository_all_returns_rule_set()
+                • test_default_repository_all_returns_repository_rule_set()
+                • test_default_repository_count_is_zero_by_default()
+                • test_default_repository_contains_missing_rule_returns_false()
+                • test_default_repository_get_missing_rule_returns_none()
+                • test_default_repository_search_returns_rule_set()
+                • test_default_repository_search_is_empty_for_empty_repository()
+                • test_default_repository_search_missing_query_returns_empty_set()
+                • test_default_repository_display_name()
+                • test_default_repository_display_text()
+                • test_default_repository_display_description()
+                • test_default_repository_has_dataclass_representation()
+                • test_default_repository_instances_are_distinct()
+                • test_default_repository_is_immutable()
+                • test_default_repository_accepts_explicit_rule_set()
           📄 test_default_sandhi_resolution_kernel.py
               ⚙️ Functions:
+                • make_repository()
+                • make_context()
                 • test_default_kernel_can_be_constructed()
-                • test_default_kernel_exposes_resolution_kernel()
+                • test_default_kernel_uses_default_strategy()
+                • test_default_kernel_accepts_custom_strategy()
+                • test_default_kernel_is_immutable()
+                • test_display_name()
+                • test_display_text()
+                • test_display_description()
+                • test_string_representation()
+                • test_resolution_strategy_returns_configured_strategy()
+                • test_kernel_creates_generic_resolution_kernel()
+                • test_kernel_is_recreated_on_each_access()
+                • test_resolve_delegates_through_generic_kernel()
+                • test_call_delegates_to_resolve()
               🏗️ Classes:
                 • class StubSandhiRepository:
-          📄 test_sandhi_resolution_kernel.py
+                • class StubSandhiStrategy:
+                  - __init__(self, result)
+                  - resolve(self, context)
+          📄 test_default_sandhi_resolver.py
               ⚙️ Functions:
-                • test_kernel_delegates_to_strategy()
-                • test_kernel_builds_sandhi_context()
+                • make_context()
+                • test_default_resolver_can_be_constructed()
+                • test_default_resolver_uses_default_strategy()
+                • test_default_resolver_accepts_explicit_strategy()
+                • test_default_resolver_display_name()
+                • test_default_resolver_display_text()
+                • test_default_resolver_display_description()
+                • test_default_resolver_delegates_to_strategy()
+                • test_default_resolver_returns_sandhi_result()
+                • test_default_resolver_preserves_context()
+                • test_default_resolver_string_representation()
               🏗️ Classes:
                 • class StubSandhiStrategy:
                   - __init__(self, result)
                   - resolve(self, context)
+          📄 test_default_sandhi_rule_set.py
+              ⚙️ Functions:
+                • test_default_rule_set_returns_sandhi_rule_set()
+                • test_default_rule_set_contains_expected_number_of_rules()
+                • test_default_rule_bundle_is_tuple()
+                • test_default_rule_bundle_contains_expected_rule_types()
+                • test_default_rule_order_is_preserved()
+                • test_default_rule_set_contains_savarna_dirgha()
+                • test_default_rule_set_contains_guna()
+                • test_default_rule_set_contains_vrddhi()
+                • test_default_rule_set_contains_jastva()
+                • test_default_rule_set_contains_visarga_rules()
+                • test_default_rule_set_contains_visarga_allophones()
+                • test_default_rule_set_is_recreated_independently()
+                • test_default_rule_bundle_is_not_empty()
+                • test_default_rule_set_contains_only_sandhi_rules()
+          📄 test_default_sandhi_service.py
+              ⚙️ Functions:
+                • test_default_service_can_be_constructed()
+                • test_default_service_uses_default_repository()
+                • test_default_service_accepts_explicit_repository()
+                • test_default_service_display_name()
+                • test_default_service_display_text()
+                • test_default_service_display_description()
+                • test_default_service_get_rule_delegates_to_repository()
+                • test_default_service_get_missing_rule_returns_none()
+                • test_default_service_search_rules_delegates_to_repository()
+                • test_default_service_all_rules_delegates_to_repository()
+                • test_default_service_rule_count_delegates_to_repository()
+                • test_default_service_repository_is_read_only()
+                • test_default_service_is_slot_based()
+                • test_default_service_string_representation()
+          📄 test_default_sandhi_strategy.py
+              ⚙️ Functions:
+                • make_context()
+                • test_default_strategy_can_be_constructed()
+                • test_default_strategy_uses_default_rule_set()
+                • test_default_strategy_accepts_explicit_rule_set()
+                • test_default_strategy_display_name()
+                • test_default_strategy_display_text()
+                • test_default_strategy_display_description()
+                • test_default_strategy_resolve_returns_sandhi_result()
+                • test_default_strategy_result_preserves_context()
+                • test_default_strategy_result_preserves_identifier()
+                • test_default_strategy_empty_rule_set_produces_failure()
+                • test_default_strategy_empty_rule_set_produces_diagnostic()
+                • test_default_strategy_empty_rule_set_is_unresolved()
+                • test_default_strategy_uses_one_confidence_for_single_candidate()
+                • test_default_strategy_multiple_candidates_use_lower_confidence()
+                • test_default_strategy_success_has_no_diagnostics()
+          📄 test_sandhi_repository.py
+              ⚙️ Functions:
+                • make_repository()
+                • test_sandhi_repository_is_abstract()
+                • test_sandhi_repository_cannot_be_instantiated()
+                • test_concrete_repository_is_sandhi_repository()
+                • test_repository_is_displayable()
+                • test_repository_display_name_defaults_to_class_name()
+                • test_repository_display_text_delegates_to_display_name()
+                • test_repository_display_description_is_canonical()
+                • test_repository_to_display_string_returns_display_text()
+                • test_get_returns_rule_by_identifier()
+                • test_get_returns_none_for_unknown_identifier()
+                • test_contains_returns_true_for_existing_rule()
+                • test_contains_returns_false_for_unknown_rule()
+                • test_search_returns_matching_rule_set()
+                • test_search_is_case_insensitive()
+                • test_search_returns_empty_rule_set_when_no_match()
+                • test_all_returns_complete_rule_set()
+                • test_all_preserves_repository_order()
+                • test_count_returns_total_rule_count()
+                • test_empty_repository_contract()
+              🏗️ Classes:
+                • class ConcreteSandhiRule:
+                  - __init__(self, identifier)
+                  - identifier(self)
+                  - applies_to(self, context)
+                  - apply(self, context)
+                • class InMemorySandhiRepository:
+                  - __init__(self, rules)
+                  - get(self, identifier)
+                  - contains(self, identifier)
+                  - search(self, query)
+                  - all(self)
+                  - count(self)
+          📄 test_sandhi_resolution_kernel.py
+              ⚙️ Functions:
+                • make_context()
+                • test_kernel_can_be_constructed_with_strategy()
+                • test_kernel_uses_default_strategy_when_not_supplied()
+                • test_kernel_is_immutable()
+                • test_kernel_exposes_resolution_strategy()
+                • test_display_name()
+                • test_display_text()
+                • test_display_description()
+                • test_string_representation()
+                • test_build_context_creates_sandhi_context()
+                • test_build_context_preserves_resolution_fields()
+                • test_resolve_adapts_context_before_strategy_delegation()
+                • test_strategy_receives_sandhi_context_not_resolution_context()
+                • test_call_delegates_to_resolve()
+                • test_call_and_resolve_produce_same_strategy_result()
+              🏗️ Classes:
+                • class StubSandhiStrategy:
+                  - __init__(self, result)
+                  - resolve(self, context)
+          📄 test_sandhi_resolver.py
+              ⚙️ Functions:
+                • make_context()
+                • make_strategy()
+                • make_resolver()
+                • test_resolver_can_be_instantiated()
+                • test_strategy_is_stored()
+                • test_display_name()
+                • test_display_text_matches_display_name()
+                • test_display_description()
+                • test_string_representation()
+                • test_resolve_returns_sandhi_result()
+                • test_resolve_delegates_to_strategy()
+                • test_resolve_passes_context_to_strategy()
+                • test_resolve_returns_strategy_result()
+                • test_resolve_preserves_context()
+                • test_resolve_can_be_called_multiple_times()
+              🏗️ Classes:
+                • class ConcreteSandhiStrategy:
+                  - __init__(self)
+                  - resolve(self, context)
+          📄 test_sandhi_rule.py
+              ⚙️ Functions:
+                • make_context(subject)
+                • test_sandhi_rule_is_abstract()
+                • test_sandhi_rule_cannot_be_instantiated_directly()
+                • test_concrete_rule_is_instance_of_sandhi_rule()
+                • test_rule_display_name_defaults_to_class_name()
+                • test_rule_display_text_delegates_to_display_name()
+                • test_rule_display_description_is_canonical()
+                • test_rule_is_displayable()
+                • test_rule_to_display_string_returns_display_text()
+                • test_rule_applies_to_matching_context()
+                • test_rule_does_not_apply_to_non_matching_context()
+                • test_rule_apply_returns_tuple_of_candidates()
+                • test_rule_apply_returns_empty_tuple_when_not_applicable()
+                • test_rule_string_representation_uses_display_text()
+                • test_rule_is_stateless()
+                • test_rule_preserves_context_contract()
+              🏗️ Classes:
+                • class ConcreteSandhiRule:
+                  - applies_to(self, context)
+                  - apply(self, context)
+          📄 test_sandhi_rule_set.py
+              ⚙️ Functions:
+                • make_context()
+                • test_default_rule_set_is_empty()
+                • test_rule_set_is_immutable()
+                • test_rule_set_is_slot_based()
+                • test_rule_set_display_name()
+                • test_rule_set_display_text_for_empty_set()
+                • test_rule_set_display_description()
+                • test_rule_set_string_representation()
+                • test_add_returns_new_rule_set()
+                • test_add_preserves_existing_rules()
+                • test_add_does_not_mutate_original_rule_set()
+                • test_apply_uses_matching_rules_only()
+                • test_apply_collects_outputs_from_all_matching_rules()
+                • test_apply_removes_duplicates_preserving_order()
+                • test_apply_empty_rule_set_returns_empty_tuple()
+                • test_len_returns_rule_count()
+                • test_iteration_returns_rules_in_order()
+                • test_indexing_returns_rule()
+                • test_display_text_reflects_rule_count()
+                • test_rule_set_is_displayable()
+                • test_to_display_string_returns_display_text()
+              🏗️ Classes:
+                • class MatchingRule:
+                  - applies_to(self, context)
+                  - apply(self, context)
+                • class NonMatchingRule:
+                  - applies_to(self, context)
+                  - apply(self, context)
+                • class DuplicateOutputRule:
+                  - applies_to(self, context)
+                  - apply(self, context)
           📄 test_sandhi_service.py
               ⚙️ Functions:
-                • test_sandhi_service_can_be_constructed()
-                • test_sandhi_service_exposes_resolution_kernel()
+                • make_repository()
+                • make_service()
+                • make_resolution_context()
+                • test_service_can_be_constructed()
+                • test_service_retains_repository()
+                • test_service_is_immutable()
+                • test_display_name()
+                • test_display_text()
+                • test_display_description()
+                • test_string_representation()
+                • test_resolution_kernel_is_created_with_repository()
+                • test_resolution_kernel_is_recreated_from_repository()
+                • test_resolve_delegates_to_resolution_kernel(monkeypatch)
+                • test_contribute_returns_existing_aggregate_unchanged()
+                • test_contribute_preserves_resolution_result()
+                • test_service_is_resolution_contributor()
+                • test_service_has_displayable_contract()
               🏗️ Classes:
-                • class StubSandhiRepository:
+                • class DummyRepository:
+                  - get(self, identifier)
+                  - contains(self, identifier)
+                  - search(self, query)
+                  - all(self)
+                  - count(self)
+          📄 test_sandhi_strategy.py
+              ⚙️ Functions:
+                • make_context()
+                • test_strategy_is_abstract()
+                • test_concrete_strategy_can_be_instantiated()
+                • test_display_name_uses_class_name()
+                • test_display_text_matches_display_name()
+                • test_display_description_is_defined()
+                • test_string_representation_uses_display_text()
+                • test_resolve_returns_sandhi_result()
+                • test_resolve_receives_context()
+                • test_resolve_preserves_context()
+                • test_resolve_preserves_subject()
+                • test_resolve_produces_successful_result()
+                • test_resolve_produces_expected_value()
+              🏗️ Classes:
+                • class ConcreteSandhiStrategy:
+                  - __init__(self)
+                  - resolve(self, context)
         📂 semantic/
           📄 test_default_semantic_resolution_kernel.py
               ⚙️ Functions:
