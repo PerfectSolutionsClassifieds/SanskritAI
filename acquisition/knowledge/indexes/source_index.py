@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -8,26 +9,11 @@ Source Index
 
 Purpose
 -------
-Indexes Dictionary Senses by CanonicalSource.
+Indexes CanonicalDictionarySense objects by CanonicalSource.source_id.
 
-The Reader UI typically asks:
+Typical Reader query:
 
-    "Show every lexical sense originating from
-     Monier-Williams."
-
-rather than retrieving the CanonicalSource object.
-
-Architecture
-------------
-
-CanonicalSource.source_id
-            │
-            ▼
-tuple[CanonicalDictionarySense]
-
-Version
--------
-2.0.0
+    "Show all lexical senses originating from Monier-Williams."
 """
 
 from dataclasses import dataclass
@@ -54,9 +40,9 @@ class SourceIndex:
         repr=False,
     )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Registration
-    # ---------------------------------------------------------
+    # =========================================================
 
     def add(
         self,
@@ -64,102 +50,76 @@ class SourceIndex:
         sense: CanonicalDictionarySense,
     ) -> None:
 
+        source_id = source.source_id.strip()
+
+        if not source_id:
+            return
+
         bucket = self._index.setdefault(
-            source.source_id,
+            source_id,
             [],
         )
 
-        bucket.append(
-            sense,
-        )
+        bucket.append(sense)
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     def lookup(
         self,
         source_id: str,
     ) -> tuple[
         CanonicalDictionarySense,
-        ...
+        ...,
     ]:
 
         return tuple(
-
             self._index.get(
-                source_id,
+                source_id.strip(),
                 [],
             )
-
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Maintenance
-    # ---------------------------------------------------------
+    # =========================================================
 
-    def clear(
-        self,
-    ) -> None:
-
+    def clear(self) -> None:
         self._index.clear()
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Diagnostics
-    # ---------------------------------------------------------
+    # =========================================================
 
     @property
-    def source_count(
-        self,
-    ) -> int:
+    def source_count(self) -> int:
+        return len(self._index)
 
-        return len(
-            self._index,
-        )
-
-    def summary(
-        self,
-    ) -> dict:
-
+    def summary(self) -> dict:
         return {
-
             "sources": self.source_count,
-
         }
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Python Protocol
-    # ---------------------------------------------------------
+    # =========================================================
 
     def __contains__(
         self,
         source_id: str,
     ) -> bool:
 
-        return source_id in self._index
+        return source_id.strip() in self._index
 
-    def __len__(
-        self,
-    ) -> int:
-
+    def __len__(self) -> int:
         return self.source_count
 
-    def __iter__(
-        self,
-    ):
+    def __iter__(self):
+        yield from sorted(self._index.keys())
 
-        yield from sorted(
-            self._index.keys(),
-        )
-
-    def __str__(
-        self,
-    ) -> str:
-
+    def __str__(self) -> str:
         return (
-
             "SourceIndex("
-
             f"{self.source_count} sources)"
-
         )

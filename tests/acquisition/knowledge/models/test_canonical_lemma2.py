@@ -9,7 +9,6 @@ from SanskritAI.acquisition.knowledge.models.canonical_lemma import (
 # =========================================================
 
 def test_canonical_lemma_minimal_construction():
-
     lemma = CanonicalLemma(
         lemma="गम्",
     )
@@ -25,7 +24,6 @@ def test_canonical_lemma_minimal_construction():
 
 
 def test_canonical_lemma_full_construction():
-
     lemma = CanonicalLemma(
         lemma="गम्",
         transliteration="gam",
@@ -56,61 +54,24 @@ def test_canonical_lemma_full_construction():
 # =========================================================
 
 def test_canonical_lemma_default_language():
-
     lemma = CanonicalLemma("गम्")
 
     assert lemma.language == "sa"
 
 
 def test_canonical_lemma_default_script():
-
     lemma = CanonicalLemma("गम्")
 
     assert lemma.script == "Devanagari"
 
 
 def test_canonical_lemma_default_metadata_is_independent():
-
     lemma1 = CanonicalLemma("गम्")
     lemma2 = CanonicalLemma("भू")
 
     assert lemma1.metadata == {}
     assert lemma2.metadata == {}
-
     assert lemma1.metadata is not lemma2.metadata
-
-
-# =========================================================
-# Compatibility / Canonical Accessors
-# =========================================================
-
-def test_canonical_lemma_text_alias():
-
-    lemma = CanonicalLemma(
-        lemma="गम्",
-    )
-
-    assert lemma.text == "गम्"
-    assert lemma.text == lemma.lemma
-
-
-def test_canonical_lemma_id_alias():
-
-    lemma = CanonicalLemma(
-        lemma="गम्",
-    )
-
-    assert lemma.lemma_id == "गम्"
-    assert lemma.lemma_id == lemma.lemma
-
-
-def test_canonical_lemma_accessors_are_deterministic():
-
-    lemma1 = CanonicalLemma("गम्")
-    lemma2 = CanonicalLemma("गम्")
-
-    assert lemma1.lemma_id == lemma2.lemma_id
-    assert lemma1.text == lemma2.text
 
 
 # =========================================================
@@ -118,7 +79,6 @@ def test_canonical_lemma_accessors_are_deterministic():
 # =========================================================
 
 def test_canonical_lemma_summary():
-
     lemma = CanonicalLemma(
         lemma="गम्",
         dhatu="√गम्",
@@ -130,8 +90,6 @@ def test_canonical_lemma_summary():
 
     assert result == {
         "lemma": "गम्",
-        "lemma_id": "गम्",
-        "text": "गम्",
         "dhatu": "√गम्",
         "part_of_speech": "verb",
         "category": "verbal root",
@@ -139,7 +97,6 @@ def test_canonical_lemma_summary():
 
 
 def test_canonical_lemma_summary_with_defaults():
-
     lemma = CanonicalLemma(
         lemma="राम",
     )
@@ -148,8 +105,6 @@ def test_canonical_lemma_summary_with_defaults():
 
     assert result == {
         "lemma": "राम",
-        "lemma_id": "राम",
-        "text": "राम",
         "dhatu": None,
         "part_of_speech": None,
         "category": None,
@@ -161,7 +116,6 @@ def test_canonical_lemma_summary_with_defaults():
 # =========================================================
 
 def test_canonical_lemma_display_name():
-
     lemma = CanonicalLemma(
         lemma="गम्",
     )
@@ -170,7 +124,6 @@ def test_canonical_lemma_display_name():
 
 
 def test_canonical_lemma_string_representation():
-
     lemma = CanonicalLemma(
         lemma="गम्",
     )
@@ -183,17 +136,14 @@ def test_canonical_lemma_string_representation():
 # =========================================================
 
 def test_canonical_lemma_is_frozen():
-
     lemma = CanonicalLemma(
         lemma="गम्",
     )
 
     try:
         lemma.lemma = "भू"
-
     except AttributeError:
         pass
-
     else:
         raise AssertionError(
             "CanonicalLemma should be immutable"
@@ -205,7 +155,6 @@ def test_canonical_lemma_is_frozen():
 # =========================================================
 
 def test_canonical_lemma_equality():
-
     lemma1 = CanonicalLemma(
         lemma="गम्",
         transliteration="gam",
@@ -222,7 +171,6 @@ def test_canonical_lemma_equality():
 
 
 def test_canonical_lemma_inequality():
-
     lemma1 = CanonicalLemma(
         lemma="गम्",
     )
@@ -232,4 +180,3 @@ def test_canonical_lemma_inequality():
     )
 
     assert lemma1 != lemma2
-    

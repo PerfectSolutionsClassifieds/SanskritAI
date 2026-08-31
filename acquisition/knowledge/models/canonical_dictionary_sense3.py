@@ -1,26 +1,6 @@
 
 from __future__ import annotations
 
-"""
-SanskritAI
-==========
-
-Canonical Dictionary Sense
-
-Purpose
--------
-Immutable contextual meaning attached to a canonical dictionary entry.
-
-A sense may optionally reference:
-
-    CanonicalContext
-    CanonicalSource
-
-Grammar-related information is retained as canonical lexical
-knowledge and can later be consumed by morphology and analysis
-layers.
-"""
-
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
@@ -41,11 +21,12 @@ from SanskritAI.acquisition.knowledge.models.canonical_source import (
 )
 class CanonicalDictionarySense:
     """
-    Immutable canonical contextual meaning.
+    Canonical contextual meaning of a lexical entry.
     """
 
     sense_id: str
     entry_headword: str
+
     definition: str
 
     gloss: str | None = None
@@ -68,13 +49,12 @@ class CanonicalDictionarySense:
 
     confidence: float = 1.0
 
-    metadata: Mapping[str, Any] = field(
+    metadata: Mapping[
+        str,
+        Any,
+    ] = field(
         default_factory=dict,
     )
-
-    # =========================================================
-    # State
-    # =========================================================
 
     @property
     def has_context(self) -> bool:
@@ -98,19 +78,11 @@ class CanonicalDictionarySense:
             )
         )
 
-    # =========================================================
-    # Identity
-    # =========================================================
-
     @property
     def identifier(self) -> str:
         return self.sense_id
 
-    # =========================================================
-    # Summary
-    # =========================================================
-
-    def summary(self) -> dict[str, Any]:
+    def summary(self) -> dict:
         return {
             "sense_id": self.sense_id,
             "headword": self.entry_headword,
@@ -127,10 +99,6 @@ class CanonicalDictionarySense:
             ),
             "confidence": self.confidence,
         }
-
-    # =========================================================
-    # Representation
-    # =========================================================
 
     def __str__(self) -> str:
         context = (

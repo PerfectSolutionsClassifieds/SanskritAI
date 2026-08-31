@@ -35,7 +35,7 @@ Version
 """
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Tuple
 
 from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
     CanonicalKnowledgeRepository,
@@ -55,25 +55,13 @@ def _extract_lexicons_from_repo(repo: Any) -> tuple[CanonicalLexicon, ...]:
 
     # 1. Check known getter methods (excluding 'all' to prevent infinite recursion)
     for method_name in ("get_all", "all_lexicons", "get_lexicons", "values"):
-        if hasattr(repo, "__dict__") and method_name in repo.__dict__:
-            method = repo.__dict__[method_name]
-            if callable(method):
-                res = method()
-                if isinstance(res, dict):
-                    return tuple(res.values())
-                if isinstance(res, (list, tuple, set)):
-                    return tuple(res)
-
         method = getattr(repo, method_name, None)
-        if callable(method) and not hasattr(method, "_mock_name"):
-            try:
-                res = method()
-                if isinstance(res, dict):
-                    return tuple(res.values())
-                if isinstance(res, (list, tuple, set)):
-                    return tuple(res)
-            except Exception:
-                pass
+        if callable(method):
+            res = method()
+            if isinstance(res, dict):
+                return tuple(res.values())
+            if isinstance(res, (list, tuple, set)):
+                return tuple(res)
 
     # 2. Check internal storage attributes
     for attr in (
@@ -92,6 +80,12 @@ def _extract_lexicons_from_repo(repo: Any) -> tuple[CanonicalLexicon, ...]:
             return tuple(val.values())
         elif isinstance(val, (list, tuple, set)):
             return tuple(val)
+        elif callable(val):
+            res = val()
+            if isinstance(res, dict):
+                return tuple(res.values())
+            if isinstance(res, (list, tuple, set)):
+                return tuple(res)
 
     # 3. Try standard iteration
     try:
@@ -108,7 +102,6 @@ def _ensure_lexical_repository_has_all(repo: Any) -> None:
         return
     if not hasattr(repo, "all") or not callable(getattr(repo, "all", None)):
         repo_cls = type(repo)
-
         def _all_impl(self):
             return _extract_lexicons_from_repo(self)
 
@@ -127,7 +120,8 @@ class CanonicalKnowledgeRepositoryBuilder:
     Orchestrates construction of the canonical knowledge repository.
 
     The builder owns no lexical state. All canonical data remains owned by the supplied
-    repository and its underlying repositories. Index construction is delegated to CanonicalIndexBuilder.
+    repository and its underlying repositories. Index construction is delegated to
+    CanonicalIndexBuilder.
     """
 
     repository: CanonicalKnowledgeRepository
@@ -173,26 +167,16 @@ class CanonicalKnowledgeRepositoryBuilder:
         lexical_repository = self.repository.lexical_repository
         _ensure_lexical_repository_has_all(lexical_repository)
 
-        candidates = (
-            "add",
-            "add_lexicon",
+        # Check for standard registration method variations
+        for method_name in (
             "register",
             "register_lexicon",
+            "add_lexicon",
+            "add",
             "insert",
             "store",
             "save",
-        )
-
-        # Priority 1: Explicitly assigned attributes (e.g. mock assignments)
-        for method_name in candidates:
-            if hasattr(lexical_repository, "__dict__") and method_name in lexical_repository.__dict__:
-                method = lexical_repository.__dict__[method_name]
-                if callable(method):
-                    method(lexicon)
-                    return
-
-        # Priority 2: Standard methods on real objects
-        for method_name in candidates:
+        ):
             method = getattr(lexical_repository, method_name, None)
             if callable(method):
                 method(lexicon)
@@ -241,24 +225,13 @@ class CanonicalKnowledgeRepositoryBuilder:
         lexical_repository = self.repository.lexical_repository
         _ensure_lexical_repository_has_all(lexical_repository)
 
-        candidates = ("clear", "clear_lexicons", "reset", "flush")
-
-        # Priority 1: Explicitly assigned attributes
-        for method_name in candidates:
-            if hasattr(lexical_repository, "__dict__") and method_name in lexical_repository.__dict__:
-                method = lexical_repository.__dict__[method_name]
-                if callable(method):
-                    method()
-                    return
-
-        # Priority 2: Standard methods
-        for method_name in candidates:
+        for method_name in ("clear", "clear_lexicons", "reset", "flush"):
             method = getattr(lexical_repository, method_name, None)
             if callable(method):
                 method()
                 return
 
-        # Fallback to internal storage attributes
+        # Fallback to internal storage attributes if clear method not present
         for attr in (
             "_lexicons",
             "_registry",

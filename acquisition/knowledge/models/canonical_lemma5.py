@@ -1,50 +1,25 @@
 
-from __future__ import annotations
-
-"""
-SanskritAI
-==========
-
-Canonical Lemma
-
-Purpose
--------
-Immutable canonical representation of a Sanskrit lexical lemma.
-
-The lemma text itself is the canonical lexical identity.
-
-Compatibility aliases:
-    text
-    lemma_id
-
-Both resolve deterministically to ``lemma``.
-"""
-
-from dataclasses import dataclass
-from dataclasses import field
-from typing import Any
-from typing import Mapping
+from dataclasses import dataclass, field
+from typing import Any, Dict, Optional
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class CanonicalLemma:
     """
     Immutable canonical representation of a Sanskrit lemma.
+
+    The lemma itself is the canonical identity. Compatibility aliases
+    ``text`` and ``lemma_id`` intentionally resolve to the same value.
     """
 
     lemma: str
-
-    transliteration: str | None = None
+    transliteration: Optional[str] = None
     language: str = "sa"
     script: str = "Devanagari"
-
-    dhatu: str | None = None
-    part_of_speech: str | None = None
-    lexical_category: str | None = None
-
-    metadata: Mapping[str, Any] = field(
-        default_factory=dict,
-    )
+    dhatu: Optional[str] = None
+    part_of_speech: Optional[str] = None
+    lexical_category: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     # =========================================================
     # Canonical / Compatibility Accessors
@@ -53,16 +28,17 @@ class CanonicalLemma:
     @property
     def text(self) -> str:
         """
-        Compatibility alias for canonical lemma text.
+        Compatibility alias for the canonical lemma text.
         """
         return self.lemma
 
     @property
     def lemma_id(self) -> str:
         """
-        Deterministic canonical identifier.
+        Deterministic canonical identifier for the lemma.
 
-        Current canonical identity is the lemma text itself.
+        The current canonical identity model uses the lemma text itself
+        as the stable identifier.
         """
         return self.lemma
 
@@ -81,9 +57,9 @@ class CanonicalLemma:
     # Summary
     # =========================================================
 
-    def summary(self) -> dict[str, Any]:
+    def summary(self) -> Dict[str, Any]:
         """
-        Return compact canonical representation.
+        Return the canonical compact representation of the lemma.
         """
         return {
             "lemma": self.lemma,
@@ -95,8 +71,9 @@ class CanonicalLemma:
         }
 
     # =========================================================
-    # Representation
+    # String Representation
     # =========================================================
 
     def __str__(self) -> str:
         return f"CanonicalLemma({self.lemma})"
+        

@@ -11,22 +11,10 @@ Purpose
 -------
 Immutable canonical lexical entry.
 
-A CanonicalDictionaryEntry represents the lexical identity of a
-Sanskrit headword.
+A CanonicalDictionaryEntry represents the lexical identity
+of a Sanskrit headword.
 
-Compatibility
--------------
-The canonical representation of ``lemma`` is ``CanonicalLemma``.
-
-For backward compatibility, the model also accepts a plain string
-lemma.  This is important for existing acquisition/import pipelines
-and lightweight tests which may provide:
-
-    lemma="राम"
-
-instead of:
-
-    lemma=CanonicalLemma(lemma="राम")
+Senses are supplied at construction time and are immutable.
 """
 
 from dataclasses import dataclass
@@ -37,6 +25,7 @@ from typing import Mapping
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
     CanonicalDictionarySense,
 )
+
 from SanskritAI.acquisition.knowledge.models.canonical_lemma import (
     CanonicalLemma,
 )
@@ -54,27 +43,12 @@ class CanonicalDictionaryEntry:
     headword: str
 
     transliteration: str | None = None
-
     language: str = "sa"
-
     script: str = "Devanagari"
 
-    # ---------------------------------------------------------
-    # Canonical lemma
-    # ---------------------------------------------------------
-    #
-    # Canonical usage:
-    #
-    #     CanonicalLemma(...)
-    #
-    # Backward-compatible usage:
-    #
-    #     lemma="राम"
-    #
-    lemma: CanonicalLemma | str | None = None
+    lemma: CanonicalLemma | None = None
 
     normalized_headword: str | None = None
-
     entry_type: str | None = None
 
     senses: tuple[
@@ -83,9 +57,7 @@ class CanonicalDictionaryEntry:
     ] = ()
 
     source_name: str = ""
-
     source_version: str = ""
-
     source_record_id: str = ""
 
     citation: str | None = None
@@ -100,52 +72,19 @@ class CanonicalDictionaryEntry:
 
     @property
     def sense_count(self) -> int:
-        """
-        Return the number of dictionary senses.
-        """
         return len(self.senses)
 
     @property
     def display_name(self) -> str:
-        """
-        Human-readable display name.
-        """
         return self.headword
 
     @property
     def has_transliteration(self) -> bool:
-        """
-        Return True when transliteration is available.
-        """
         return self.transliteration is not None
 
     @property
     def has_multiple_senses(self) -> bool:
-        """
-        Return True when the entry contains multiple senses.
-        """
         return self.sense_count > 1
-
-    # =========================================================
-    # Lemma Resolution
-    # =========================================================
-
-    @property
-    def lemma_text(self) -> str | None:
-        """
-        Return the canonical textual representation of the lemma.
-
-        Supports both the canonical ``CanonicalLemma`` representation
-        and the legacy/plain-string representation.
-        """
-
-        if self.lemma is None:
-            return None
-
-        if isinstance(self.lemma, CanonicalLemma):
-            return self.lemma.lemma
-
-        return str(self.lemma)
 
     # =========================================================
     # Sense Access
@@ -154,10 +93,6 @@ class CanonicalDictionaryEntry:
     def primary_sense(
         self,
     ) -> CanonicalDictionarySense | None:
-        """
-        Return the first sense, if present.
-        """
-
         if not self.senses:
             return None
 
@@ -168,17 +103,13 @@ class CanonicalDictionaryEntry:
     # =========================================================
 
     def summary(self) -> dict[str, Any]:
-        """
-        Return the compact canonical summary.
-
-        ``lemma`` is always represented as text in the summary,
-        regardless of whether the entry was constructed with a
-        CanonicalLemma object or a plain string.
-        """
-
         return {
             "headword": self.headword,
-            "lemma": self.lemma_text,
+            "lemma": (
+                None
+                if self.lemma is None
+                else self.lemma.lemma
+            ),
             "source": self.source_name,
             "entry_type": self.entry_type,
             "sense_count": self.sense_count,
@@ -189,21 +120,12 @@ class CanonicalDictionaryEntry:
     # =========================================================
 
     def __len__(self) -> int:
-        """
-        Return the number of senses.
-        """
         return self.sense_count
 
     def __iter__(self):
-        """
-        Iterate over dictionary senses.
-        """
         yield from self.senses
 
     def __str__(self) -> str:
-        """
-        Human-readable representation.
-        """
         return (
             "CanonicalDictionaryEntry("
             f"{self.headword}, "

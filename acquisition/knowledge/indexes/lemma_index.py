@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -8,56 +9,13 @@ Lemma Index
 
 Purpose
 -------
-Provides canonical indexing over Sanskrit lexical lemmas.
+Indexes immutable CanonicalLemma objects by:
 
-Unlike the HeadwordIndex, which indexes dictionary
-headwords exactly as they appear, the LemmaIndex groups
-all dictionary entries that share the same normalized
-lexical identity (lemma).
+    1. Stable lemma identifier
+    2. Canonical lemma text
 
-Examples
---------
-
-Headwords
-
-    गच्छति
-    अगमत्
-    गमनम्
-
-may all resolve to the lemma
-
-    गम्
-
-Architecture
-------------
-
-CanonicalKnowledgeRepository
-            │
-            ▼
-        LemmaIndex
-            │
-            ▼
-      CanonicalLemma
-            │
-            ▼
-CanonicalDictionaryEntry
-
-Responsibilities
-----------------
-
-• Index lemmas
-
-• Retrieve lemma by identifier
-
-• Retrieve lemma by text
-
-• Enumerate lemmas
-
-• Support future reverse lookup
-
-Version
--------
-1.0.0
+The current canonical identity model uses the lemma text
+as the stable identifier.
 """
 
 from dataclasses import dataclass
@@ -70,9 +28,6 @@ from SanskritAI.acquisition.knowledge.models.canonical_lemma import (
 
 @dataclass(slots=True)
 class LemmaIndex:
-    """
-    Canonical searchable lemma index.
-    """
 
     _lemmas: dict[
         str,
@@ -92,25 +47,102 @@ class LemmaIndex:
         repr=False,
     )
 
-    # ---------------------------------------------------------
-    # Index Construction
-    # ---------------------------------------------------------
+    # =========================================================
+    # Key Resolution
+    # =========================================================
+
+    @staticmethod
+    def _lemma_id(
+        lemma: CanonicalLemma,
+    ) -> str:
+
+        value = getattr(
+            lemma,
+            "lemma_id",
+            None,
+        )
+
+        if value is None:
+            value = getattr(
+                lemma,
+                "lemma",
+                None,
+            )
+
+        if value is None:
+            value = getattr(
+                lemma,
+                "text",
+                None,
+            )
+
+        if value is None:
+            raise AttributeError(
+                "Lemma object must provide "
+                "'lemma_id', 'lemma', or 'text'."
+            )
+
+        value = str(value).strip()
+
+        if not value:
+            raise ValueError(
+                "Lemma identifier cannot be empty."
+            )
+
+        return value
+
+    @staticmethod
+    def _lemma_text(
+        lemma: CanonicalLemma,
+    ) -> str:
+
+        value = getattr(
+            lemma,
+            "text",
+            None,
+        )
+
+        if value is None:
+            value = getattr(
+                lemma,
+                "lemma",
+                None,
+            )
+
+        if value is None:
+            raise AttributeError(
+                "Lemma object must provide "
+                "'text' or 'lemma'."
+            )
+
+        value = str(value).strip()
+
+        if not value:
+            raise ValueError(
+                "Lemma text cannot be empty."
+            )
+
+        return value
+
+    # =========================================================
+    # Registration
+    # =========================================================
 
     def add(
         self,
         lemma: CanonicalLemma,
     ) -> None:
-        """
-        Adds one canonical lemma.
-        """
+
+        lemma_id = self._lemma_id(lemma)
+        text = self._lemma_text(lemma)
 
         self._lemmas.setdefault(
-            lemma.lemma_id,
+            lemma_id,
             lemma,
         )
 
         self._text_index.setdefault(
-            lemma.text,
+            text,
             lemma,
         )
 
@@ -121,29 +153,23 @@ class LemmaIndex:
             ...,
         ],
     ) -> None:
-        """
-        Rebuilds the complete lemma index.
-        """
 
         self.clear()
 
         for lemma in lemmas:
+            self.add(lemma)
 
-            self.add(
-                lemma,
-            )
+    # =========================================================
+    # Maintenance
+    # =========================================================
 
-    def clear(
-        self,
-    ) -> None:
-
+    def clear(self) -> None:
         self._lemmas.clear()
-
         self._text_index.clear()
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     def lookup(
         self,
@@ -151,7 +177,7 @@ class LemmaIndex:
     ) -> CanonicalLemma | None:
 
         return self._lemmas.get(
-            lemma_id,
+            lemma_id.strip(),
         )
 
     def lookup_text(
@@ -160,104 +186,54 @@ class LemmaIndex:
     ) -> CanonicalLemma | None:
 
         return self._text_index.get(
-            text,
+            text.strip(),
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Enumeration
-    # ---------------------------------------------------------
+    # =========================================================
 
     def all(
         self,
-    ) -> tuple[
-        CanonicalLemma,
-        ...,
-    ]:
+    ) -> tuple[CanonicalLemma, ...]:
 
         return tuple(
-
             sorted(
-
                 self._lemmas.values(),
-
-                key=lambda x: x.text,
-
+                key=self._lemma_text,
             )
-
         )
 
     @property
-    def lemma_ids(
-        self,
-    ) -> tuple[
-        str,
-        ...,
-    ]:
-
+    def lemma_ids(self) -> tuple[str, ...]:
         return tuple(
-
-            sorted(
-
-                self._lemmas.keys(),
-
-            )
-
+            sorted(self._lemmas.keys())
         )
 
     @property
-    def lemma_texts(
-        self,
-    ) -> tuple[
-        str,
-        ...,
-    ]:
-
+    def lemma_texts(self) -> tuple[str, ...]:
         return tuple(
-
-            sorted(
-
-                self._text_index.keys(),
-
-            )
-
+            sorted(self._text_index.keys())
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Diagnostics
-    # ---------------------------------------------------------
+    # =========================================================
 
-    def summary(
-        self,
-    ) -> dict:
-
+    def summary(self) -> dict:
         return {
-
-            "lemmas": len(
-                self,
-            ),
-
-            "lemma_ids": len(
-                self.lemma_ids,
-            ),
-
+            "lemmas": len(self),
+            "lemma_ids": len(self.lemma_ids),
         }
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Python Protocol
-    # ---------------------------------------------------------
+    # =========================================================
 
-    def __len__(
-        self,
-    ) -> int:
+    def __len__(self) -> int:
+        return len(self._lemmas)
 
-        return len(
-            self._lemmas,
-        )
-
-    def __iter__(
-        self,
-    ):
-
+    def __iter__(self):
         yield from self.all()
 
     def __contains__(
@@ -265,16 +241,10 @@ class LemmaIndex:
         lemma_id: str,
     ) -> bool:
 
-        return lemma_id in self._lemmas
+        return lemma_id.strip() in self._lemmas
 
-    def __str__(
-        self,
-    ) -> str:
-
+    def __str__(self) -> str:
         return (
-
             "LemmaIndex("
-
             f"{len(self)} indexed lemmas)"
-
         )

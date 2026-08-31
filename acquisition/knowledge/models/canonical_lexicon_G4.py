@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -10,24 +11,31 @@ Purpose
 -------
 Immutable canonical lexical repository.
 
-The lexicon owns no mutation API. Entries are supplied through the constructor as a mapping:
+The lexicon owns no mutation API. Entries are supplied through
+the constructor as a mapping:
+
     headword -> CanonicalDictionaryEntry
 
 Indexes are derived separately by CanonicalIndexBuilder.
 """
 
-from dataclasses import dataclass, field
-from typing import Iterator, Mapping
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Iterator
+from typing import Mapping
 
 from SanskritAI.acquisition.knowledge.models.canonical_context import (
     CanonicalContext,
 )
+
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
     CanonicalDictionaryEntry,
 )
+
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
     CanonicalDictionarySense,
 )
+
 from SanskritAI.acquisition.knowledge.models.canonical_source import (
     CanonicalSource,
 )
@@ -90,6 +98,7 @@ class CanonicalLexicon:
     def all_senses(
         self,
     ) -> Iterator[CanonicalDictionarySense]:
+
         for entry in self.entries.values():
             yield from entry.senses
 
@@ -100,9 +109,11 @@ class CanonicalLexicon:
     def all_contexts(
         self,
     ) -> Iterator[CanonicalContext]:
+
         seen: set[str] = set()
 
         for sense in self.all_senses():
+
             if sense.context is None:
                 continue
 
@@ -122,9 +133,11 @@ class CanonicalLexicon:
     def all_sources(
         self,
     ) -> Iterator[CanonicalSource]:
+
         seen: set[str] = set()
 
         for sense in self.all_senses():
+
             if sense.source is None:
                 continue
 
@@ -144,7 +157,8 @@ class CanonicalLexicon:
     @property
     def sense_count(self) -> int:
         return sum(
-            len(entry) for entry in self.entries.values()
+            len(entry)
+            for entry in self.entries.values()
         )
 
     def summary(self) -> dict:

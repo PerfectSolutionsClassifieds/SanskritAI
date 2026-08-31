@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -8,25 +9,12 @@ Context Index
 
 Purpose
 -------
-Indexes Dictionary Senses by their CanonicalContext.
+Indexes CanonicalDictionarySense objects by the canonical
+CanonicalContext.identifier.
 
-The Reader UI typically asks:
+Typical Reader query:
 
-    "Show every lexical sense occurring in this chapter."
-
-rather than requesting the CanonicalContext object itself.
-
-Architecture
-------------
-
-CanonicalContext.identifier
-            │
-            ▼
-tuple[CanonicalDictionarySense]
-
-Version
--------
-2.0.0
+    "Show all lexical senses associated with this textual context."
 """
 
 from dataclasses import dataclass
@@ -53,9 +41,9 @@ class ContextIndex:
         repr=False,
     )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Registration
-    # ---------------------------------------------------------
+    # =========================================================
 
     def add(
         self,
@@ -63,102 +51,76 @@ class ContextIndex:
         sense: CanonicalDictionarySense,
     ) -> None:
 
+        identifier = context.identifier.strip()
+
+        if not identifier:
+            return
+
         bucket = self._index.setdefault(
-            context.identifier,
+            identifier,
             [],
         )
 
-        bucket.append(
-            sense,
-        )
+        bucket.append(sense)
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Lookup
-    # ---------------------------------------------------------
+    # =========================================================
 
     def lookup(
         self,
         context_identifier: str,
     ) -> tuple[
         CanonicalDictionarySense,
-        ...
+        ...,
     ]:
 
         return tuple(
-
             self._index.get(
-                context_identifier,
+                context_identifier.strip(),
                 [],
             )
-
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Maintenance
-    # ---------------------------------------------------------
+    # =========================================================
 
-    def clear(
-        self,
-    ) -> None:
-
+    def clear(self) -> None:
         self._index.clear()
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Diagnostics
-    # ---------------------------------------------------------
+    # =========================================================
 
     @property
-    def context_count(
-        self,
-    ) -> int:
+    def context_count(self) -> int:
+        return len(self._index)
 
-        return len(
-            self._index,
-        )
-
-    def summary(
-        self,
-    ) -> dict:
-
+    def summary(self) -> dict:
         return {
-
             "contexts": self.context_count,
-
         }
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Python Protocol
-    # ---------------------------------------------------------
+    # =========================================================
 
     def __contains__(
         self,
         context_identifier: str,
     ) -> bool:
 
-        return context_identifier in self._index
+        return context_identifier.strip() in self._index
 
-    def __len__(
-        self,
-    ) -> int:
-
+    def __len__(self) -> int:
         return self.context_count
 
-    def __iter__(
-        self,
-    ):
+    def __iter__(self):
+        yield from sorted(self._index.keys())
 
-        yield from sorted(
-            self._index.keys(),
-        )
-
-    def __str__(
-        self,
-    ) -> str:
-
+    def __str__(self) -> str:
         return (
-
             "ContextIndex("
-
             f"{self.context_count} contexts)"
-
         )

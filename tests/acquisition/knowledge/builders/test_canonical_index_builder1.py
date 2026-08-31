@@ -1,0 +1,611 @@
+
+from __future__ import annotations
+
+import pytest
+
+from SanskritAI.acquisition.knowledge.builders.canonical_index_builder import (
+    CanonicalIndexBuilder,
+)
+from SanskritAI.acquisition.knowledge.indexes.headword_index import (
+    HeadwordIndex,
+)
+from SanskritAI.acquisition.knowledge.indexes.lemma_index import (
+    LemmaIndex,
+)
+from SanskritAI.acquisition.knowledge.indexes.context_index import (
+    ContextIndex,
+)
+from SanskritAI.acquisition.knowledge.indexes.source_index import (
+    SourceIndex,
+)
+
+from SanskritAI.acquisition.knowledge.models.canonical_lexicon import (
+    CanonicalLexicon,
+)
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
+    CanonicalDictionaryEntry,
+)
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
+    CanonicalDictionarySense,
+)
+from SanskritAI.acquisition.knowledge.models.canonical_context import (
+    CanonicalContext,
+)
+from SanskritAI.acquisition.knowledge.models.canonical_source import (
+    CanonicalSource,
+)
+from SanskritAI.acquisition.knowledge.models.canonical_lemma import (
+    CanonicalLemma,
+)
+
+
+# =========================================================
+# Helpers
+# =========================================================
+
+
+def make_lemma(
+    text: str = "राम",
+    lemma_id: str = "lemma-1",
+) -> CanonicalLemma:
+
+    return CanonicalLemma(
+        lemma_id=lemma_id,
+        text=text,
+    )
+
+
+def make_context(
+    identifier: str = "context-1",
+) -> CanonicalContext:
+
+    return CanonicalContext(
+        identifier=identifier,
+    )
+
+
+def make_source(
+    source_id: str = "source-1",
+) -> CanonicalSource:
+
+    return CanonicalSource(
+        source_id=source_id,
+    )
+
+
+def make_entry(
+    headword: str = "राम",
+    lemma: CanonicalLemma | None = None,
+    senses: tuple[CanonicalDictionarySense, ...] = (),
+) -> CanonicalDictionaryEntry:
+
+    entry = CanonicalDictionaryEntry(
+        headword=headword,
+        lemma=lemma,
+    )
+
+    for sense in senses:
+        entry.add_sense(sense)
+
+    return entry
+
+
+def make_sense(
+    context: CanonicalContext | None = None,
+    source: CanonicalSource | None = None,
+) -> CanonicalDictionarySense:
+
+    return CanonicalDictionarySense(
+        context=context,
+        source=source,
+    )
+
+
+def make_lexicon(
+    *entries: CanonicalDictionaryEntry,
+) -> CanonicalLexicon:
+
+    lexicon = CanonicalLexicon()
+
+    for entry in entries:
+        lexicon.add(entry)
+
+    return lexicon
+
+
+def make_builder() -> CanonicalIndexBuilder:
+
+    return CanonicalIndexBuilder(
+        headword_index=HeadwordIndex(),
+        lemma_index=LemmaIndex(),
+        context_index=ContextIndex(),
+        source_index=SourceIndex(),
+    )
+
+
+# =========================================================
+# Construction
+# =========================================================
+
+
+def test_builder_can_be_constructed():
+
+    builder = make_builder()
+
+    assert isinstance(
+        builder,
+        CanonicalIndexBuilder,
+    )
+
+
+def test_builder_contains_all_four_indexes():
+
+    builder = make_builder()
+
+    assert isinstance(
+        builder.headword_index,
+        HeadwordIndex,
+    )
+
+    assert isinstance(
+        builder.lemma_index,
+        LemmaIndex,
+    )
+
+    assert isinstance(
+        builder.context_index,
+        ContextIndex,
+    )
+
+    assert isinstance(
+        builder.source_index,
+        SourceIndex,
+    )
+
+
+# =========================================================
+# Empty Build
+# =========================================================
+
+
+def test_build_empty_lexicon_collection_clears_indexes():
+
+    builder = make_builder()
+
+    builder.build(())
+
+    assert len(builder.headword_index) == 0
+    assert len(builder.lemma_index) == 0
+    assert len(builder.context_index) == 0
+    assert len(builder.source_index) == 0
+
+
+# =========================================================
+# Headword Index
+# =========================================================
+
+
+def test_build_indexes_dictionary_entry_headword():
+
+    lemma = make_lemma()
+
+    entry = make_entry(
+        "राम",
+        lemma=lemma,
+    )
+
+    lexicon = make_lexicon(entry)
+
+    builder = make_builder()
+    builder.build((lexicon,))
+
+    assert builder.headword_index.lookup("राम") is entry
+
+
+def test_build_indexes_multiple_headwords():
+
+    first = make_entry(
+        "राम",
+        lemma=make_lemma("राम", "lemma-1"),
+    )
+
+    second = make_entry(
+        "हरि",
+        lemma=make_lemma("हरि", "lemma-2"),
+    )
+
+    lexicon = make_lexicon(
+        first,
+        second,
+    )
+
+    builder = make_builder()
+    builder.build((lexicon,))
+
+    assert builder.headword_index.lookup("राम") is first
+    assert builder.headword_index.lookup("हरि") is second
+
+
+# =========================================================
+# Lemma Index
+# =========================================================
+
+
+def test_build_indexes_entry_lemma():
+
+    lemma = make_lemma(
+        text="राम",
+        lemma_id="lemma-ram",
+    )
+
+    entry = make_entry(
+        "रामः",
+        lemma=lemma,
+    )
+
+    lexicon = make_lexicon(entry)
+
+    builder = make_builder()
+    builder.build((lexicon,))
+
+    assert (
+        builder.lemma_index.lookup("lemma-ram")
+        is lemma
+    )
+
+    assert (
+        builder.lemma_index.lookup_text("राम")
+        is lemma
+    )
+
+
+def test_entry_without_lemma_is_not_added_to_lemma_index():
+
+    entry = make_entry(
+        "रामः",
+        lemma=None,
+    )
+
+    lexicon = make_lexicon(entry)
+
+    builder = make_builder()
+    builder.build((lexicon,))
+
+    assert len(builder.lemma_index) == 0
+
+
+# =========================================================
+# Context Index
+# =========================================================
+
+
+def test_build_indexes_sense_context():
+
+    context = make_context(
+        "ramayana.chapter.1"
+    )
+
+    sense = make_sense(
+        context=context,
+    )
+
+    entry = make_entry(
+        "राम",
+        senses=(sense,),
+    )
+
+    lexicon = make_lexicon(entry)
+
+    builder = make_builder()
+    builder.build((lexicon,))
+
+    assert (
+        sense
+        in builder.context_index.lookup(
+            "ramayana.chapter.1"
+        )
+    )
+
+
+def test_sense_without_context_is_not_added_to_context_index():
+
+    sense = make_sense(
+        context=None,
+    )
+
+    entry = make_entry(
+        "राम",
+        senses=(sense,),
+    )
+
+    builder = make_builder()
+
+    builder.build(
+        (make_lexicon(entry),)
+    )
+
+    assert len(builder.context_index) == 0
+
+
+# =========================================================
+# Source Index
+# =========================================================
+
+
+def test_build_indexes_sense_source():
+
+    source = make_source(
+        "monier-williams"
+    )
+
+    sense = make_sense(
+        source=source,
+    )
+
+    entry = make_entry(
+        "राम",
+        senses=(sense,),
+    )
+
+    builder = make_builder()
+
+    builder.build(
+        (make_lexicon(entry),)
+    )
+
+    assert (
+        sense
+        in builder.source_index.lookup(
+            "monier-williams"
+        )
+    )
+
+
+def test_sense_without_source_is_not_added_to_source_index():
+
+    sense = make_sense(
+        source=None,
+    )
+
+    entry = make_entry(
+        "राम",
+        senses=(sense,),
+    )
+
+    builder = make_builder()
+
+    builder.build(
+        (make_lexicon(entry),)
+    )
+
+    assert len(builder.source_index) == 0
+
+
+# =========================================================
+# Multiple Senses
+# =========================================================
+
+
+def test_multiple_senses_are_indexed():
+
+    context = make_context("context-1")
+    source = make_source("source-1")
+
+    sense1 = make_sense(
+        context=context,
+        source=source,
+    )
+
+    sense2 = make_sense(
+        context=context,
+        source=source,
+    )
+
+    entry = make_entry(
+        "राम",
+        senses=(sense1, sense2),
+    )
+
+    builder = make_builder()
+
+    builder.build(
+        (make_lexicon(entry),)
+    )
+
+    assert builder.context_index.lookup(
+        "context-1"
+    ) == (
+        sense1,
+        sense2,
+    )
+
+    assert builder.source_index.lookup(
+        "source-1"
+    ) == (
+        sense1,
+        sense2,
+    )
+
+
+# =========================================================
+# Multiple Lexicons
+# =========================================================
+
+
+def test_build_processes_multiple_lexicons():
+
+    first = make_lexicon(
+        make_entry(
+            "राम",
+            lemma=make_lemma(
+                "राम",
+                "lemma-1",
+            ),
+        )
+    )
+
+    second = make_lexicon(
+        make_entry(
+            "हरि",
+            lemma=make_lemma(
+                "हरि",
+                "lemma-2",
+            ),
+        )
+    )
+
+    builder = make_builder()
+
+    builder.build(
+        (first, second)
+    )
+
+    assert builder.headword_index.lookup("राम")
+    assert builder.headword_index.lookup("हरि")
+
+    assert len(builder.lemma_index) == 2
+
+
+# =========================================================
+# Rebuild Semantics
+# =========================================================
+
+
+def test_build_replaces_previous_index_contents():
+
+    first = make_lexicon(
+        make_entry(
+            "राम",
+            lemma=make_lemma(
+                "राम",
+                "lemma-1",
+            ),
+        )
+    )
+
+    second = make_lexicon(
+        make_entry(
+            "हरि",
+            lemma=make_lemma(
+                "हरि",
+                "lemma-2",
+            ),
+        )
+    )
+
+    builder = make_builder()
+
+    builder.build((first,))
+
+    assert builder.headword_index.lookup("राम")
+
+    builder.build((second,))
+
+    assert builder.headword_index.lookup("राम") is None
+    assert builder.headword_index.lookup("हरि")
+
+
+def test_repeated_build_is_deterministic():
+
+    lexicon = make_lexicon(
+        make_entry(
+            "राम",
+            lemma=make_lemma(
+                "राम",
+                "lemma-1",
+            ),
+        )
+    )
+
+    builder = make_builder()
+
+    builder.build((lexicon,))
+    first_summary = builder.summary()
+
+    builder.build((lexicon,))
+    second_summary = builder.summary()
+
+    assert first_summary == second_summary
+
+
+# =========================================================
+# Clear
+# =========================================================
+
+
+def test_clear_removes_all_index_data():
+
+    builder = make_builder()
+
+    context = make_context()
+    source = make_source()
+
+    sense = make_sense(
+        context=context,
+        source=source,
+    )
+
+    entry = make_entry(
+        "राम",
+        lemma=make_lemma(),
+        senses=(sense,),
+    )
+
+    builder.build(
+        (make_lexicon(entry),)
+    )
+
+    builder.clear()
+
+    assert len(builder.headword_index) == 0
+    assert len(builder.lemma_index) == 0
+    assert len(builder.context_index) == 0
+    assert len(builder.source_index) == 0
+
+
+# =========================================================
+# Diagnostics
+# =========================================================
+
+
+def test_summary_reports_all_indexes():
+
+    builder = make_builder()
+
+    context = make_context()
+    source = make_source()
+
+    sense = make_sense(
+        context=context,
+        source=source,
+    )
+
+    entry = make_entry(
+        "राम",
+        lemma=make_lemma(),
+        senses=(sense,),
+    )
+
+    builder.build(
+        (make_lexicon(entry),)
+    )
+
+    assert builder.summary() == {
+        "headwords": 1,
+        "lemmas": 1,
+        "contexts": 1,
+        "sources": 1,
+    }
+
+
+def test_string_representation_contains_summary():
+
+    builder = make_builder()
+
+    text = str(builder)
+
+    assert "CanonicalIndexBuilder" in text
+    assert "headwords" in text
+    assert "lemmas" in text
+    assert "contexts" in text
+    assert "sources" in text

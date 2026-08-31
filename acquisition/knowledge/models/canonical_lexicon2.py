@@ -8,26 +8,48 @@ Canonical Lexicon
 
 Purpose
 -------
-Immutable canonical lexical repository.
+Represents one complete canonical lexical repository.
 
-The lexicon owns no mutation API. Entries are supplied through the constructor as a mapping:
-    headword -> CanonicalDictionaryEntry
+A CanonicalLexicon is the immutable root of the lexical
+knowledge graph.
 
-Indexes are derived separately by CanonicalIndexBuilder.
+Architecture
+------------
+
+CanonicalLexicon
+        │
+        ▼
+CanonicalDictionaryEntry
+        │
+        ▼
+CanonicalDictionarySense
+        │
+        ├────────────► CanonicalContext
+        │
+        └────────────► CanonicalSource
+
+Version
+-------
+2.0.0
 """
 
-from dataclasses import dataclass, field
-from typing import Iterator, Mapping
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Mapping
+from typing import Iterator
+
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
+    CanonicalDictionaryEntry,
+)
+
+from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
+    CanonicalDictionarySense,
+)
 
 from SanskritAI.acquisition.knowledge.models.canonical_context import (
     CanonicalContext,
 )
-from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
-    CanonicalDictionaryEntry,
-)
-from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
-    CanonicalDictionarySense,
-)
+
 from SanskritAI.acquisition.knowledge.models.canonical_source import (
     CanonicalSource,
 )
@@ -43,12 +65,15 @@ class CanonicalLexicon:
     """
 
     identifier: str
+
     name: str
+
     version: str
 
     language: str = "sa"
 
     description: str | None = None
+
     source: str | None = None
 
     entries: Mapping[
@@ -58,51 +83,70 @@ class CanonicalLexicon:
         default_factory=dict,
     )
 
-    # =========================================================
-    # Entry Access
-    # =========================================================
+    # ---------------------------------------------------------
+    # Entries
+    # ---------------------------------------------------------
 
     @property
-    def entry_count(self) -> int:
-        return len(self.entries)
+    def entry_count(
+        self,
+    ) -> int:
+
+        return len(
+            self.entries,
+        )
 
     def contains(
         self,
         headword: str,
     ) -> bool:
+
         return headword in self.entries
 
     def get(
         self,
         headword: str,
     ) -> CanonicalDictionaryEntry | None:
-        return self.entries.get(headword)
+
+        return self.entries.get(
+            headword,
+        )
 
     def all_entries(
         self,
-    ) -> tuple[CanonicalDictionaryEntry, ...]:
-        return tuple(self.entries.values())
+    ) -> tuple[
+        CanonicalDictionaryEntry,
+        ...
+    ]:
 
-    # =========================================================
-    # Sense Traversal
-    # =========================================================
+        return tuple(
+            self.entries.values()
+        )
+
+    # ---------------------------------------------------------
+    # Graph Traversal
+    # ---------------------------------------------------------
 
     def all_senses(
         self,
-    ) -> Iterator[CanonicalDictionarySense]:
-        for entry in self.entries.values():
-            yield from entry.senses
+    ) -> Iterator[
+        CanonicalDictionarySense
+    ]:
 
-    # =========================================================
-    # Context Traversal
-    # =========================================================
+        for entry in self.entries.values():
+
+            yield from entry.senses
 
     def all_contexts(
         self,
-    ) -> Iterator[CanonicalContext]:
+    ) -> Iterator[
+        CanonicalContext
+    ]:
+
         seen: set[str] = set()
 
         for sense in self.all_senses():
+
             if sense.context is None:
                 continue
 
@@ -115,61 +159,91 @@ class CanonicalLexicon:
 
             yield sense.context
 
-    # =========================================================
-    # Source Traversal
-    # =========================================================
-
     def all_sources(
         self,
-    ) -> Iterator[CanonicalSource]:
+    ) -> Iterator[
+        CanonicalSource
+    ]:
+
         seen: set[str] = set()
 
         for sense in self.all_senses():
+
             if sense.source is None:
                 continue
 
-            source_id = sense.source.source_id
-
-            if source_id in seen:
+            if sense.source.source_id in seen:
                 continue
 
-            seen.add(source_id)
+            seen.add(
+                sense.source.source_id
+            )
 
             yield sense.source
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Diagnostics
-    # =========================================================
+    # ---------------------------------------------------------
 
     @property
-    def sense_count(self) -> int:
+    def sense_count(
+        self,
+    ) -> int:
+
         return sum(
-            len(entry) for entry in self.entries.values()
+
+            len(entry)
+
+            for entry in self.entries.values()
+
         )
 
-    def summary(self) -> dict:
+    def summary(
+        self,
+    ) -> dict:
+
         return {
+
             "identifier": self.identifier,
+
             "name": self.name,
+
             "version": self.version,
+
             "entries": self.entry_count,
+
             "senses": self.sense_count,
+
         }
 
-    # =========================================================
+    # ---------------------------------------------------------
     # Python Protocol
-    # =========================================================
+    # ---------------------------------------------------------
 
-    def __len__(self) -> int:
+    def __len__(
+        self,
+    ) -> int:
+
         return self.entry_count
 
-    def __iter__(self):
+    def __iter__(
+        self,
+    ):
+
         yield from self.entries.values()
 
-    def __str__(self) -> str:
+    def __str__(
+        self,
+    ) -> str:
+
         return (
+
             "CanonicalLexicon("
+
             f"{self.name}, "
+
             f"{self.entry_count} entries, "
+
             f"{self.sense_count} senses)"
+
         )

@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -8,52 +9,21 @@ Headword Index
 
 Purpose
 -------
-Provides the canonical searchable index over Sanskrit
-headwords contained in the Canonical Knowledge Repository.
+Provides exact and prefix lookup over canonical Sanskrit
+dictionary headwords.
 
-Unlike the registries, which merely own canonical objects,
-the HeadwordIndex is responsible for efficient retrieval.
-
-Architecture
-------------
-
-CanonicalKnowledgeRepository
-            │
-            ▼
-      HeadwordIndex
-            │
-            ▼
-CanonicalDictionaryEntry
-            │
-            ▼
-CanonicalDictionarySense
+The index stores references to immutable
+CanonicalDictionaryEntry objects.
 
 Responsibilities
 ----------------
-
-• Index canonical dictionary entries by headword
-• Fast exact lookup
+• Index dictionary entries by headword
+• Exact lookup
 • Prefix lookup
-• Enumerate indexed headwords
-• Support future fuzzy lookup
+• Enumerate indexed entries
+• Clear and rebuild deterministically
 
-Notes
------
-
-The HeadwordIndex intentionally does NOT perform any
-grammatical reasoning.
-
-That responsibility belongs to future components:
-
-    LemmaIndex
-
-    ContextIndex
-
-    LexicalLookupEngine
-
-Version
--------
-1.0.0
+No grammatical reasoning is performed here.
 """
 
 from dataclasses import dataclass
@@ -66,9 +36,6 @@ from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
 
 @dataclass(slots=True)
 class HeadwordIndex:
-    """
-    Canonical searchable index for Sanskrit headwords.
-    """
 
     _entries: dict[
         str,
@@ -79,23 +46,21 @@ class HeadwordIndex:
         repr=False,
     )
 
-    # ---------------------------------------------------------
-    # Index Construction
-    # ---------------------------------------------------------
+    # =========================================================
+    # Registration
+    # =========================================================
 
     def add(
         self,
         entry: CanonicalDictionaryEntry,
     ) -> None:
-        """
-        Adds one canonical dictionary entry.
-        """
 
         headword = entry.headword.strip()
 
         if not headword:
             return
 
+        # Preserve first registration deterministically.
         self._entries.setdefault(
             headword,
             entry,
@@ -108,27 +73,22 @@ class HeadwordIndex:
             ...,
         ],
     ) -> None:
-        """
-        Builds the index.
-        """
 
         self.clear()
 
         for entry in entries:
+            self.add(entry)
 
-            self.add(
-                entry,
-            )
+    # =========================================================
+    # Maintenance
+    # =========================================================
 
-    def clear(
-        self,
-    ) -> None:
-
+    def clear(self) -> None:
         self._entries.clear()
 
-    # ---------------------------------------------------------
-    # Exact Lookup
-    # ---------------------------------------------------------
+    # =========================================================
+    # Lookup
+    # =========================================================
 
     def lookup(
         self,
@@ -136,12 +96,12 @@ class HeadwordIndex:
     ) -> CanonicalDictionaryEntry | None:
 
         return self._entries.get(
-            headword,
+            headword.strip(),
         )
 
-    # ---------------------------------------------------------
-    # Prefix Lookup
-    # ---------------------------------------------------------
+    # =========================================================
+    # Prefix Search
+    # =========================================================
 
     def prefix_search(
         self,
@@ -157,32 +117,20 @@ class HeadwordIndex:
             return ()
 
         return tuple(
-
             sorted(
-
                 (
-
                     entry
-
                     for headword, entry
-
                     in self._entries.items()
-
-                    if headword.startswith(
-                        prefix,
-                    )
-
+                    if headword.startswith(prefix)
                 ),
-
-                key=lambda x: x.headword,
-
+                key=lambda entry: entry.headword,
             )
-
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Enumeration
-    # ---------------------------------------------------------
+    # =========================================================
 
     def all_entries(
         self,
@@ -192,71 +140,36 @@ class HeadwordIndex:
     ]:
 
         return tuple(
-
             sorted(
-
                 self._entries.values(),
-
-                key=lambda x: x.headword,
-
+                key=lambda entry: entry.headword,
             )
-
         )
 
     @property
-    def headwords(
-        self,
-    ) -> tuple[
-        str,
-        ...,
-    ]:
-
+    def headwords(self) -> tuple[str, ...]:
         return tuple(
-
-            sorted(
-
-                self._entries.keys(),
-
-            )
-
+            sorted(self._entries.keys())
         )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Diagnostics
-    # ---------------------------------------------------------
+    # =========================================================
 
-    def summary(
-        self,
-    ) -> dict:
-
+    def summary(self) -> dict:
         return {
-
-            "indexed_entries": len(
-                self,
-            ),
-
-            "headwords": len(
-                self.headwords,
-            ),
-
+            "indexed_entries": len(self),
+            "headwords": len(self.headwords),
         }
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Python Protocol
-    # ---------------------------------------------------------
+    # =========================================================
 
-    def __len__(
-        self,
-    ) -> int:
+    def __len__(self) -> int:
+        return len(self._entries)
 
-        return len(
-            self._entries,
-        )
-
-    def __iter__(
-        self,
-    ):
-
+    def __iter__(self):
         yield from self.all_entries()
 
     def __contains__(
@@ -264,16 +177,10 @@ class HeadwordIndex:
         headword: str,
     ) -> bool:
 
-        return headword in self._entries
+        return headword.strip() in self._entries
 
-    def __str__(
-        self,
-    ) -> str:
-
+    def __str__(self) -> str:
         return (
-
             "HeadwordIndex("
-
             f"{len(self)} indexed entries)"
-
         )

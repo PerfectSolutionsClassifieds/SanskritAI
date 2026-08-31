@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -9,46 +8,54 @@ Canonical Index Builder
 
 Purpose
 -------
-Builds and synchronizes every lookup index from the immutable
-Canonical Sanskrit Knowledge Repository.
+Builds and synchronizes every lookup index from the
+immutable Canonical Sanskrit Knowledge Repository.
 
-The builder performs a deterministic traversal of the canonical
-lexical object graph.
+The builder performs a deterministic traversal of the
+canonical lexical object graph.
 
 Object Graph
 ------------
 
 CanonicalLexicon
-       │
-       ▼
+        │
+        ▼
 CanonicalDictionaryEntry
-       │
-       ▼
+        │
+        ▼
 CanonicalDictionarySense
-       │
-       ├────────────► CanonicalContext
-       │
-       └────────────► CanonicalSource
+        │
+        ├────────────► CanonicalContext
+        │
+        └────────────► CanonicalSource
 
 Indexes Built
 -------------
 
 • HeadwordIndex
+
 • LemmaIndex
+
 • ContextIndex
+
 • SourceIndex
 
 Design Principles
 -----------------
+
 • Stateless
+
 • Deterministic
+
 • Rebuilds indexes from canonical data
+
 • Owns no lexical data
+
 • Safe to execute repeatedly
 
 Version
 -------
-2.1.0
+2.0.0
 """
 
 from dataclasses import dataclass
@@ -90,8 +97,11 @@ class CanonicalIndexBuilder:
     """
 
     headword_index: HeadwordIndex
+
     lemma_index: LemmaIndex
+
     context_index: ContextIndex
+
     source_index: SourceIndex
 
     # ---------------------------------------------------------
@@ -100,7 +110,10 @@ class CanonicalIndexBuilder:
 
     def build(
         self,
-        lexicons: tuple[CanonicalLexicon, ...],
+        lexicons: tuple[
+            CanonicalLexicon,
+            ...
+        ],
     ) -> None:
         """
         Completely rebuild every index.
@@ -109,6 +122,7 @@ class CanonicalIndexBuilder:
         self.clear()
 
         for lexicon in lexicons:
+
             self._index_lexicon(
                 lexicon,
             )
@@ -121,11 +135,9 @@ class CanonicalIndexBuilder:
         self,
         lexicon: CanonicalLexicon,
     ) -> None:
-        """
-        Index every dictionary entry in one canonical lexicon.
-        """
 
         for entry in lexicon:
+
             self._index_entry(
                 entry,
             )
@@ -138,43 +150,31 @@ class CanonicalIndexBuilder:
         self,
         entry: CanonicalDictionaryEntry,
     ) -> None:
-        """
-        Index one canonical dictionary entry.
-        """
 
-        # -----------------------------------------------------
+        #
         # Headword
-        # -----------------------------------------------------
+        #
 
         self.headword_index.add(
             entry,
         )
 
-        # -----------------------------------------------------
+        #
         # Lemma
-        # -----------------------------------------------------
-
-        # IMPORTANT:
-        # LemmaIndex expects CanonicalLemma, not
-        # CanonicalDictionaryEntry.
-        #
-        # Previous implementation incorrectly passed:
-        #
-        #     self.lemma_index.add(entry)
-        #
-        # Correct implementation:
         #
 
-        if entry.lemma is not None:
+        if entry.lemma:
+
             self.lemma_index.add(
-                entry.lemma,
+                entry,
             )
 
-        # -----------------------------------------------------
+        #
         # Dictionary Senses
-        # -----------------------------------------------------
+        #
 
         for sense in entry:
+
             self._index_sense(
                 sense,
             )
@@ -187,26 +187,24 @@ class CanonicalIndexBuilder:
         self,
         sense: CanonicalDictionarySense,
     ) -> None:
-        """
-        Index context and source information associated with
-        one dictionary sense.
-        """
 
-        # -----------------------------------------------------
+        #
         # Context
-        # -----------------------------------------------------
+        #
 
         if sense.context is not None:
+
             self.context_index.add(
                 sense.context,
                 sense,
             )
 
-        # -----------------------------------------------------
+        #
         # Source
-        # -----------------------------------------------------
+        #
 
         if sense.source is not None:
+
             self.source_index.add(
                 sense.source,
                 sense,
@@ -224,8 +222,11 @@ class CanonicalIndexBuilder:
         """
 
         self.headword_index.clear()
+
         self.lemma_index.clear()
+
         self.context_index.clear()
+
         self.source_index.clear()
 
     # ---------------------------------------------------------
@@ -235,19 +236,25 @@ class CanonicalIndexBuilder:
     def summary(
         self,
     ) -> dict:
+
         return {
+
             "headwords": len(
                 self.headword_index,
             ),
+
             "lemmas": len(
                 self.lemma_index,
             ),
+
             "contexts": len(
                 self.context_index,
             ),
+
             "sources": len(
                 self.source_index,
             ),
+
         }
 
     # ---------------------------------------------------------
@@ -257,9 +264,13 @@ class CanonicalIndexBuilder:
     def __str__(
         self,
     ) -> str:
+
         return (
+
             "CanonicalIndexBuilder("
+
             f"{self.summary()}"
+
             ")"
+
         )
-        
