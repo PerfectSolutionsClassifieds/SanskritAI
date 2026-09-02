@@ -7,31 +7,22 @@ SanskritAI
 
 Monier–Williams Pipeline
 
-Concrete lexical acquisition pipeline for the
-Monier–Williams Sanskrit-English Dictionary.
+Concrete implementation of the canonical lexical
+acquisition pipeline for the Monier–Williams resource.
 
-Lifecycle
----------
+Architecture
+------------
 
-connect()
-    ↓
-fetch()
-    ↓
-parse()
-    ↓
-transform()
-    ↓
-validate()
-    ↓
-persist()
-    ↓
-build_manifest()
-    ↓
-report()
-
-Version
--------
-2.0.0
+AbstractLexicalPipeline
+        │
+        ▼
+MonierWilliamsPipeline
+        │
+        ├── MonierWilliamsConnector
+        ├── MonierWilliamsParser
+        ├── MonierWilliamsTransformer
+        ├── CanonicalLexicalRepository
+        └── MonierWilliamsManifest
 """
 
 from dataclasses import dataclass
@@ -40,18 +31,23 @@ from dataclasses import field
 from SanskritAI.acquisition.knowledge.connectors.monier_williams_connector import (
     MonierWilliamsConnector,
 )
+
 from SanskritAI.acquisition.knowledge.monier_williams_manifest import (
     MonierWilliamsManifest,
 )
+
 from SanskritAI.acquisition.knowledge.parsers.monier_williams_parser import (
     MonierWilliamsParser,
 )
+
 from SanskritAI.acquisition.knowledge.pipelines.abstract_lexical_pipeline import (
     AbstractLexicalPipeline,
 )
+
 from SanskritAI.acquisition.knowledge.repositories.canonical_lexical_repository import (
     CanonicalLexicalRepository,
 )
+
 from SanskritAI.acquisition.knowledge.transformers.monier_williams_transformer import (
     MonierWilliamsTransformer,
 )
@@ -90,10 +86,9 @@ class MonierWilliamsPipeline(
         canonical_records,
     ):
         """
-        Current Monier–Williams validation hook.
+        Monier–Williams specific validation hook.
 
-        Records are preserved unchanged until dedicated
-        validation rules are introduced.
+        Current implementation preserves records unchanged.
         """
 
         return canonical_records
@@ -107,22 +102,14 @@ class MonierWilliamsPipeline(
         persisted_objects,
     ) -> MonierWilliamsManifest:
         """
-        Builds the immutable Monier–Williams resource manifest.
-
-        `persisted_objects` is accepted because it is part of the
-        AbstractLexicalPipeline lifecycle. The current resource
-        manifest does not store execution counts.
+        Builds the Monier–Williams manifest.
         """
 
         return MonierWilliamsManifest(
+            total_records=len(persisted_objects),
+            imported_records=len(persisted_objects),
+            skipped_records=0,
+            failed_records=0,
+            source_name="Monier-Williams",
             version="1.0.0",
-            connector_name=(
-                self.connector.__class__.__name__
-            ),
-            parser_name=(
-                self.parser.__class__.__name__
-            ),
-            transformer_name=(
-                self.transformer.__class__.__name__
-            ),
         )

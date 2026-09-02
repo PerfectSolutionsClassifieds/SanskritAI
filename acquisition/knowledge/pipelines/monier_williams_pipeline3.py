@@ -7,8 +7,24 @@ SanskritAI
 
 Monier–Williams Pipeline
 
-Concrete lexical acquisition pipeline for the
-Monier–Williams Sanskrit-English Dictionary.
+Purpose
+-------
+Concrete implementation of the canonical acquisition pipeline
+for the Monier–Williams Sanskrit-English Dictionary.
+
+Architecture
+------------
+
+AbstractLexicalPipeline
+        │
+        ▼
+MonierWilliamsPipeline
+        │
+        ├── MonierWilliamsConnector
+        ├── MonierWilliamsParser
+        ├── MonierWilliamsTransformer
+        ├── CanonicalLexicalRepository
+        └── MonierWilliamsManifest
 
 Lifecycle
 ---------
@@ -35,23 +51,27 @@ Version
 """
 
 from dataclasses import dataclass
-from dataclasses import field
 
 from SanskritAI.acquisition.knowledge.connectors.monier_williams_connector import (
     MonierWilliamsConnector,
 )
-from SanskritAI.acquisition.knowledge.monier_williams_manifest import (
+
+from SanskritAI.acquisition.knowledge.manifests.monier_williams_manifest import (
     MonierWilliamsManifest,
 )
+
 from SanskritAI.acquisition.knowledge.parsers.monier_williams_parser import (
     MonierWilliamsParser,
 )
+
 from SanskritAI.acquisition.knowledge.pipelines.abstract_lexical_pipeline import (
     AbstractLexicalPipeline,
 )
+
 from SanskritAI.acquisition.knowledge.repositories.canonical_lexical_repository import (
     CanonicalLexicalRepository,
 )
+
 from SanskritAI.acquisition.knowledge.transformers.monier_williams_transformer import (
     MonierWilliamsTransformer,
 )
@@ -65,20 +85,20 @@ class MonierWilliamsPipeline(
     Canonical Monier–Williams acquisition pipeline.
     """
 
-    connector: MonierWilliamsConnector = field(
-        default_factory=MonierWilliamsConnector,
+    connector: MonierWilliamsConnector = (
+        MonierWilliamsConnector()
     )
 
-    parser: MonierWilliamsParser = field(
-        default_factory=MonierWilliamsParser,
+    parser: MonierWilliamsParser = (
+        MonierWilliamsParser()
     )
 
-    transformer: MonierWilliamsTransformer = field(
-        default_factory=MonierWilliamsTransformer,
+    transformer: MonierWilliamsTransformer = (
+        MonierWilliamsTransformer()
     )
 
-    repository: CanonicalLexicalRepository = field(
-        default_factory=CanonicalLexicalRepository,
+    repository: CanonicalLexicalRepository = (
+        CanonicalLexicalRepository()
     )
 
     # ---------------------------------------------------------
@@ -90,10 +110,14 @@ class MonierWilliamsPipeline(
         canonical_records,
     ):
         """
-        Current Monier–Williams validation hook.
+        Monier–Williams specific validation hook.
 
-        Records are preserved unchanged until dedicated
-        validation rules are introduced.
+        The current implementation deliberately preserves
+        the canonical records unchanged.
+
+        Resource-specific validation rules can be introduced
+        here later without changing the abstract pipeline
+        lifecycle.
         """
 
         return canonical_records
@@ -107,22 +131,18 @@ class MonierWilliamsPipeline(
         persisted_objects,
     ) -> MonierWilliamsManifest:
         """
-        Builds the immutable Monier–Williams resource manifest.
+        Builds the Monier–Williams resource manifest.
 
-        `persisted_objects` is accepted because it is part of the
-        AbstractLexicalPipeline lifecycle. The current resource
-        manifest does not store execution counts.
+        The manifest records the result of the current
+        pipeline execution without introducing acquisition
+        or persistence responsibilities into the manifest.
         """
 
         return MonierWilliamsManifest(
+            total_records=len(persisted_objects),
+            imported_records=len(persisted_objects),
+            skipped_records=0,
+            failed_records=0,
+            source_name="Monier-Williams",
             version="1.0.0",
-            connector_name=(
-                self.connector.__class__.__name__
-            ),
-            parser_name=(
-                self.parser.__class__.__name__
-            ),
-            transformer_name=(
-                self.transformer.__class__.__name__
-            ),
         )
