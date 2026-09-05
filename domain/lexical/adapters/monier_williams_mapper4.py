@@ -8,44 +8,45 @@ SanskritAI
 Monier-Williams Mapper
 ----------------------
 
-Maps normalized Monier-Williams adapter records into the canonical
-SanskritAI knowledge model.
+Maps normalized Monier-Williams adapter records into the
+canonical SanskritAI knowledge model.
 
 Pipeline
 --------
 
-    MonierWilliamsRecord
-            |
-            +-------------> CanonicalSource
-            |
-            +-------------> CanonicalDictionarySense
-                                      |
-                                      v
-                              CanonicalDictionaryEntry
+MonierWilliamsRecord
+        │
+        ├──────────────► CanonicalSource
+        │
+        └──────────────► CanonicalDictionarySense
+                              │
+                              ▼
+                       CanonicalDictionaryEntry
 
 The mapper performs domain construction only.
 
 It does NOT:
+    • register lexicons
+    • mutate repositories
+    • perform repository lookup
+    • build indexes
+    • perform linguistic inference
 
-* register lexicons
-* mutate repositories
-* perform repository lookup
-* build indexes
-* perform linguistic inference
+Compatibility
+-------------
 
-Canonical public operations
----------------------------
+The mapper preserves the established public mapper operations:
 
     to_source()
     to_entry()
     to_sense()
     to_entry_and_sense()
-    to_entries()
+
+The returned objects are now canonical objects.
 
 Version
 -------
-
-v1.2.0
+v1.1.0
 """
 
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
@@ -65,7 +66,8 @@ from .monier_williams_record import (
 
 class MonierWilliamsMapper:
     """
-    Maps normalized Monier-Williams records into canonical knowledge objects.
+    Maps normalized Monier-Williams records into canonical
+    knowledge objects.
     """
 
     SOURCE = "monier-williams"
@@ -85,34 +87,6 @@ class MonierWilliamsMapper:
                 "record must be a MonierWilliamsRecord"
             )
 
-    @staticmethod
-    def _resolve_entry_id(
-        record: MonierWilliamsRecord,
-    ) -> str:
-        """
-        Resolve the stable entry identifier.
-
-        Preference:
-
-        1. source_id
-        2. headword
-        """
-        entry_id = record.source_id or record.headword
-
-        if not isinstance(entry_id, str):
-            raise TypeError(
-                "resolved entry_id must be a string"
-            )
-
-        entry_id = entry_id.strip()
-
-        if not entry_id:
-            raise ValueError(
-                "resolved entry_id must not be empty"
-            )
-
-        return entry_id
-
     # =========================================================
     # Canonical Source
     # =========================================================
@@ -125,9 +99,10 @@ class MonierWilliamsMapper:
         """
         Convert an MW record into the canonical source object.
 
-        The source represents the Monier-Williams dictionary resource,
-        not the individual lexical entry.
+        The source object represents the dictionary resource,
+        not the individual dictionary record.
         """
+
         cls._validate_record(record)
 
         return CanonicalSource(
@@ -158,40 +133,47 @@ class MonierWilliamsMapper:
         cls,
         record: MonierWilliamsRecord,
         *,
-        entry_id: str | None = None,
+        entry_id: str,
         sense_id: str | None = None,
         sense_number: int = 1,
     ) -> CanonicalDictionarySense:
         """
         Convert one MW record into a canonical dictionary sense.
 
-        ``entry_id`` is optional.
+        Parameters
+        ----------
+        record:
+            Normalized MW record.
 
-        If omitted, it is resolved from:
+        entry_id:
+            Stable lexical entry identifier used as the basis
+            for the sense identifier.
 
-            record.source_id
-            record.headword
+        sense_id:
+            Optional explicit sense identifier.
 
-        ``sense_number`` is retained in canonical metadata because
-        CanonicalDictionarySense does not expose a dedicated
-        ``sense_number`` field.
+        sense_number:
+            Explicit sense number used when no sense_id is
+            supplied.
+
+        Examples
+        --------
+        entry_id="MW-hari"
+        sense_number=3
+
+        produces:
+
+            MW-hari:3
         """
+
         cls._validate_record(record)
 
-        resolved_entry_id = (
-            cls._resolve_entry_id(record)
-            if entry_id is None
-            else entry_id
-        )
-
-        if not isinstance(resolved_entry_id, str):
+        if not isinstance(entry_id, str):
             raise TypeError(
                 "entry_id must be a string"
             )
 
-        resolved_entry_id = resolved_entry_id.strip()
-
-        if not resolved_entry_id:
+        if not entry_id.strip():
             raise ValueError(
                 "entry_id must not be empty"
             )
@@ -208,29 +190,14 @@ class MonierWilliamsMapper:
 
         identifier = (
             sense_id
-            or f"{resolved_entry_id}:{sense_number}"
+            or f"{entry_id}:{sense_number}"
         )
-
-        if not isinstance(identifier, str):
-            raise TypeError(
-                "sense_id must be a string"
-            )
-
-        identifier = identifier.strip()
-
-        if not identifier:
-            raise ValueError(
-                "sense_id must not be empty"
-            )
 
         source = cls.to_source(record)
 
-        # The traditional MW grammatical label, such as "m.",
-        # is the most direct grammatical classification for the
-        # canonical sense. The broader category remains in metadata.
         part_of_speech = (
-            record.grammatical_label
-            or record.grammatical_category
+            record.grammatical_category
+            or record.grammatical_label
             or None
         )
 
@@ -242,7 +209,7 @@ class MonierWilliamsMapper:
             part_of_speech=part_of_speech,
             citation=record.source_reference or None,
             metadata={
-                "entry_id": resolved_entry_id,
+                "entry_id": entry_id,
                 "sense_number": sense_number,
                 "source_id": record.source_id,
                 "source_reference": record.source_reference,
@@ -275,9 +242,13 @@ class MonierWilliamsMapper:
 
         The returned entry owns the returned sense.
         """
+
         cls._validate_record(record)
 
-        entry_id = cls._resolve_entry_id(record)
+        entry_id = (
+            record.source_id
+            or record.headword
+        )
 
         sense = cls.to_sense(
             record,
@@ -296,7 +267,8 @@ class MonierWilliamsMapper:
             lemma=record.headword,
             normalized_headword=record.headword,
             entry_type=(
-                record.grammatical_category or None
+                record.grammatical_category
+                or None
             ),
             senses=(sense,),
             source_name=(
@@ -305,9 +277,7 @@ class MonierWilliamsMapper:
             ),
             source_version=cls.SOURCE_VERSION,
             source_record_id=entry_id,
-            citation=(
-                record.source_reference or None
-            ),
+            citation=record.source_reference or None,
             metadata={
                 "source_id": record.source_id,
                 "source_reference": record.source_reference,
@@ -334,7 +304,10 @@ class MonierWilliamsMapper:
     ) -> CanonicalDictionaryEntry:
         """
         Convert one MW record into a canonical dictionary entry.
+
+        The resulting entry owns its canonical sense.
         """
+
         entry, _ = cls.to_entry_and_sense(
             record,
             sense_id=sense_id,
@@ -350,14 +323,13 @@ class MonierWilliamsMapper:
     @classmethod
     def to_entries(
         cls,
-        records: (
-            tuple[MonierWilliamsRecord, ...]
-            | list[MonierWilliamsRecord]
-        ),
+        records: tuple[MonierWilliamsRecord, ...]
+        | list[MonierWilliamsRecord],
     ) -> tuple[CanonicalDictionaryEntry, ...]:
         """
         Convert multiple MW records into canonical entries.
         """
+
         return tuple(
             cls.to_entry(record)
             for record in records

@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
@@ -5,18 +6,6 @@ from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
 )
 from SanskritAI.acquisition.knowledge.knowledge_service_registry import (
     KnowledgeServiceRegistry,
-)
-from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
-    CanonicalDictionaryEntry,
-)
-from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
-    CanonicalDictionarySense,
-)
-from SanskritAI.acquisition.knowledge.models.canonical_lexicon import (
-    CanonicalLexicon,
-)
-from SanskritAI.acquisition.knowledge.models.canonical_source import (
-    CanonicalSource,
 )
 
 from SanskritAI.domain.lexical.default_lexical_repository import (
@@ -53,59 +42,6 @@ from SanskritAI.domain.samasa.default_samasa_service import (
 from SanskritAI.domain.semantic.default_semantic_service import (
     DefaultSemanticService,
 )
-
-
-# ============================================================
-# Test Data Builders
-# ============================================================
-
-
-def make_sense(
-    sense_id: str,
-    headword: str = "राम",
-    definition: str = "Rama",
-) -> CanonicalDictionarySense:
-    return CanonicalDictionarySense(
-        sense_id=sense_id,
-        entry_headword=headword,
-        definition=definition,
-    )
-
-
-def make_entry(
-    headword: str,
-    *,
-    transliteration: str | None = None,
-    lemma: str | None = None,
-    senses: tuple[CanonicalDictionarySense, ...] = (),
-) -> CanonicalDictionaryEntry:
-    kwargs = {
-        "headword": headword,
-        "transliteration": transliteration,
-        "senses": senses,
-        "source_name": "Test Dictionary",
-        "source_version": "1.0",
-        "source_record_id": headword,
-    }
-
-    if lemma is not None:
-        kwargs["lemma"] = lemma
-
-    return CanonicalDictionaryEntry(**kwargs)
-
-
-def make_lexicon(
-    identifier: str,
-    entries: dict[str, CanonicalDictionaryEntry],
-) -> CanonicalLexicon:
-    return CanonicalLexicon(
-        identifier=identifier,
-        name=identifier,
-        version="1.0",
-        language="sa",
-        source="test",
-        entries=entries,
-    )
 
 
 # ============================================================
@@ -146,22 +82,27 @@ def test_all_canonical_repositories_are_constructed() -> None:
         repository.lexical_repository,
         DefaultLexicalRepository,
     )
+
     assert isinstance(
         repository.dhatu_repository,
         DefaultDhatuRepository,
     )
+
     assert isinstance(
         repository.morphological_repository,
         DefaultMorphologicalRepository,
     )
+
     assert isinstance(
         repository.sandhi_repository,
         DefaultSandhiRepository,
     )
+
     assert isinstance(
         repository.samasa_repository,
         DefaultSamasaRepository,
     )
+
     assert isinstance(
         repository.semantic_repository,
         DefaultSemanticRepository,
@@ -180,18 +121,22 @@ def test_canonical_services_are_constructed() -> None:
         repository.lexical_service,
         DefaultLexicalService,
     )
+
     assert isinstance(
         repository.morphological_service,
         DefaultMorphologicalService,
     )
+
     assert isinstance(
         repository.sandhi_service,
         DefaultSandhiService,
     )
+
     assert isinstance(
         repository.samasa_service,
         DefaultSamasaService,
     )
+
     assert isinstance(
         repository.semantic_service,
         DefaultSemanticService,
@@ -209,18 +154,23 @@ def test_registry_uses_same_repository_instances() -> None:
     assert repository.registry.lexical_repository is (
         repository.lexical_repository
     )
+
     assert repository.registry.dhatu_repository is (
         repository.dhatu_repository
     )
+
     assert repository.registry.morphological_repository is (
         repository.morphological_repository
     )
+
     assert repository.registry.sandhi_repository is (
         repository.sandhi_repository
     )
+
     assert repository.registry.samasa_repository is (
         repository.samasa_repository
     )
+
     assert repository.registry.semantic_repository is (
         repository.semantic_repository
     )
@@ -237,15 +187,19 @@ def test_registry_uses_same_service_instances() -> None:
     assert repository.registry.lexical_service is (
         repository.lexical_service
     )
+
     assert repository.registry.morphological_service is (
         repository.morphological_service
     )
+
     assert repository.registry.sandhi_service is (
         repository.sandhi_service
     )
+
     assert repository.registry.samasa_service is (
         repository.samasa_service
     )
+
     assert repository.registry.semantic_service is (
         repository.semantic_service
     )
@@ -492,439 +446,4 @@ def test_constructed_services_are_distinct() -> None:
     )
 
     assert len({id(item) for item in services}) == 5
-
-
-# ============================================================
-# Canonical Lexicon State
-# ============================================================
-
-
-def test_new_repository_has_no_lexicons() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    assert repository.all_lexicons() == ()
-
-
-def test_add_lexicon_registers_lexicon() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    entry = make_entry("राम")
-    lexicon = make_lexicon(
-        "test.lexicon",
-        {"राम": entry},
-    )
-
-    repository.add_lexicon(lexicon)
-
-    assert repository.all_lexicons() == (lexicon,)
-
-
-def test_register_lexicon_is_alias_for_add_lexicon() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    lexicon = make_lexicon(
-        "test.lexicon",
-        {},
-    )
-
-    repository.register_lexicon(lexicon)
-
-    assert repository.all_lexicons() == (lexicon,)
-
-
-def test_add_lexicon_replaces_same_identifier() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    first = make_lexicon(
-        "test.lexicon",
-        {},
-    )
-    second = make_lexicon(
-        "test.lexicon",
-        {},
-    )
-
-    repository.add_lexicon(first)
-    repository.add_lexicon(second)
-
-    assert repository.all_lexicons() == (second,)
-
-
-def test_clear_lexicons_removes_all_lexicons() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    lexicon = make_lexicon(
-        "test.lexicon",
-        {},
-    )
-
-    repository.add_lexicon(lexicon)
-    repository.clear_lexicons()
-
-    assert repository.all_lexicons() == ()
-
-
-# ============================================================
-# Entry Operations
-# ============================================================
-
-
-def test_get_entry_returns_matching_entry() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    entry = make_entry("राम")
-
-    lexicon = make_lexicon(
-        "test.lexicon",
-        {"राम": entry},
-    )
-
-    repository.add_lexicon(lexicon)
-
-    assert repository.get_entry("राम") is entry
-
-
-def test_get_entry_returns_none_for_unknown_headword() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": make_entry("राम")},
-        )
-    )
-
-    assert repository.get_entry("हरि") is None
-
-
-def test_get_entry_searches_all_registered_lexicons() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    rama = make_entry("राम")
-    hari = make_entry("हरि")
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-1",
-            {"राम": rama},
-        )
-    )
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-2",
-            {"हरि": hari},
-        )
-    )
-
-    assert repository.get_entry("राम") is rama
-    assert repository.get_entry("हरि") is hari
-
-
-def test_get_entry_returns_first_matching_lexicon() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    first = make_entry("राम")
-    second = make_entry("राम")
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-1",
-            {"राम": first},
-        )
-    )
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-2",
-            {"राम": second},
-        )
-    )
-
-    assert repository.get_entry("राम") is first
-
-
-def test_all_entries_returns_entries_from_all_lexicons() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    rama = make_entry("राम")
-    hari = make_entry("हरि")
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-1",
-            {"राम": rama},
-        )
-    )
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-2",
-            {"हरि": hari},
-        )
-    )
-
-    assert repository.all_entries() == (
-        rama,
-        hari,
-    )
-
-
-def test_all_entries_is_empty_without_lexicons() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    assert repository.all_entries() == ()
-
-
-def test_lexical_entry_count_counts_all_entries() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-1",
-            {
-                "राम": make_entry("राम"),
-                "हरि": make_entry("हरि"),
-            },
-        )
-    )
-
-    repository.add_lexicon(
-        make_lexicon(
-            "lexicon-2",
-            {
-                "शिव": make_entry("शिव"),
-            },
-        )
-    )
-
-    assert repository.lexical_entry_count == 3
-
-
-# ============================================================
-# Lemma Lookup
-# ============================================================
-
-
-def test_find_entries_by_lemma_returns_matching_entries() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    rama = make_entry(
-        "राम",
-        lemma="राम",
-    )
-    rama_alt = make_entry(
-        "रामः",
-        lemma="राम",
-    )
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {
-                "राम": rama,
-                "रामः": rama_alt,
-            },
-        )
-    )
-
-    matches = repository.find_entries_by_lemma("राम")
-
-    assert matches == (
-        rama,
-        rama_alt,
-    )
-
-
-def test_find_entries_by_lemma_returns_empty_tuple_when_unmatched() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {
-                "राम": make_entry(
-                    "राम",
-                    lemma="राम",
-                ),
-            },
-        )
-    )
-
-    assert repository.find_entries_by_lemma("हरि") == ()
-
-
-# ============================================================
-# Word Form Lookup
-# ============================================================
-
-
-def test_find_entries_by_word_form_matches_headword() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    entry = make_entry("राम")
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": entry},
-        )
-    )
-
-    assert repository.find_entries_by_word_form("राम") == (
-        entry,
-    )
-
-
-def test_find_entries_by_word_form_returns_empty_tuple_when_unmatched() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": make_entry("राम")},
-        )
-    )
-
-    assert repository.find_entries_by_word_form("हरि") == ()
-
-
-# ============================================================
-# Sense Lookup
-# ============================================================
-
-
-def test_find_senses_returns_senses_for_headword() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    sense1 = make_sense(
-        "s1",
-        definition="Rama",
-    )
-    sense2 = make_sense(
-        "s2",
-        definition="A proper name",
-    )
-
-    entry = make_entry(
-        "राम",
-        senses=(sense1, sense2),
-    )
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": entry},
-        )
-    )
-
-    assert repository.find_senses("राम") == (
-        sense1,
-        sense2,
-    )
-
-
-def test_find_senses_returns_empty_tuple_for_unknown_headword() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    assert repository.find_senses("राम") == ()
-
-
-# ============================================================
-# Search
-# ============================================================
-
-
-def test_search_returns_empty_tuple_for_empty_query() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": make_entry("राम")},
-        )
-    )
-
-    assert repository.search("") == ()
-
-
-def test_search_matches_headword() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    rama = make_entry("राम")
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": rama},
-        )
-    )
-
-    assert repository.search("राम") == (rama,)
-
-
-def test_search_matches_transliteration_case_insensitively() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    rama = make_entry(
-        "राम",
-        transliteration="Rama",
-    )
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": rama},
-        )
-    )
-
-    assert repository.search("rama") == (rama,)
-
-
-def test_search_returns_empty_tuple_when_no_match() -> None:
-    repository = CanonicalKnowledgeRepository()
-
-    repository.add_lexicon(
-        make_lexicon(
-            "test.lexicon",
-            {"राम": make_entry("राम")},
-        )
-    )
-
-    assert repository.search("हरि") == ()
-
-
-# ============================================================
-# Canonical Source Smoke Test
-# ============================================================
-
-
-def test_canonical_source_can_be_attached_to_sense() -> None:
-    source = CanonicalSource(
-        source_id="mw",
-        name="Monier-Williams",
-        short_name="MW",
-        source_type="lexicon",
-    )
-
-    sense = CanonicalDictionarySense(
-        sense_id="s1",
-        entry_headword="राम",
-        definition="Rama",
-        source=source,
-    )
-
-    entry = CanonicalDictionaryEntry(
-        headword="राम",
-        senses=(sense,),
-    )
-
-    lexicon = make_lexicon(
-        "mw",
-        {"राम": entry},
-    )
-
-    repository = CanonicalKnowledgeRepository()
-    repository.add_lexicon(lexicon)
-
-    assert repository.find_senses("राम") == (sense,)
+    

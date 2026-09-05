@@ -44,7 +44,6 @@ def test_to_source_returns_canonical_source():
     source = MonierWilliamsMapper.to_source(record)
 
     assert isinstance(source, CanonicalSource)
-
     assert source.source_id == "monier-williams"
     assert source.name == "Monier-Williams"
     assert source.short_name == "MW"
@@ -59,22 +58,15 @@ def test_to_entry_returns_canonical_dictionary_entry():
 
     entry = MonierWilliamsMapper.to_entry(record)
 
-    assert isinstance(
-        entry,
-        CanonicalDictionaryEntry,
-    )
+    assert isinstance(entry, CanonicalDictionaryEntry)
 
-    # CanonicalDictionaryEntry does not expose an
-    # ``identifier`` property. Its source-level identity
-    # is represented by ``source_record_id``.
-    assert entry.source_record_id == "MW-hari"
-
+    assert entry.identifier == "MW-hari"
     assert entry.headword == "hari"
     assert entry.transliteration == "hari"
     assert entry.lemma == "hari"
 
     assert entry.source_name == "monier-williams"
-    assert entry.source_version == "unknown"
+    assert entry.source_record_id == "MW-hari"
 
     assert entry.sense_count == 1
 
@@ -86,10 +78,7 @@ def test_to_entry_owns_canonical_sense():
 
     sense = entry.primary_sense()
 
-    assert isinstance(
-        sense,
-        CanonicalDictionarySense,
-    )
+    assert isinstance(sense, CanonicalDictionarySense)
 
     assert sense.entry_headword == entry.headword
     assert sense.definition == (
@@ -122,15 +111,14 @@ def test_to_sense_returns_canonical_dictionary_sense():
     )
 
     assert sense.part_of_speech == "m."
+
     assert sense.citation == "MW-1234"
 
 
 def test_to_sense_can_derive_entry_id():
     record = make_record()
 
-    sense = MonierWilliamsMapper.to_sense(
-        record
-    )
+    sense = MonierWilliamsMapper.to_sense(record)
 
     assert sense.identifier == "MW-hari:1"
     assert sense.metadata["entry_id"] == "MW-hari"
@@ -184,7 +172,7 @@ def test_to_entry_and_sense_returns_matching_pair():
         CanonicalDictionarySense,
     )
 
-    assert entry.source_record_id == "MW-hari"
+    assert entry.identifier == "MW-hari"
     assert sense.identifier == "MW-hari:1"
 
     assert entry.primary_sense() is sense
@@ -200,8 +188,7 @@ def test_to_entry_and_sense_preserves_sense_number():
         )
     )
 
-    assert entry.source_record_id == "MW-hari"
-
+    assert entry.identifier == "MW-hari"
     assert sense.identifier == "MW-hari:4"
     assert sense.metadata["sense_number"] == 4
 
@@ -242,8 +229,8 @@ def test_to_entries_returns_canonical_entries():
         for entry in entries
     )
 
-    assert entries[0].source_record_id == "MW-hari"
-    assert entries[1].source_record_id == "MW-agni"
+    assert entries[0].identifier == "MW-hari"
+    assert entries[1].identifier == "MW-agni"
 
 
 # ============================================================
@@ -254,7 +241,6 @@ def test_mapper_preserves_source_metadata():
     record = make_record()
 
     entry = MonierWilliamsMapper.to_entry(record)
-
     sense = entry.primary_sense()
 
     assert entry.metadata["source_reference"] == (

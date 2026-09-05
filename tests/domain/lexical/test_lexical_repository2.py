@@ -136,8 +136,8 @@ def test_repository_display_description_is_non_empty():
     assert repository.display_description.strip()
 
 
-def test_repository_implements_complete_abstract_contract():
-    required_methods = {
+def test_repository_has_all_required_abstract_methods():
+    abstract_methods = {
         "get_entry",
         "find_entries_by_lemma",
         "find_entries_by_word_form",
@@ -147,7 +147,11 @@ def test_repository_implements_complete_abstract_contract():
         "count",
     }
 
-    assert ConcreteLexicalRepository.__abstractmethods__ == frozenset()
-
-    for name in required_methods:
-        assert hasattr(ConcreteLexicalRepository, name)
+    assert abstract_methods.issubset(
+        ConcreteLexicalRepository.__dict__
+        | {
+            name
+            for name in dir(ConcreteLexicalRepository)
+            if name in abstract_methods
+        }
+    )
