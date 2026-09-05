@@ -8,18 +8,21 @@ SanskritAI
 Dictionary Sense Validator
 ---------------------------
 
-Structural validation for DictionarySense.
+Structural validation for the canonical lexical DictionarySense.
 
-This validator verifies the integrity of the dictionary-sense
-domain object. It does not attempt to determine whether a
-semantic definition is linguistically or lexicographically
+The validator verifies structural integrity only. It does not attempt
+to determine whether the semantic definition is lexicographically
 correct.
 """
 
-from SanskritAI.core.validators.validation_result import ValidationResult
-from SanskritAI.domain.lexical.dictionary_sense import DictionarySense
+from SanskritAI.core.validators.validation_result import (
+    ValidationResult,
+)
 from SanskritAI.domain.lexical.validators.base_lexical_validator import (
     BaseLexicalValidator,
+)
+from SanskritAI.lexical.models.dictionary_sense import (
+    DictionarySense,
 )
 
 
@@ -27,7 +30,7 @@ class DictionarySenseValidator(
     BaseLexicalValidator[DictionarySense],
 ):
     """
-    Validate DictionarySense instances.
+    Validate canonical DictionarySense instances.
     """
 
     @classmethod
@@ -35,18 +38,12 @@ class DictionarySenseValidator(
         cls,
         obj: object,
     ) -> bool:
-        """
-        Return True when the object is a DictionarySense.
-        """
         return isinstance(obj, DictionarySense)
 
     def validate(
         self,
         obj: DictionarySense,
     ) -> ValidationResult:
-        """
-        Validate one DictionarySense.
-        """
 
         issues = []
 
@@ -58,12 +55,19 @@ class DictionarySenseValidator(
             issues.append(
                 self.error(
                     code="DS001",
-                    message="Object must be a DictionarySense instance.",
-                    suggestion="Provide a valid DictionarySense object.",
+                    message=(
+                        "Object must be a canonical "
+                        "DictionarySense instance."
+                    ),
+                    suggestion=(
+                        "Provide a valid lexical DictionarySense object."
+                    ),
                 )
             )
 
             return self.result_from_issues(*issues)
+
+        metadata = obj.metadata
 
         # -----------------------------------------------------
         # Identifier
@@ -79,28 +83,15 @@ class DictionarySenseValidator(
             )
 
         # -----------------------------------------------------
-        # Entry identifier
+        # Definition
         # -----------------------------------------------------
 
-        if self.is_blank(obj.entry_id):
+        if self.is_blank(metadata.definition):
             issues.append(
                 self.text_error(
                     code="DS003",
-                    field="entry_id",
-                    label="Dictionary entry identifier",
-                )
-            )
-
-        # -----------------------------------------------------
-        # Meaning
-        # -----------------------------------------------------
-
-        if self.is_blank(obj.meaning):
-            issues.append(
-                self.text_error(
-                    code="DS004",
-                    field="meaning",
-                    label="Dictionary sense meaning",
+                    field="metadata.definition",
+                    label="Dictionary sense definition",
                 )
             )
 
@@ -108,28 +99,44 @@ class DictionarySenseValidator(
         # Language
         # -----------------------------------------------------
 
-        if self.is_blank(obj.language):
+        if self.is_blank(metadata.language):
             issues.append(
                 self.text_error(
-                    code="DS005",
-                    field="language",
+                    code="DS004",
+                    field="metadata.language",
                     label="Dictionary sense language",
                 )
             )
 
         # -----------------------------------------------------
-        # Source
+        # Sense number
         # -----------------------------------------------------
 
-        if self.is_blank(obj.source):
+        if not isinstance(metadata.sense_number, int):
             issues.append(
-                self.warning(
-                    code="DS006",
-                    field="source",
-                    message="Dictionary sense source is empty.",
+                self.error(
+                    code="DS005",
+                    field="metadata.sense_number",
+                    message=(
+                        "Dictionary sense sense_number "
+                        "must be an integer."
+                    ),
                     suggestion=(
-                        "Provide the dictionary or lexical source "
-                        "when source information is available."
+                        "Provide the ordinal sense number as an integer."
+                    ),
+                )
+            )
+        elif metadata.sense_number < 1:
+            issues.append(
+                self.error(
+                    code="DS006",
+                    field="metadata.sense_number",
+                    message=(
+                        "Dictionary sense sense_number "
+                        "must be greater than zero."
+                    ),
+                    suggestion=(
+                        "Use a positive ordinal sense number."
                     ),
                 )
             )
@@ -138,86 +145,71 @@ class DictionarySenseValidator(
         # Optional textual fields
         # -----------------------------------------------------
 
-        if not isinstance(obj.transliteration, str):
-            issues.append(
-                self.error(
-                    code="DS007",
-                    field="transliteration",
-                    message=(
-                        "Dictionary sense transliteration "
-                        "must be a string."
-                    ),
-                    suggestion="Provide transliteration as text.",
-                )
-            )
+        text_fields = (
+            ("short_definition", metadata.short_definition, "DS007"),
+            ("gloss", metadata.gloss, "DS008"),
+            ("semantic_domain", metadata.semantic_domain, "DS009"),
+            ("usage_label", metadata.usage_label, "DS010"),
+            ("register", metadata.register, "DS011"),
+            ("grammatical_note", metadata.grammatical_note, "DS012"),
+            ("etymology", metadata.etymology, "DS013"),
+            ("notes", metadata.notes, "DS014"),
+        )
 
-        if not isinstance(obj.grammatical_label, str):
-            issues.append(
-                self.error(
-                    code="DS008",
-                    field="grammatical_label",
-                    message=(
-                        "Dictionary sense grammatical_label "
-                        "must be a string."
-                    ),
-                    suggestion="Provide the grammatical label as text.",
-                )
-            )
-
-        if not isinstance(obj.usage, str):
-            issues.append(
-                self.error(
-                    code="DS009",
-                    field="usage",
-                    message="Dictionary sense usage must be a string.",
-                    suggestion="Provide usage information as text.",
-                )
-            )
-
-        # -----------------------------------------------------
-        # Examples
-        # -----------------------------------------------------
-
-        if not isinstance(obj.examples, tuple):
-            issues.append(
-                self.error(
-                    code="DS010",
-                    field="examples",
-                    message="Dictionary sense examples must be a tuple.",
-                    suggestion=(
-                        "Store examples as an immutable tuple of strings."
-                    ),
-                )
-            )
-        else:
-            for example in obj.examples:
-                if not isinstance(example, str):
-                    issues.append(
-                        self.error(
-                            code="DS011",
-                            field="examples",
-                            message=(
-                                "Every dictionary sense example "
-                                "must be a string."
-                            ),
-                            suggestion=(
-                                "Use strings for dictionary sense examples."
-                            ),
-                        )
+        for field_name, value, code in text_fields:
+            if not isinstance(value, str):
+                issues.append(
+                    self.error(
+                        code=code,
+                        field=f"metadata.{field_name}",
+                        message=(
+                            f"Dictionary sense {field_name} "
+                            "must be a string."
+                        ),
+                        suggestion="Provide the field as text.",
                     )
-                    break
+                )
 
-                if not example.strip():
+        # -----------------------------------------------------
+        # Supporting collections
+        # -----------------------------------------------------
+
+        collections = (
+            ("examples", metadata.examples, "DS015"),
+            ("citations", metadata.citations, "DS016"),
+            ("cross_references", metadata.cross_references, "DS017"),
+        )
+
+        for field_name, values, code in collections:
+
+            if not isinstance(values, list):
+                issues.append(
+                    self.error(
+                        code=code,
+                        field=f"metadata.{field_name}",
+                        message=(
+                            f"Dictionary sense {field_name} "
+                            "must be a list."
+                        ),
+                        suggestion=(
+                            "Store the collection as a list of strings."
+                        ),
+                    )
+                )
+                continue
+
+            for value in values:
+                if not isinstance(value, str):
                     issues.append(
                         self.error(
-                            code="DS012",
-                            field="examples",
+                            code=code,
+                            field=f"metadata.{field_name}",
                             message=(
-                                "Dictionary sense examples "
-                                "must not be empty."
+                                f"Every dictionary sense "
+                                f"{field_name} value must be a string."
                             ),
                             suggestion=(
-                                "Remove empty example strings."
+                                "Use strings for supporting material."
                             ),
                         )
                     )

@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -22,9 +23,12 @@ Therefore this module must NOT import it at runtime.
 The repository reference is used only as a type annotation
 and is resolved by static type checkers through TYPE_CHECKING.
 
+The adapter is intentionally thin. Canonical lexical state
+remains owned by CanonicalKnowledgeRepository.
+
 Version
 -------
-v3.0.1
+v3.1.0
 """
 
 from dataclasses import dataclass
@@ -36,6 +40,10 @@ from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
 
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_sense import (
     CanonicalDictionarySense,
+)
+
+from SanskritAI.acquisition.knowledge.models.canonical_lexicon import (
+    CanonicalLexicon,
 )
 
 from SanskritAI.domain.lexical.lexical_repository import (
@@ -57,10 +65,12 @@ class DefaultLexicalRepository(
     LexicalRepository,
 ):
     """
-    Canonical adapter over the CanonicalKnowledgeRepository.
+    Canonical adapter over CanonicalKnowledgeRepository.
 
     The actual repository instance is dependency-injected by
     the composition root.
+
+    This class owns no canonical lexical state.
     """
 
     repository: CanonicalKnowledgeRepository
@@ -178,6 +188,62 @@ class DefaultLexicalRepository(
     ]:
 
         return self.repository.all_entries()
+
+    # =========================================================
+    # Lexicon Registration
+    # =========================================================
+
+    def add_lexicon(
+        self,
+        lexicon: CanonicalLexicon,
+    ) -> None:
+        """
+        Register a canonical lexicon with the owning
+        CanonicalKnowledgeRepository.
+
+        The adapter does not retain the lexicon itself.
+        """
+
+        self.repository.add_lexicon(
+            lexicon,
+        )
+
+    def register_lexicon(
+        self,
+        lexicon: CanonicalLexicon,
+    ) -> None:
+        """
+        Explicit registration alias.
+        """
+
+        self.add_lexicon(
+            lexicon,
+        )
+
+    def clear_lexicons(
+        self,
+    ) -> None:
+        """
+        Clear canonical lexicon state from the owning
+        composition root.
+
+        Indexes are intentionally not cleared here.
+        The builder coordinates repository and index state.
+        """
+
+        self.repository.clear_lexicons()
+
+    def all(
+        self,
+    ) -> tuple[
+        CanonicalLexicon,
+        ...,
+    ]:
+        """
+        Return all registered canonical lexicons.
+        """
+
+        return self.repository.all_lexicons()
 
     # =========================================================
     # Information

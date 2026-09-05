@@ -262,4 +262,3 @@ class CanonicalIndexBuilder:
             f"{self.summary()}"
             ")"
         )
-        

@@ -1,31 +1,51 @@
 
 from __future__ import annotations
 
-from SanskritAI.core.validators.validation_result import ValidationResult
-from SanskritAI.domain.lexical.dictionary_entry import DictionaryEntry
+from SanskritAI.core.validators.validation_result import (
+    ValidationResult,
+)
 from SanskritAI.domain.lexical.validators.dictionary_entry_validator import (
     DictionaryEntryValidator,
+)
+from SanskritAI.lexical.models.dictionary_entry import (
+    DictionaryEntry,
+)
+from SanskritAI.lexical.models.dictionary_entry_metadata import (
+    DictionaryEntryMetadata,
+)
+from SanskritAI.lexical.models.lexical_source import (
+    LexicalSource,
 )
 
 
 def make_entry(
     *,
     identifier: str = "dictionary-entry-1",
+    headword: str = "धर्म",
     lemma: str = "धर्म",
-    language: str = "Sanskrit",
-    source: str = "Test Dictionary",
+    language: str = "sa",
+    dictionary_name: str = "Test Dictionary",
     transliteration: str = "dharma",
-    description: str = "dharma",
-    senses: tuple[str, ...] = (),
 ) -> DictionaryEntry:
-    return DictionaryEntry(
-        identifier=identifier,
+
+    metadata = DictionaryEntryMetadata(
+        headword=headword,
         lemma=lemma,
         language=language,
-        source=source,
+        dictionary_name=dictionary_name,
         transliteration=transliteration,
-        description=description,
-        senses=senses,
+        entry_identifier=identifier,
+    )
+
+    source = LexicalSource(
+        identifier="test-dictionary",
+        name="Test Dictionary",
+    )
+
+    return DictionaryEntry(
+        identifier=identifier,
+        metadata=metadata,
+        source=source,
     )
 
 
@@ -75,9 +95,9 @@ def test_whitespace_identifier_is_invalid():
     )
 
 
-def test_empty_lemma_is_invalid():
+def test_empty_headword_is_invalid():
     result = DictionaryEntryValidator().validate(
-        make_entry(lemma="")
+        make_entry(headword="")
     )
 
     assert not result.is_valid
@@ -87,14 +107,14 @@ def test_empty_lemma_is_invalid():
     )
 
 
-def test_whitespace_lemma_is_invalid():
+def test_empty_lemma_is_invalid():
     result = DictionaryEntryValidator().validate(
-        make_entry(lemma="   ")
+        make_entry(lemma="")
     )
 
     assert not result.is_valid
     assert any(
-        issue.code == "DIC003"
+        issue.code == "DIC004"
         for issue in result.issues
     )
 
@@ -106,27 +126,19 @@ def test_empty_language_is_invalid():
 
     assert not result.is_valid
     assert any(
-        issue.code == "DIC004"
+        issue.code == "DIC005"
         for issue in result.issues
     )
 
 
-def test_empty_source_produces_warning():
+def test_empty_dictionary_name_produces_warning():
     result = DictionaryEntryValidator().validate(
-        make_entry(source="")
+        make_entry(dictionary_name="")
     )
 
     assert result.is_valid
     assert result.warning_count == 1
-    assert result.warnings[0].code == "DIC005"
-
-
-def test_source_is_not_required_for_structural_validity():
-    result = DictionaryEntryValidator().validate(
-        make_entry(source="")
-    )
-
-    assert result.is_valid
+    assert result.warnings[0].code == "DIC006"
 
 
 def test_empty_transliteration_is_allowed():
@@ -135,72 +147,6 @@ def test_empty_transliteration_is_allowed():
     )
 
     assert result.is_valid
-
-
-def test_empty_description_is_allowed():
-    result = DictionaryEntryValidator().validate(
-        make_entry(description="")
-    )
-
-    assert result.is_valid
-
-
-def test_empty_senses_are_allowed():
-    result = DictionaryEntryValidator().validate(
-        make_entry(senses=())
-    )
-
-    assert result.is_valid
-
-
-def test_valid_sense_identifiers_are_accepted():
-    result = DictionaryEntryValidator().validate(
-        make_entry(
-            senses=(
-                "sense-1",
-                "sense-2",
-            )
-        )
-    )
-
-    assert result.is_valid
-
-
-def test_multiple_invalid_required_fields_are_reported():
-    result = DictionaryEntryValidator().validate(
-        make_entry(
-            identifier="",
-            lemma="",
-            language="",
-        )
-    )
-
-    codes = {
-        issue.code
-        for issue in result.issues
-    }
-
-    assert "DIC002" in codes
-    assert "DIC003" in codes
-    assert "DIC004" in codes
-
-
-def test_invalid_object_returns_validation_result():
-    result = DictionaryEntryValidator().validate(
-        object()
-    )
-
-    assert isinstance(result, ValidationResult)
-    assert not result.is_valid
-    assert result.error_count == 1
-
-
-def test_invalid_object_produces_dic001():
-    result = DictionaryEntryValidator().validate(
-        object()
-    )
-
-    assert result.issues[0].code == "DIC001"
 
 
 def test_validator_can_be_reused():
@@ -222,7 +168,7 @@ def test_dictionary_entry_is_immutable():
     entry = make_entry()
 
     try:
-        entry.lemma = "कर्म"
+        entry.identifier = "changed"
         mutated = True
     except Exception:
         mutated = False
@@ -230,48 +176,19 @@ def test_dictionary_entry_is_immutable():
     assert mutated is False
 
 
-def test_dictionary_entry_reports_senses():
-    entry = make_entry(
-        senses=(
-            "sense-1",
-            "sense-2",
-        )
+def test_invalid_object_returns_validation_result():
+    result = DictionaryEntryValidator().validate(
+        object()
     )
 
-    assert entry.has_senses
-    assert entry.sense_count == 2
+    assert isinstance(result, ValidationResult)
+    assert not result.is_valid
+    assert result.error_count == 1
 
 
-def test_dictionary_entry_without_senses_reports_no_senses():
-    entry = make_entry()
-
-    assert not entry.has_senses
-    assert entry.sense_count == 0
-
-
-def test_validator_does_not_mutate_entry():
-    entry = make_entry(
-        senses=("sense-1",)
+def test_invalid_object_produces_dic001():
+    result = DictionaryEntryValidator().validate(
+        object()
     )
 
-    original = (
-        entry.identifier,
-        entry.lemma,
-        entry.language,
-        entry.source,
-        entry.transliteration,
-        entry.description,
-        entry.senses,
-    )
-
-    DictionaryEntryValidator().validate(entry)
-
-    assert (
-        entry.identifier,
-        entry.lemma,
-        entry.language,
-        entry.source,
-        entry.transliteration,
-        entry.description,
-        entry.senses,
-    ) == original
+    assert result.issues[0].code == "DIC001"

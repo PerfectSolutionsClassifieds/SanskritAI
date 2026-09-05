@@ -8,17 +8,20 @@ SanskritAI
 Dictionary Entry Validator
 ---------------------------
 
-Structural validation for DictionaryEntry.
+Structural validation for the canonical lexical DictionaryEntry.
 
-This validator intentionally does not attempt to determine whether
-a Sanskrit lexical entry is linguistically correct. Linguistic
-validation belongs to higher lexical-analysis layers.
+The validator verifies structural integrity only. It does not attempt
+to determine whether the lexical or linguistic content is correct.
 """
 
-from SanskritAI.core.validators.validation_result import ValidationResult
-from SanskritAI.domain.lexical.dictionary_entry import DictionaryEntry
+from SanskritAI.core.validators.validation_result import (
+    ValidationResult,
+)
 from SanskritAI.domain.lexical.validators.base_lexical_validator import (
     BaseLexicalValidator,
+)
+from SanskritAI.lexical.models.dictionary_entry import (
+    DictionaryEntry,
 )
 
 
@@ -26,7 +29,7 @@ class DictionaryEntryValidator(
     BaseLexicalValidator[DictionaryEntry],
 ):
     """
-    Validate DictionaryEntry instances.
+    Validate canonical DictionaryEntry instances.
     """
 
     @classmethod
@@ -34,18 +37,12 @@ class DictionaryEntryValidator(
         cls,
         obj: object,
     ) -> bool:
-        """
-        Return True when the object is a DictionaryEntry.
-        """
         return isinstance(obj, DictionaryEntry)
 
     def validate(
         self,
         obj: DictionaryEntry,
     ) -> ValidationResult:
-        """
-        Validate one DictionaryEntry.
-        """
 
         issues = []
 
@@ -57,12 +54,19 @@ class DictionaryEntryValidator(
             issues.append(
                 self.error(
                     code="DIC001",
-                    message="Object must be a DictionaryEntry instance.",
-                    suggestion="Provide a valid DictionaryEntry object.",
+                    message=(
+                        "Object must be a canonical "
+                        "DictionaryEntry instance."
+                    ),
+                    suggestion=(
+                        "Provide a valid lexical DictionaryEntry object."
+                    ),
                 )
             )
 
             return self.result_from_issues(*issues)
+
+        metadata = obj.metadata
 
         # -----------------------------------------------------
         # Identifier
@@ -78,14 +82,27 @@ class DictionaryEntryValidator(
             )
 
         # -----------------------------------------------------
-        # Lemma
+        # Headword
         # -----------------------------------------------------
 
-        if self.is_blank(obj.lemma):
+        if self.is_blank(metadata.headword):
             issues.append(
                 self.text_error(
                     code="DIC003",
-                    field="lemma",
+                    field="metadata.headword",
+                    label="Dictionary entry headword",
+                )
+            )
+
+        # -----------------------------------------------------
+        # Lemma
+        # -----------------------------------------------------
+
+        if self.is_blank(metadata.lemma):
+            issues.append(
+                self.text_error(
+                    code="DIC004",
+                    field="metadata.lemma",
                     label="Dictionary entry lemma",
                 )
             )
@@ -94,12 +111,31 @@ class DictionaryEntryValidator(
         # Language
         # -----------------------------------------------------
 
-        if self.is_blank(obj.language):
+        if self.is_blank(metadata.language):
             issues.append(
                 self.text_error(
-                    code="DIC004",
-                    field="language",
+                    code="DIC005",
+                    field="metadata.language",
                     label="Dictionary entry language",
+                )
+            )
+
+        # -----------------------------------------------------
+        # Dictionary
+        # -----------------------------------------------------
+
+        if self.is_blank(metadata.dictionary_name):
+            issues.append(
+                self.warning(
+                    code="DIC006",
+                    field="metadata.dictionary_name",
+                    message=(
+                        "Dictionary entry dictionary_name is empty."
+                    ),
+                    suggestion=(
+                        "Provide the dictionary or lexical source name "
+                        "when available."
+                    ),
                 )
             )
 
@@ -107,14 +143,14 @@ class DictionaryEntryValidator(
         # Source
         # -----------------------------------------------------
 
-        if self.is_blank(obj.source):
+        if obj.source is None:
             issues.append(
                 self.warning(
-                    code="DIC005",
-                    message="Dictionary entry source is empty.",
+                    code="DIC007",
                     field="source",
+                    message="Dictionary entry source is empty.",
                     suggestion=(
-                        "Provide the dictionary or lexical source "
+                        "Provide the canonical LexicalSource "
                         "when source information is available."
                     ),
                 )
@@ -124,77 +160,37 @@ class DictionaryEntryValidator(
         # Transliteration
         # -----------------------------------------------------
 
-        if not isinstance(obj.transliteration, str):
+        if not isinstance(metadata.transliteration, str):
             issues.append(
                 self.error(
-                    code="DIC006",
-                    message="Dictionary entry transliteration must be a string.",
-                    field="transliteration",
+                    code="DIC008",
+                    field="metadata.transliteration",
+                    message=(
+                        "Dictionary entry transliteration "
+                        "must be a string."
+                    ),
                     suggestion="Provide transliteration as text.",
                 )
             )
 
         # -----------------------------------------------------
-        # Description
+        # Entry identifier
         # -----------------------------------------------------
 
-        if not isinstance(obj.description, str):
+        if not isinstance(metadata.entry_identifier, str):
             issues.append(
                 self.error(
-                    code="DIC007",
-                    message="Dictionary entry description must be a string.",
-                    field="description",
-                    suggestion="Provide description as text.",
-                )
-            )
-
-        # -----------------------------------------------------
-        # Sense identifiers
-        # -----------------------------------------------------
-
-        if not isinstance(obj.senses, tuple):
-            issues.append(
-                self.error(
-                    code="DIC008",
-                    message="Dictionary entry senses must be a tuple.",
-                    field="senses",
+                    code="DIC009",
+                    field="metadata.entry_identifier",
+                    message=(
+                        "Dictionary entry entry_identifier "
+                        "must be a string."
+                    ),
                     suggestion=(
-                        "Store sense identifiers as an immutable tuple."
+                        "Provide the dictionary-specific identifier "
+                        "as text."
                     ),
                 )
             )
-        else:
-            for sense_identifier in obj.senses:
-                if not isinstance(sense_identifier, str):
-                    issues.append(
-                        self.error(
-                            code="DIC009",
-                            message=(
-                                "Every dictionary sense identifier "
-                                "must be a string."
-                            ),
-                            field="senses",
-                            suggestion=(
-                                "Use string identifiers for dictionary senses."
-                            ),
-                        )
-                    )
-                    break
-
-                if not sense_identifier.strip():
-                    issues.append(
-                        self.error(
-                            code="DIC010",
-                            message=(
-                                "Dictionary sense identifiers "
-                                "must not be empty."
-                            ),
-                            field="senses",
-                            suggestion=(
-                                "Remove empty sense identifiers."
-                            ),
-                        )
-                    )
-                    break
 
         return self.result_from_issues(*issues)

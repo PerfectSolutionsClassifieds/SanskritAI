@@ -1,4 +1,3 @@
-
 from types import SimpleNamespace
 
 from SanskritAI.acquisition.knowledge.indexes.context_index import (
@@ -147,5 +146,3 @@ def test_string_representation_contains_context_count():
     )
 
     assert str(index) == "ContextIndex(1 contexts)"
-
-    

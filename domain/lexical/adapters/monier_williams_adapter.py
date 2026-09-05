@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -7,58 +8,29 @@ SanskritAI
 Monier-Williams Lexical Adapter
 --------------------------------
 
-Adapter boundary for integrating the Monier-Williams Sanskrit-English
-dictionary with the SanskritAI lexical domain.
+Stable adapter boundary for Monier-Williams lexical data.
 
-Architecture
-------------
+The adapter is responsible for:
 
-External MW Source
-        |
-        v
-MonierWilliamsAdapter
-        |
-        v
-MonierWilliamsRecord
-        |
-        v
-Canonical Lexical Model
-        |
-        v
-CanonicalKnowledgeRepository
+* source-specific lookup
+* source-specific search
+* structural normalization
 
-Design Principles
------------------
-
-1. External dictionary representation remains outside the domain model.
-2. The adapter does not perform linguistic reasoning.
-3. The adapter does not replace the canonical repository.
-4. Lookup is source-specific.
-5. Normalization is deterministic.
-6. Actual MW data loading can be introduced independently.
+It does not construct canonical DictionaryEntry or DictionarySense
+objects. That responsibility belongs to MonierWilliamsMapper.
 """
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import Optional
 
-from .monier_williams_record import MonierWilliamsRecord
+from .monier_williams_record import (
+    MonierWilliamsRecord,
+)
 
 
 class MonierWilliamsAdapter(ABC):
     """
     Abstract adapter contract for Monier-Williams data.
-
-    Concrete implementations may later read:
-
-        * XML
-        * JSON
-        * CSV
-        * SQLite
-        * locally indexed source data
-
-    The lexical domain should depend on this stable contract rather
-    than on the external source format.
     """
 
     SOURCE = "monier-williams"
@@ -72,6 +44,7 @@ class MonierWilliamsAdapter(ABC):
         """
         Return the canonical source identifier.
         """
+
         return self.SOURCE
 
     # =========================================================
@@ -85,17 +58,8 @@ class MonierWilliamsAdapter(ABC):
     ) -> tuple[MonierWilliamsRecord, ...]:
         """
         Lookup a headword.
-
-        Parameters
-        ----------
-        headword:
-            Sanskrit dictionary headword.
-
-        Returns
-        -------
-        tuple[MonierWilliamsRecord, ...]
-            Zero or more matching records.
         """
+
         raise NotImplementedError
 
     # =========================================================
@@ -109,18 +73,8 @@ class MonierWilliamsAdapter(ABC):
     ) -> tuple[MonierWilliamsRecord, ...]:
         """
         Search the external dictionary.
-
-        Concrete implementations determine whether the search is:
-
-            * exact
-            * prefix
-            * normalized
-            * indexed
-            * full-text
-
-        The adapter contract deliberately does not prescribe
-        the implementation.
         """
+
         raise NotImplementedError
 
     # =========================================================
@@ -134,6 +88,7 @@ class MonierWilliamsAdapter(ABC):
         """
         Return all normalized records.
         """
+
         raise NotImplementedError
 
     # =========================================================
@@ -144,11 +99,8 @@ class MonierWilliamsAdapter(ABC):
     def count(self) -> int:
         """
         Return the number of available records.
-
-        The default implementation derives the value from
-        all_records(). Concrete indexed implementations may
-        override this for efficiency.
         """
+
         return len(self.all_records())
 
     # =========================================================
@@ -160,16 +112,17 @@ class MonierWilliamsAdapter(ABC):
         value: str,
     ) -> str:
         """
-        Normalize a headword for adapter-level lookup.
-
-        This is intentionally conservative.
-
-        No Sanskrit linguistic transformation is performed here.
+        Conservatively normalize a headword for lookup.
         """
-        if not isinstance(value, str):
-            raise TypeError("headword must be a string")
 
-        return " ".join(value.strip().split())
+        if not isinstance(value, str):
+            raise TypeError(
+                "headword must be a string"
+            )
+
+        return " ".join(
+            value.strip().split()
+        )
 
     # =========================================================
     # Record normalization
@@ -181,10 +134,12 @@ class MonierWilliamsAdapter(ABC):
         record: MonierWilliamsRecord,
     ) -> MonierWilliamsRecord:
         """
-        Normalize a Monier-Williams record.
+        Normalize textual fields without performing linguistic
+        interpretation.
 
-        The method performs only structural text normalization.
+        All fields declared by MonierWilliamsRecord are preserved.
         """
+
         if not isinstance(record, MonierWilliamsRecord):
             raise TypeError(
                 "record must be a MonierWilliamsRecord"
@@ -209,9 +164,15 @@ class MonierWilliamsAdapter(ABC):
                 if isinstance(record.grammatical_label, str)
                 else ""
             ),
+            grammatical_category=(
+                record.grammatical_category.strip()
+                if isinstance(record.grammatical_category, str)
+                else ""
+            ),
             source=(
                 record.source.strip()
                 if isinstance(record.source, str)
+                and record.source.strip()
                 else cls.SOURCE
             ),
             source_id=(
@@ -219,9 +180,19 @@ class MonierWilliamsAdapter(ABC):
                 if isinstance(record.source_id, str)
                 else ""
             ),
+            source_reference=(
+                record.source_reference.strip()
+                if isinstance(record.source_reference, str)
+                else ""
+            ),
             raw_text=(
                 record.raw_text
                 if isinstance(record.raw_text, str)
+                else ""
+            ),
+            homonym=(
+                record.homonym.strip()
+                if isinstance(record.homonym, str)
                 else ""
             ),
         )
@@ -238,6 +209,7 @@ class MonierWilliamsAdapter(ABC):
         """
         Normalize a sequence of records.
         """
+
         return tuple(
             cls.normalize_record(record)
             for record in records

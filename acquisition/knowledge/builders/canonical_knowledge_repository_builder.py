@@ -13,133 +13,122 @@ Constructs and synchronizes the Canonical Sanskrit Knowledge Repository.
 Responsibilities
 ----------------
 • Populate the canonical lexical repository
-• Synchronize the CanonicalIndexBuilder
-• Maintain deterministic rebuild semantics
+• Synchronize the canonical indexes
+• Support full rebuilds
 • Support incremental lexicon addition
+• Preserve compatibility with lightweight repository test doubles
 
-Architectural Role
-------------------
+Architecture
+------------
+
 CanonicalLexicon
-       │
-       ▼
-CanonicalKnowledgeRepositoryBuilder
-       │
-       ├──────────► CanonicalKnowledgeRepository
-       └──────────► CanonicalIndexBuilder
+│
+▼
+CanonicalKnowledgeRepository
+│
+├── canonical lexical state
+│
+▼
+lexical_repository adapter
+│
+▼
+CanonicalIndexBuilder
+│
+├── HeadwordIndex
+├── LemmaIndex
+├── ContextIndex
+└── SourceIndex
 
-The builder is an orchestration component. It does not own canonical lexical data.
+Important Rule
+--------------
+CanonicalKnowledgeRepository owns canonical lexical state.
+
+Therefore a full rebuild must clear the composition root's canonical lexicon state
+rather than relying exclusively on the domain lexical adapter.
 
 Version
 -------
-4.0.0
+4.1.0
 """
 
 from dataclasses import dataclass
 from typing import Any
 
-from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
-    CanonicalKnowledgeRepository,
-)
 from SanskritAI.acquisition.knowledge.builders.canonical_index_builder import (
     CanonicalIndexBuilder,
+)
+from SanskritAI.acquisition.knowledge.canonical_knowledge_repository import (
+    CanonicalKnowledgeRepository,
 )
 from SanskritAI.acquisition.knowledge.models.canonical_lexicon import (
     CanonicalLexicon,
 )
 
 
-def _extract_lexicons_from_repo(repo: Any) -> tuple[CanonicalLexicon, ...]:
-    """Extract all lexicons from a repository instance using known attributes or methods."""
-    if repo is None:
-        return ()
+# ============================================================
+# Compatibility Helper
+# ============================================================
 
-    # 1. Check known getter methods (excluding 'all' to prevent infinite recursion)
-    for method_name in ("get_all", "all_lexicons", "get_lexicons", "values"):
-        if hasattr(repo, "__dict__") and method_name in repo.__dict__:
-            method = repo.__dict__[method_name]
-            if callable(method):
-                res = method()
-                if isinstance(res, dict):
-                    return tuple(res.values())
-                if isinstance(res, (list, tuple, set)):
-                    return tuple(res)
 
-        method = getattr(repo, method_name, None)
-        if callable(method) and not hasattr(method, "_mock_name"):
-            try:
-                res = method()
-                if isinstance(res, dict):
-                    return tuple(res.values())
-                if isinstance(res, (list, tuple, set)):
-                    return tuple(res)
-            except Exception:
-                pass
+def _ensure_lexical_repository_has_all(
+    lexical_repository: Any,
+) -> Any:
+    """Ensure that the lexical repository exposes ``all()``."""
+    all_method = getattr(
+        lexical_repository,
+        "all",
+        None,
+    )
 
-    # 2. Check internal storage attributes
-    for attr in (
-        "_lexicons",
-        "_registry",
-        "_store",
-        "_data",
-        "_items",
-        "_entries",
-        "lexicons",
-        "_by_id",
-        "_by_identifier",
+    if callable(all_method):
+        return lexical_repository
+
+    entries = getattr(
+        lexical_repository,
+        "entries",
+        None,
+    )
+
+    if isinstance(
+        entries,
+        dict,
     ):
-        val = getattr(repo, attr, None)
-        if isinstance(val, dict):
-            return tuple(val.values())
-        elif isinstance(val, (list, tuple, set)):
-            return tuple(val)
 
-    # 3. Try standard iteration
-    try:
-        return tuple(repo)
-    except TypeError:
-        pass
-
-    return ()
-
-
-def _ensure_lexical_repository_has_all(repo: Any) -> None:
-    """Ensure the lexical repository object exposes an .all() method for queries and assertions."""
-    if repo is None:
-        return
-    if not hasattr(repo, "all") or not callable(getattr(repo, "all", None)):
-        repo_cls = type(repo)
-
-        def _all_impl(self):
-            return _extract_lexicons_from_repo(self)
+        def _all() -> tuple[Any, ...]:
+            return tuple(
+                entries.values(),
+            )
 
         try:
-            setattr(repo_cls, "all", _all_impl)
-        except (AttributeError, TypeError):
-            try:
-                setattr(repo, "all", lambda: _extract_lexicons_from_repo(repo))
-            except (AttributeError, TypeError):
-                pass
+            setattr(
+                lexical_repository,
+                "all",
+                _all,
+            )
+        except (
+            AttributeError,
+            TypeError,
+        ):
+            pass
+
+    return lexical_repository
+
+
+# ============================================================
+# Builder
+# ============================================================
 
 
 @dataclass(slots=True)
 class CanonicalKnowledgeRepositoryBuilder:
-    """
-    Orchestrates construction of the canonical knowledge repository.
-
-    The builder owns no lexical state. All canonical data remains owned by the supplied
-    repository and its underlying repositories. Index construction is delegated to CanonicalIndexBuilder.
-    """
+    """Repository construction and synchronization orchestrator."""
 
     repository: CanonicalKnowledgeRepository
     index_builder: CanonicalIndexBuilder
 
-    def __post_init__(self) -> None:
-        if hasattr(self.repository, "lexical_repository"):
-            _ensure_lexical_repository_has_all(self.repository.lexical_repository)
-
-    # =========================================================
+    # ========================================================
     # Public Build API
-    # =========================================================
+    # ========================================================
 
     def build(
         self,
@@ -148,132 +137,35 @@ class CanonicalKnowledgeRepositoryBuilder:
             ...,
         ],
     ) -> CanonicalKnowledgeRepository:
-        """
-        Rebuild the repository from the supplied lexicons.
-
-        Build semantics are replacement semantics:
-        previous state ↓ clear ↓ register lexicons ↓ synchronize indexes ↓ return repository
-        """
+        """Completely rebuild the canonical knowledge repository."""
         self.clear()
-        self._populate_lexical_repository(lexicons)
-        self._synchronize_indexes()
-        return self.repository
 
-    # =========================================================
-    # Lexical Repository Helpers
-    # =========================================================
-
-    def _register_lexicon(
-        self,
-        lexicon: CanonicalLexicon,
-    ) -> None:
-        """
-        Safely register a lexicon in the underlying lexical repository.
-        """
-        lexical_repository = self.repository.lexical_repository
-        _ensure_lexical_repository_has_all(lexical_repository)
-
-        candidates = (
-            "add",
-            "add_lexicon",
-            "register",
-            "register_lexicon",
-            "insert",
-            "store",
-            "save",
+        self._populate_lexical_repository(
+            lexicons,
         )
 
-        # Priority 1: Explicitly assigned attributes (e.g. mock assignments)
-        for method_name in candidates:
-            if hasattr(lexical_repository, "__dict__") and method_name in lexical_repository.__dict__:
-                method = lexical_repository.__dict__[method_name]
-                if callable(method):
-                    method(lexicon)
-                    return
+        self._synchronize_indexes()
 
-        # Priority 2: Standard methods on real objects
-        for method_name in candidates:
-            method = getattr(lexical_repository, method_name, None)
-            if callable(method):
-                method(lexicon)
-                return
+        return self.repository
 
-        # Fallback to internal storage attributes if method not present
-        for attr in (
-            "_lexicons",
-            "_registry",
-            "_store",
-            "_data",
-            "_items",
-            "_entries",
-            "lexicons",
-        ):
-            val = getattr(lexical_repository, attr, None)
-            if isinstance(val, dict):
-                identifier = getattr(
-                    lexicon,
-                    "identifier",
-                    getattr(lexicon, "id", str(len(val))),
-                )
-                val[identifier] = lexicon
-                return
-            elif isinstance(val, list):
-                val.append(lexicon)
-                return
-            elif isinstance(val, set):
-                val.add(lexicon)
-                return
+    # ========================================================
+    # Lexical Repository
+    # ========================================================
 
-        # Ultimate fallback if no storage attribute exists
-        if not hasattr(lexical_repository, "_lexicons"):
-            try:
-                setattr(lexical_repository, "_lexicons", [lexicon])
-                return
-            except (AttributeError, TypeError):
-                pass
-
-    def _clear_lexical_repository(
+    @property
+    def lexical_repository(
         self,
-    ) -> None:
-        """
-        Safely clear the underlying lexical repository.
-        """
-        lexical_repository = self.repository.lexical_repository
-        _ensure_lexical_repository_has_all(lexical_repository)
+    ) -> Any:
+        """Return the canonical lexical repository adapter."""
+        repository = self.repository.lexical_repository
 
-        candidates = ("clear", "clear_lexicons", "reset", "flush")
+        return _ensure_lexical_repository_has_all(
+            repository,
+        )
 
-        # Priority 1: Explicitly assigned attributes
-        for method_name in candidates:
-            if hasattr(lexical_repository, "__dict__") and method_name in lexical_repository.__dict__:
-                method = lexical_repository.__dict__[method_name]
-                if callable(method):
-                    method()
-                    return
-
-        # Priority 2: Standard methods
-        for method_name in candidates:
-            method = getattr(lexical_repository, method_name, None)
-            if callable(method):
-                method()
-                return
-
-        # Fallback to internal storage attributes
-        for attr in (
-            "_lexicons",
-            "_registry",
-            "_store",
-            "_data",
-            "_items",
-            "_entries",
-            "lexicons",
-            "_by_id",
-            "_by_identifier",
-        ):
-            val = getattr(lexical_repository, attr, None)
-            if isinstance(val, (dict, list, set)):
-                val.clear()
-                return
+    # ========================================================
+    # Population
+    # ========================================================
 
     def _populate_lexical_repository(
         self,
@@ -282,106 +174,184 @@ class CanonicalKnowledgeRepositoryBuilder:
             ...,
         ],
     ) -> None:
-        """
-        Populate the canonical lexical repository.
-        """
-        for lexicon in lexicons:
-            self._register_lexicon(lexicon)
+        """Register all supplied lexicons."""
+        lexical_repository = self.lexical_repository
 
-    # =========================================================
+        for lexicon in lexicons:
+            self._register_lexicon(
+                lexical_repository,
+                lexicon,
+            )
+
+    # ========================================================
+    # Lexicon Registration
+    # ========================================================
+
+    @staticmethod
+    def _register_lexicon(
+        lexical_repository: Any,
+        lexicon: CanonicalLexicon,
+    ) -> None:
+        """Register one lexicon."""
+        add = getattr(
+            lexical_repository,
+            "add",
+            None,
+        )
+
+        if callable(add):
+            add(
+                lexicon,
+            )
+            return
+
+        add_lexicon = getattr(
+            lexical_repository,
+            "add_lexicon",
+            None,
+        )
+
+        if callable(add_lexicon):
+            add_lexicon(
+                lexicon,
+            )
+            return
+
+        register = getattr(
+            lexical_repository,
+            "register",
+            None,
+        )
+
+        if callable(register):
+            register(
+                lexicon,
+            )
+            return
+
+        register_lexicon = getattr(
+            lexical_repository,
+            "register_lexicon",
+            None,
+        )
+
+        if callable(register_lexicon):
+            register_lexicon(
+                lexicon,
+            )
+            return
+
+        raise AttributeError(
+            "Canonical lexical repository must provide "
+            "one of: 'add', 'add_lexicon', 'register', "
+            "or 'register_lexicon'."
+        )
+
+    # ========================================================
     # Index Synchronization
-    # =========================================================
+    # ========================================================
 
     def _synchronize_indexes(
         self,
     ) -> None:
-        """
-        Rebuild every lookup index from the registered lexicons.
-        """
-        lexical_repository = self.repository.lexical_repository
-        _ensure_lexical_repository_has_all(lexical_repository)
+        """Rebuild all canonical indexes from current repository state."""
+        lexical_repository = self.lexical_repository
 
-        if hasattr(lexical_repository, "all") and callable(getattr(lexical_repository, "all")):
-            lexicons = lexical_repository.all()
-        else:
-            lexicons = _extract_lexicons_from_repo(lexical_repository)
+        entries = lexical_repository.all()
 
-        self.index_builder.build(lexicons)
+        self.index_builder.build(
+            entries,
+        )
 
-    # =========================================================
+    # ========================================================
     # Incremental Addition
-    # =========================================================
+    # ========================================================
 
     def add_lexicon(
         self,
         lexicon: CanonicalLexicon,
     ) -> None:
-        """
-        Add one lexicon incrementally and rebuild the indexes.
-        """
-        self._register_lexicon(lexicon)
+        """Add one lexicon incrementally."""
+        self._register_lexicon(
+            self.lexical_repository,
+            lexicon,
+        )
+
         self._synchronize_indexes()
 
-    # =========================================================
+    # ========================================================
     # Maintenance
-    # =========================================================
+    # ========================================================
 
     def clear(
         self,
     ) -> None:
-        """
-        Clear canonical lexical repository state and lookup indexes.
+        """Clear the canonical repository and all lookup indexes."""
+        clear_lexicons = getattr(
+            self.repository,
+            "clear_lexicons",
+            None,
+        )
 
-        The builder does not directly manipulate individual legacy registries.
-        Repository ownership remains centralized in CanonicalKnowledgeRepository.
-        """
-        self._clear_lexical_repository()
+        if callable(clear_lexicons):
+            clear_lexicons()
 
-        if hasattr(self.index_builder, "headword_index") and hasattr(
-            self.index_builder.headword_index, "clear"
+        lexical_repository = self.lexical_repository
+
+        clear = getattr(
+            lexical_repository,
+            "clear",
+            None,
+        )
+
+        if callable(clear):
+            clear()
+
+        for sub_index in (
+            "headword_index",
+            "lemma_index",
+            "context_index",
+            "source_index",
         ):
-            self.index_builder.headword_index.clear()
+            idx = getattr(
+                self.index_builder,
+                sub_index,
+                None,
+            )
+            clear_sub = getattr(
+                idx,
+                "clear",
+                None,
+            )
+            if callable(clear_sub):
+                clear_sub()
 
-        if hasattr(self.index_builder, "lemma_index") and hasattr(
-            self.index_builder.lemma_index, "clear"
-        ):
-            self.index_builder.lemma_index.clear()
+        clear_builder = getattr(
+            self.index_builder,
+            "clear",
+            None,
+        )
 
-        if hasattr(self.index_builder, "context_index") and hasattr(
-            self.index_builder.context_index, "clear"
-        ):
-            self.index_builder.context_index.clear()
+        if callable(clear_builder):
+            clear_builder()
 
-        if hasattr(self.index_builder, "source_index") and hasattr(
-            self.index_builder.source_index, "clear"
-        ):
-            self.index_builder.source_index.clear()
-
-    # =========================================================
+    # ========================================================
     # Diagnostics
-    # =========================================================
+    # ========================================================
 
     def summary(
         self,
     ) -> dict:
-        """
-        Return a compact builder diagnostic summary.
-
-        The repository remains the authoritative source for repository-level diagnostics.
-        """
-        repository_summary = {}
-        summary_method = getattr(self.repository, "summary", None)
-
-        if callable(summary_method):
-            repository_summary = summary_method()
+        """Return a compact builder summary."""
+        repository_summary = self.repository.summary()
 
         return {
             "repository": repository_summary,
         }
 
-    # =========================================================
+    # ========================================================
     # Representation
-    # =========================================================
+    # ========================================================
 
     def __str__(
         self,

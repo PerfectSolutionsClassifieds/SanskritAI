@@ -1,4 +1,3 @@
-
 from types import SimpleNamespace
 
 from SanskritAI.acquisition.knowledge.indexes.context_index import (
@@ -205,5 +204,3 @@ def test_component_indexes_are_independent():
 
     assert len(first.headword_index) == 1
     assert len(second.headword_index) == 0
-
-    

@@ -1,16 +1,15 @@
-
 from __future__ import annotations
 
 from types import SimpleNamespace
 
+from SanskritAI.acquisition.knowledge.indexes.context_index import (
+    ContextIndex,
+)
 from SanskritAI.acquisition.knowledge.indexes.headword_index import (
     HeadwordIndex,
 )
 from SanskritAI.acquisition.knowledge.indexes.lemma_index import (
     LemmaIndex,
-)
-from SanskritAI.acquisition.knowledge.indexes.context_index import (
-    ContextIndex,
 )
 from SanskritAI.acquisition.knowledge.indexes.source_index import (
     SourceIndex,
@@ -125,8 +124,7 @@ def test_lookup_headword_returns_matching_entry():
     engine.headword_index.add(entry)
 
     assert (
-        engine.lookup_headword("राम")
-        is entry
+        engine.lookup_headword("राम") is entry
     )
 
 
@@ -138,8 +136,7 @@ def test_lookup_headword_returns_none_for_unknown_headword():
     )
 
     assert (
-        engine.lookup_headword("हरि")
-        is None
+        engine.lookup_headword("हरि") is None
     )
 
 
@@ -151,8 +148,7 @@ def test_lookup_headword_delegates_whitespace_normalization():
     engine.headword_index.add(entry)
 
     assert (
-        engine.lookup_headword("  राम  ")
-        is entry
+        engine.lookup_headword("  राम  ") is entry
     )
 
 
@@ -192,8 +188,7 @@ def test_prefix_search_returns_empty_tuple_for_unknown_prefix():
     )
 
     assert (
-        engine.prefix_search("हरि")
-        == ()
+        engine.prefix_search("हरि") == ()
     )
 
 
@@ -213,8 +208,7 @@ def test_lookup_lemma_returns_matching_lemma():
     engine.lemma_index.add(lemma)
 
     assert (
-        engine.lookup_lemma("LEMMA-1")
-        is lemma
+        engine.lookup_lemma("LEMMA-1") is lemma
     )
 
 
@@ -229,8 +223,7 @@ def test_lookup_lemma_returns_none_for_unknown_id():
     )
 
     assert (
-        engine.lookup_lemma("UNKNOWN")
-        is None
+        engine.lookup_lemma("UNKNOWN") is None
     )
 
 
@@ -245,8 +238,7 @@ def test_lookup_lemma_text_returns_matching_lemma():
     engine.lemma_index.add(lemma)
 
     assert (
-        engine.lookup_lemma_text("राम")
-        is lemma
+        engine.lookup_lemma_text("राम") is lemma
     )
 
 
@@ -261,8 +253,7 @@ def test_lookup_lemma_text_returns_none_for_unknown_text():
     )
 
     assert (
-        engine.lookup_lemma_text("हरि")
-        is None
+        engine.lookup_lemma_text("हरि") is None
     )
 
 
@@ -277,8 +268,7 @@ def test_lookup_lemma_text_delegates_whitespace_normalization():
     engine.lemma_index.add(lemma)
 
     assert (
-        engine.lookup_lemma_text("  राम  ")
-        is lemma
+        engine.lookup_lemma_text("  राम  ") is lemma
     )
 
 
@@ -551,33 +541,27 @@ def test_engine_can_coordinate_multiple_indexes():
     assert engine.lookup_headword("हरि") is hari
 
     assert (
-        engine.lookup_lemma_text("राम")
-        is ram_lemma
+        engine.lookup_lemma_text("राम") is ram_lemma
     )
 
     assert (
-        engine.lookup_lemma_text("हरि")
-        is hari_lemma
+        engine.lookup_lemma_text("हरि") is hari_lemma
     )
 
     assert (
-        engine.lookup_context("ramayana.1.1")
-        == (ram_sense,)
+        engine.lookup_context("ramayana.1.1") == (ram_sense,)
     )
 
     assert (
-        engine.lookup_context("ramayana.1.2")
-        == (hari_sense,)
+        engine.lookup_context("ramayana.1.2") == (hari_sense,)
     )
 
     assert (
-        engine.lookup_source("MW")
-        == (ram_sense,)
+        engine.lookup_source("MW") == (ram_sense,)
     )
 
     assert (
-        engine.lookup_source("APTE")
-        == (hari_sense,)
+        engine.lookup_source("APTE") == (hari_sense,)
     )
 
 
@@ -651,4 +635,3 @@ def test_string_representation_mentions_index_domains():
     assert "Lemma" in text
     assert "Context" in text
     assert "Source" in text
-    

@@ -23,6 +23,7 @@ from SanskritAI.acquisition.knowledge.models.canonical_lexicon import (
 # Helpers
 # =========================================================
 
+
 def make_lexicon(
     identifier: str = "test-lexicon",
     name: str = "Test Lexicon",
@@ -91,6 +92,7 @@ def make_builder(
 # Construction
 # =========================================================
 
+
 def test_builder_can_be_constructed():
     builder = make_builder()
     assert isinstance(
@@ -118,6 +120,7 @@ def test_builder_retains_index_builder():
 # =========================================================
 # Build
 # =========================================================
+
 
 def test_build_returns_repository():
     repository = make_repository()
@@ -164,6 +167,7 @@ def test_build_synchronizes_indexes():
 # Multiple Lexicons
 # =========================================================
 
+
 def test_build_registers_all_lexicons():
     repository = make_repository()
     index_builder = make_index_builder()
@@ -193,6 +197,7 @@ def test_build_registers_all_lexicons():
 # =========================================================
 # Rebuild Semantics
 # =========================================================
+
 
 def test_build_clears_previous_repository_state():
     repository = make_repository()
@@ -247,6 +252,7 @@ def test_build_synchronizes_indexes_after_rebuild():
 # =========================================================
 # Incremental Addition
 # =========================================================
+
 
 def test_add_lexicon_registers_lexicon():
     repository = make_repository()
@@ -309,6 +315,7 @@ def test_add_multiple_lexicons_is_incremental():
 # Clear
 # =========================================================
 
+
 def test_clear_clears_lexical_repository():
     repository = make_repository()
     index_builder = make_index_builder()
@@ -345,6 +352,7 @@ def test_clear_clears_indexes():
 # Diagnostics
 # =========================================================
 
+
 def test_summary_delegates_to_repository():
     repository = Mock()
     repository.summary.return_value = {
@@ -368,3 +376,6 @@ def test_string_representation_contains_builder_name():
     builder = make_builder()
     text = str(builder)
     assert "CanonicalKnowledgeRepositoryBuilder" in text
+
+
+    
