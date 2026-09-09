@@ -161,16 +161,35 @@ class MonierWilliamsSourcePipeline:
     # Explicit normalization boundary
     # =========================================================
 
-    def normalized_records(self) -> tuple[MonierWilliamsRecord, ...]:
+    def normalized_records(
+        self,
+    ) -> tuple[MonierWilliamsRecord, ...]:
         """
-        Convert acquisition-stage SourceRecords into normalized
-        MonierWilliamsRecords.
+        Convert acquisition-stage SourceRecords into
+        normalized MonierWilliamsRecord objects.
 
-        The acquisition → domain boundary is owned by
-        MonierWilliamsAdapter.
+        Existing MonierWilliamsRecord instances are preserved.
+
+        This is the explicit:
+
+            SourceRecord
+                ↓
+            MonierWilliamsRecord
+
+        boundary.
+
+        The mapper import is intentionally local to this
+        method so the acquisition package does not create
+        a module-level dependency cycle with the domain
+        adapter.
         """
-        from SanskritAI.domain.lexical.adapters.monier_williams_adapter import (
-            MonierWilliamsAdapter,
+
+        # IMPORTANT:
+        # This local import breaks the circular dependency
+        # between the acquisition package __init__ and the
+        # domain MonierWilliamsMapper.
+        from SanskritAI.domain.lexical.adapters.monier_williams_mapper import (
+            MonierWilliamsMapper,
         )
 
         records = self.records()
@@ -178,79 +197,32 @@ class MonierWilliamsSourcePipeline:
         normalized: list[MonierWilliamsRecord] = []
 
         for record in records:
-            if isinstance(record, MonierWilliamsRecord):
+
+            if isinstance(
+                record,
+                MonierWilliamsRecord,
+            ):
                 normalized.append(record)
-            else:
+                continue
+
+            if isinstance(
+                record,
+                MonierWilliamsSourceRecord,
+            ):
                 normalized.append(
-                    MonierWilliamsAdapter.from_source_record(
+                    MonierWilliamsMapper.from_source_record(
                         record
                     )
                 )
+                continue
+
+            raise TypeError(
+                "Unsupported Monier-Williams record at "
+                "normalization boundary: "
+                f"{type(record).__name__}"
+            )
 
         return tuple(normalized)
-
-    # def normalized_records(
-    #     self,
-    # ) -> tuple[MonierWilliamsRecord, ...]:
-    #     """
-    #     Convert acquisition-stage SourceRecords into
-    #     normalized MonierWilliamsRecord objects.
-
-    #     Existing MonierWilliamsRecord instances are preserved.
-
-    #     This is the explicit:
-
-    #         SourceRecord
-    #             ↓
-    #         MonierWilliamsRecord
-
-    #     boundary.
-
-    #     The mapper import is intentionally local to this
-    #     method so the acquisition package does not create
-    #     a module-level dependency cycle with the domain
-    #     adapter.
-    #     """
-
-    #     # IMPORTANT:
-    #     # This local import breaks the circular dependency
-    #     # between the acquisition package __init__ and the
-    #     # domain MonierWilliamsMapper.
-    #     from SanskritAI.domain.lexical.adapters.monier_williams_mapper import (
-    #         MonierWilliamsMapper,
-    #     )
-
-    #     records = self.records()
-
-    #     normalized: list[MonierWilliamsRecord] = []
-
-    #     for record in records:
-
-    #         if isinstance(
-    #             record,
-    #             MonierWilliamsRecord,
-    #         ):
-    #             normalized.append(record)
-    #             continue
-
-    #         if isinstance(
-    #             record,
-    #             MonierWilliamsSourceRecord,
-    #         ):
-    #             normalized.append(
-    #                 MonierWilliamsMapper.from_source_record(
-    #                     record
-    #                 )
-    #             )
-    #             continue
-
-    #         raise TypeError(
-    #             "Unsupported Monier-Williams record at "
-    #             "normalization boundary: "
-    #             f"{type(record).__name__}"
-    #         )
-
-    #     return tuple(normalized)
 
     # =========================================================
     # Source reading

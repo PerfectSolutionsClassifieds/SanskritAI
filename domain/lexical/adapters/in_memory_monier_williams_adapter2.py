@@ -71,14 +71,27 @@ class InMemoryMonierWilliamsAdapter(
         acquisition-stage MW source records.
         """
 
-        normalized_records = (
-            MonierWilliamsAdapter.from_source_records(
+        return cls(
+            cls.from_source_records_to_domain(
                 records
             )
         )
 
-        return cls(
-            normalized_records
+    @classmethod
+    def from_source_records_to_domain(
+        cls,
+        records: Iterable[MonierWilliamsSourceRecord],
+    ) -> tuple[MonierWilliamsRecord, ...]:
+        """
+        Convert acquisition records into normalized
+        domain records.
+
+        Kept as a small explicit bridge for deterministic
+        integration testing.
+        """
+
+        return cls.__mro__[1].from_source_records(
+            records
         )
 
     # =========================================================

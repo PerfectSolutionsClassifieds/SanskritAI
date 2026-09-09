@@ -100,9 +100,15 @@ class LookupCandidate:
 
     def __str__(self) -> str:
         """
-        Return the stable human-readable candidate representation.
+        Human-readable candidate representation.
         """
+        if self.sense is not None:
+            return (
+                f"{self.headword} "
+                f"(score={self.score:.3f})"
+            )
+
         return (
-            f"LookupCandidate({self.headword}, "
-            f"score={self.score:.3f})"
+            f"{self.headword} "
+            f"(score={self.score:.3f})"
         )

@@ -15,14 +15,17 @@ Responsibilities
 The service:
 
 1. Reads content from the configured source.
-2. Produces acquisition metadata.
-3. Optionally delegates parsing to the configured parser.
+2. Supports both modern ``read()`` and legacy ``acquire()`` source
+   implementations.
+3. Produces acquisition metadata.
+4. Optionally delegates parsing to the configured parser.
 
-The service does not perform lexical reasoning and does not write
-to the canonical lexical repository.
+The service does not perform lexical reasoning and does not write to the
+canonical lexical repository.
 """
 
 from dataclasses import dataclass
+from typing import Any
 
 from .monier_williams_acquisition_result import (
     MonierWilliamsAcquisitionResult,
@@ -39,11 +42,17 @@ class MonierWilliamsAcquisitionService:
     Parameters
     ----------
     source:
-        Source implementation responsible for reading the raw content.
+        Source implementation responsible for obtaining the raw content.
+
+        Modern implementations may provide ``read()``.
+        Legacy/lightweight implementations may provide ``acquire()``.
 
     parser:
-        Optional parser. When supplied, ``acquire()`` delegates the
-        acquired source text to the parser and returns the parsed result.
+        Optional parser.
+
+        When supplied, ``acquire()`` delegates the acquired source text
+        to the parser and returns the parsed result.
+
         When omitted, ``acquire()`` returns a
         ``MonierWilliamsAcquisitionResult``.
     """
@@ -51,24 +60,31 @@ class MonierWilliamsAcquisitionService:
     source: MonierWilliamsSource
     parser: MonierWilliamsParser | None = None
 
+    # ------------------------------------------------------------------
+    # Raw Source Access
+    # ------------------------------------------------------------------
+
     def read(self) -> str:
         """
         Read and return the raw source text.
 
-        This is the low-level convenience method and deliberately
-        returns the source text unchanged.
+        The preferred source contract is ``read()``.
+
+        For compatibility with legacy/lightweight source implementations,
+        ``acquire()`` is used when ``read()`` is not available.
         """
+        return self._read_source()
 
-        return self.source.read()
+    # ------------------------------------------------------------------
+    # Acquisition
+    # ------------------------------------------------------------------
 
-    def acquire(
-        self,
-    ) -> MonierWilliamsAcquisitionResult | object:
+    def acquire(self) -> MonierWilliamsAcquisitionResult | object:
         """
         Acquire the configured Monier-Williams source.
 
-        If a parser is configured, the acquired text is passed to
-        the parser and its result is returned.
+        If a parser is configured, the acquired text is passed to the
+        parser and its result is returned.
 
         If no parser is configured, a structured
         ``MonierWilliamsAcquisitionResult`` is returned.
@@ -77,8 +93,7 @@ class MonierWilliamsAcquisitionService:
         -------
         MonierWilliamsAcquisitionResult | parsed result
         """
-
-        source_text = self.source.read()
+        source_text = self._read_source()
 
         if self.parser is not None:
             return self.parser.parse(source_text)
@@ -91,6 +106,10 @@ class MonierWilliamsAcquisitionService:
             line_count=self._line_count(source_text),
         )
 
+    # ------------------------------------------------------------------
+    # Statistics
+    # ------------------------------------------------------------------
+
     def count(self) -> int:
         """
         Return the number of acquired or parsed records.
@@ -98,10 +117,9 @@ class MonierWilliamsAcquisitionService:
         With a parser configured, this returns the number of parsed
         records.
 
-        Without a parser, this returns the number of logical lines
-        in the acquired source.
+        Without a parser, this returns the number of logical lines in
+        the acquired source.
         """
-
         result = self.acquire()
 
         if isinstance(
@@ -115,6 +133,61 @@ class MonierWilliamsAcquisitionService:
         except TypeError:
             return 0
 
+    # ------------------------------------------------------------------
+    # Source Compatibility Boundary
+    # ------------------------------------------------------------------
+
+    def _read_source(self) -> str:
+        """
+        Resolve the source acquisition method.
+
+        Preferred contract
+        ------------------
+        ``read()``
+
+        Compatibility contract
+        -----------------------
+        ``acquire()``
+
+        The method intentionally resolves the boundary in one place so
+        that ``read()`` and ``acquire()`` cannot accidentally implement
+        different compatibility behavior.
+        """
+        read_method = getattr(
+            self.source,
+            "read",
+            None,
+        )
+
+        if callable(read_method):
+            source_text = read_method()
+        else:
+            acquire_method = getattr(
+                self.source,
+                "acquire",
+                None,
+            )
+
+            if not callable(acquire_method):
+                raise TypeError(
+                    "Monier-Williams source must provide either "
+                    "read() or acquire()."
+                )
+
+            source_text = acquire_method()
+
+        if not isinstance(source_text, str):
+            raise TypeError(
+                "Monier-Williams source acquisition must return str; "
+                f"received {type(source_text).__name__}."
+            )
+
+        return source_text
+
+    # ------------------------------------------------------------------
+    # Source Metadata
+    # ------------------------------------------------------------------
+
     def _source_identifier(self) -> str:
         """
         Resolve the source identifier.
@@ -122,7 +195,6 @@ class MonierWilliamsAcquisitionService:
         Newer source implementations expose ``identifier``.
         The fallback keeps compatibility with older source contracts.
         """
-
         identifier = getattr(
             self.source,
             "identifier",
@@ -147,7 +219,6 @@ class MonierWilliamsAcquisitionService:
 
         Newer source implementations expose ``source_name``.
         """
-
         source_name = getattr(
             self.source,
             "source_name",
@@ -162,18 +233,21 @@ class MonierWilliamsAcquisitionService:
 
         return str(source_name)
 
+    # ------------------------------------------------------------------
+    # Line Counting
+    # ------------------------------------------------------------------
+
     @staticmethod
     def _line_count(text: str) -> int:
         """
         Return the logical number of lines.
 
         ``str.splitlines()`` correctly handles the normal newline
-        variants without introducing an artificial extra line for
-        a trailing newline.
+        variants without introducing an artificial extra line for a
+        trailing newline.
 
         Empty source therefore contains zero lines.
         """
-
         if not text:
             return 0
 

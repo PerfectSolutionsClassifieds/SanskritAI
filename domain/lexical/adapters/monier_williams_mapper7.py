@@ -11,31 +11,18 @@ Monier-Williams Mapper
 Maps the normalized Monier-Williams adapter record into the
 canonical SanskritAI knowledge model.
 
-Primary boundary
-----------------
-MonierWilliamsSourceRecord
-        ↓
-MonierWilliamsAdapter
-        ↓
+Boundary
+--------
 MonierWilliamsRecord
         ↓
 MonierWilliamsMapper
         ↓
 CanonicalDictionaryEntry / CanonicalDictionarySense
 
-Important
----------
-The acquisition → adapter conversion is owned by
-MonierWilliamsAdapter.
-
-The mapper retains ``from_source_record()`` as a compatibility
-delegation point for existing callers and tests. It does not
-implement the conversion itself.
-
 The mapper does NOT:
 
 * parse acquisition data
-* duplicate SourceRecord normalization
+* normalize SourceRecords
 * register lexicons
 * mutate repositories
 * perform repository lookup
@@ -44,7 +31,7 @@ The mapper does NOT:
 
 Version
 -------
-v1.4.1
+v1.4.0
 """
 
 from SanskritAI.acquisition.knowledge.models.canonical_dictionary_entry import (
@@ -73,57 +60,6 @@ class MonierWilliamsMapper:
     SOURCE_VERSION = "unknown"
 
     # =========================================================
-    # Acquisition SourceRecord compatibility boundary
-    # =========================================================
-
-    @classmethod
-    def from_source_record(
-        cls,
-        record,
-    ) -> MonierWilliamsRecord:
-        """
-        Compatibility delegate for the historical
-        SourceRecord → MonierWilliamsRecord API.
-
-        The actual conversion authority is
-        ``MonierWilliamsAdapter.from_source_record()``.
-
-        This method intentionally contains no conversion logic.
-        The import is local to avoid the acquisition/domain
-        package import cycle.
-        """
-        from .monier_williams_adapter import (
-            MonierWilliamsAdapter,
-        )
-
-        return MonierWilliamsAdapter.from_source_record(
-            record
-        )
-
-    # =========================================================
-    # Batch SourceRecord compatibility boundary
-    # =========================================================
-
-    @classmethod
-    def from_source_records(
-        cls,
-        records,
-    ) -> tuple[MonierWilliamsRecord, ...]:
-        """
-        Compatibility delegate for batch SourceRecord conversion.
-
-        The actual conversion authority remains
-        ``MonierWilliamsAdapter.from_source_records()``.
-        """
-        from .monier_williams_adapter import (
-            MonierWilliamsAdapter,
-        )
-
-        return MonierWilliamsAdapter.from_source_records(
-            records
-        )
-
-    # =========================================================
     # Validation
     # =========================================================
 
@@ -131,17 +67,10 @@ class MonierWilliamsMapper:
     def _validate_record(
         record: MonierWilliamsRecord,
     ) -> None:
-        if not isinstance(
-            record,
-            MonierWilliamsRecord,
-        ):
+        if not isinstance(record, MonierWilliamsRecord):
             raise TypeError(
                 "record must be a MonierWilliamsRecord"
             )
-
-    # =========================================================
-    # Entry ID
-    # =========================================================
 
     @staticmethod
     def _resolve_entry_id(
@@ -154,15 +83,9 @@ class MonierWilliamsMapper:
         1. source_id
         2. headword
         """
-        entry_id = (
-            record.source_id
-            or record.headword
-        )
+        entry_id = record.source_id or record.headword
 
-        if not isinstance(
-            entry_id,
-            str,
-        ):
+        if not isinstance(entry_id, str):
             raise TypeError(
                 "resolved entry_id must be a string"
             )
@@ -185,9 +108,6 @@ class MonierWilliamsMapper:
         cls,
         record: MonierWilliamsRecord,
     ) -> CanonicalSource:
-        """
-        Convert a normalized MW record into a canonical source.
-        """
         cls._validate_record(record)
 
         return CanonicalSource(
@@ -204,9 +124,7 @@ class MonierWilliamsMapper:
             version=cls.SOURCE_VERSION,
             metadata={
                 "record_id": record.source_id,
-                "source_reference": (
-                    record.source_reference
-                ),
+                "source_reference": record.source_reference,
                 "homonym": record.homonym,
             },
         )
@@ -224,9 +142,7 @@ class MonierWilliamsMapper:
         sense_id: str | None = None,
         sense_number: int = 1,
     ) -> CanonicalDictionarySense:
-        """
-        Convert a normalized MW record into a canonical sense.
-        """
+
         cls._validate_record(record)
 
         resolved_entry_id = (
@@ -235,27 +151,19 @@ class MonierWilliamsMapper:
             else entry_id
         )
 
-        if not isinstance(
-            resolved_entry_id,
-            str,
-        ):
+        if not isinstance(resolved_entry_id, str):
             raise TypeError(
                 "entry_id must be a string"
             )
 
-        resolved_entry_id = (
-            resolved_entry_id.strip()
-        )
+        resolved_entry_id = resolved_entry_id.strip()
 
         if not resolved_entry_id:
             raise ValueError(
                 "entry_id must not be empty"
             )
 
-        if not isinstance(
-            sense_number,
-            int,
-        ):
+        if not isinstance(sense_number, int):
             raise TypeError(
                 "sense_number must be an integer"
             )
@@ -270,10 +178,7 @@ class MonierWilliamsMapper:
             or f"{resolved_entry_id}:{sense_number}"
         )
 
-        if not isinstance(
-            identifier,
-            str,
-        ):
+        if not isinstance(identifier, str):
             raise TypeError(
                 "sense_id must be a string"
             )
@@ -307,9 +212,7 @@ class MonierWilliamsMapper:
                 "entry_id": resolved_entry_id,
                 "sense_number": sense_number,
                 "source_id": record.source_id,
-                "source_reference": (
-                    record.source_reference
-                ),
+                "source_reference": record.source_reference,
                 "grammatical_label": (
                     record.grammatical_label
                 ),
@@ -339,10 +242,7 @@ class MonierWilliamsMapper:
         CanonicalDictionaryEntry,
         CanonicalDictionarySense,
     ]:
-        """
-        Convert one normalized MW record into a canonical
-        DictionaryEntry and its corresponding Sense.
-        """
+
         cls._validate_record(record)
 
         entry_id = cls._resolve_entry_id(record)
@@ -357,8 +257,7 @@ class MonierWilliamsMapper:
         entry = CanonicalDictionaryEntry(
             headword=record.headword,
             transliteration=(
-                record.transliteration
-                or None
+                record.transliteration or None
             ),
             language="sa",
             script="Devanagari",
@@ -409,9 +308,7 @@ class MonierWilliamsMapper:
         sense_id: str | None = None,
         sense_number: int = 1,
     ) -> CanonicalDictionaryEntry:
-        """
-        Convert one normalized MW record into a canonical entry.
-        """
+
         entry, _ = cls.to_entry_and_sense(
             record,
             sense_id=sense_id,
@@ -421,7 +318,7 @@ class MonierWilliamsMapper:
         return entry
 
     # =========================================================
-    # Batch Canonical Entries
+    # Batch
     # =========================================================
 
     @classmethod
@@ -432,9 +329,7 @@ class MonierWilliamsMapper:
             | list[MonierWilliamsRecord]
         ),
     ) -> tuple[CanonicalDictionaryEntry, ...]:
-        """
-        Convert normalized MW records into canonical entries.
-        """
+
         return tuple(
             cls.to_entry(record)
             for record in records

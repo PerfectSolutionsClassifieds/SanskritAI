@@ -8,58 +8,63 @@ SanskritAI
 Monier-Williams Source Parser
 -----------------------------
 
-Orchestrates acquisition and parsing of Monier-Williams source data.
+Acquisition-layer parser for Monier-Williams source data.
 
-The parser supports:
+Canonical acquisition-layer flow:
 
-1. Explicit parser injection.
-2. Native tagged Monier-Williams source.
-3. Delimited / compatibility source.
-4. Legacy source providers exposing ``acquire()``.
+    source
+        ↓
+    raw source text
+        ↓
+    MonierWilliamsSourceParser
+        ↓
+    tuple[MonierWilliamsSourceRecord, ...]
 
-Important boundary rule
------------------------
+Supported source representations
+--------------------------------
 
-The parser does NOT force all parser implementations to return the
-same concrete record class.
+1. Native tagged Monier-Williams source
 
-Native tagged parsing produces:
+       <L>1
+       <k1>rAma
+       <k2>1
+       <h>m.
+       <e>pleasing, beautiful
+       <LEND>
 
-    MonierWilliamsSourceRecord
+2. Delimited / compatibility source
 
-Compatibility/injected parsers may produce:
+       headword<TAB>definition
 
-    MonierWilliamsRecord
+3. Explicit parser injection
 
-The parser therefore preserves the record type returned by the selected
-parser.
+The injected parser is used exactly as supplied.
 
-A future explicit mapping boundary will convert:
+Source compatibility
+--------------------
 
-    MonierWilliamsSourceRecord
-        ->
-    MonierWilliamsRecord
+Source providers exposing either ``acquire()`` or ``read()`` are
+supported. ``acquire()`` is preferred when both are available.
 
-when that conversion is actually required.
+Canonical return contract
+-------------------------
 
-This preserves existing compatibility behavior while keeping acquisition
-and domain normalization separate.
+All parsing performed through this class returns:
+
+    tuple[MonierWilliamsSourceRecord, ...]
+
+This establishes ``MonierWilliamsSourceRecord`` as the acquisition-layer
+boundary object.
+
+Conversion into the domain-level ``MonierWilliamsRecord`` belongs to the
+subsequent adapter/mapping boundary and is intentionally not performed
+here.
 """
 
 from typing import Protocol
 
-from SanskritAI.domain.lexical.adapters.monier_williams_record import (
-    MonierWilliamsRecord,
-)
-
 from SanskritAI.acquisition.lexical.monier_williams.monier_williams_source_record import (
     MonierWilliamsSourceRecord,
-)
-
-
-MonierWilliamsParsedRecord = (
-    MonierWilliamsRecord
-    | MonierWilliamsSourceRecord
 )
 
 
@@ -67,7 +72,7 @@ class _SourceProtocol(Protocol):
     """
     Structural protocol for Monier-Williams source providers.
 
-    A provider may expose ``acquire()`` or ``read()``.
+    A compatible provider may expose ``acquire()`` or ``read()``.
     """
 
     def acquire(self) -> str:
@@ -79,16 +84,16 @@ class _SourceProtocol(Protocol):
 
 class _ParserProtocol(Protocol):
     """
-    Structural protocol for injected parser implementations.
+    Structural protocol for acquisition-layer parser implementations.
 
-    Existing parsers may return either the normalized domain adapter
-    record or the acquisition-layer source record.
+    Every parser injected into MonierWilliamsSourceParser must produce
+    acquisition-layer SourceRecord objects.
     """
 
     def parse(
         self,
         source_text: str,
-    ) -> tuple[MonierWilliamsParsedRecord, ...]:
+    ) -> tuple[MonierWilliamsSourceRecord, ...]:
         ...
 
 
@@ -96,33 +101,17 @@ class MonierWilliamsSourceParser:
     """
     Acquire and parse Monier-Williams source text.
 
-    Explicit parser injection
-    -------------------------
+    Responsibilities
+    ----------------
 
-    If ``parser`` is supplied, it is always used and its record type is
-    preserved.
+    This class is responsible for:
 
-    Automatic parser selection
-    ---------------------------
+    1. acquiring source text when required,
+    2. detecting the source representation,
+    3. selecting the appropriate parser,
+    4. enforcing the acquisition-layer parser contract.
 
-    Native tagged MW source:
-
-        <L>1
-        <k1>rAma
-        <k2>1
-        <h>m.
-        <e>pleasing, beautiful
-        <LEND>
-
-    is handled by the internal tagged parser.
-
-    Other source representations are delegated to
-    ``DelimitedMonierWilliamsParser``.
-
-    Source compatibility
-    --------------------
-
-    ``acquire()`` is preferred over ``read()`` when both are available.
+    It does not convert SourceRecord objects into domain lexical records.
     """
 
     def __init__(
@@ -140,6 +129,9 @@ class MonierWilliamsSourceParser:
     def _read_source(self) -> str:
         """
         Acquire complete source text from the configured source.
+
+        ``acquire()`` is preferred over ``read()`` for compatibility with
+        legacy source implementations.
         """
 
         if self.acquirer is None:
@@ -188,6 +180,9 @@ class MonierWilliamsSourceParser:
     ) -> bool:
         """
         Determine whether source text uses native MW tagged records.
+
+        Native tagged input normally begins with ``<L>`` after optional
+        leading whitespace.
         """
 
         stripped = source_text.lstrip()
@@ -204,9 +199,9 @@ class MonierWilliamsSourceParser:
     def _create_default_parser(
         self,
         source_text: str,
-    ) -> object:
+    ) -> _ParserProtocol:
         """
-        Select the parser appropriate for the source representation.
+        Select the parser appropriate for the supplied source text.
         """
 
         if self._is_tagged_source(source_text):
@@ -225,40 +220,32 @@ class MonierWilliamsSourceParser:
     @staticmethod
     def _validate_records(
         records: object,
-    ) -> tuple[MonierWilliamsParsedRecord, ...]:
+    ) -> tuple[MonierWilliamsSourceRecord, ...]:
         """
-        Validate parser output while preserving the concrete record type.
+        Validate and normalize parser output.
 
-        Supported record types:
-
-        * MonierWilliamsSourceRecord
-        * MonierWilliamsRecord
-
-        We intentionally do not convert between them here.
+        The public parser contract is always a tuple of
+        MonierWilliamsSourceRecord objects.
         """
 
         if not isinstance(records, (tuple, list)):
             raise TypeError(
                 "Monier-Williams parser must return "
-                "a tuple or list of Monier-Williams records"
+                "a tuple or list of MonierWilliamsSourceRecord"
             )
 
         normalized = tuple(records)
 
-        for record in normalized:
-
-            if isinstance(
+        if not all(
+            isinstance(
                 record,
-                (
-                    MonierWilliamsSourceRecord,
-                    MonierWilliamsRecord,
-                ),
-            ):
-                continue
-
+                MonierWilliamsSourceRecord,
+            )
+            for record in normalized
+        ):
             raise TypeError(
-                "Monier-Williams parser returned unsupported "
-                f"record type: {type(record).__name__}"
+                "Monier-Williams parser must return only "
+                "MonierWilliamsSourceRecord instances"
             )
 
         return normalized
@@ -270,12 +257,23 @@ class MonierWilliamsSourceParser:
     def parse(
         self,
         source_text: str | None = None,
-    ) -> tuple[MonierWilliamsParsedRecord, ...]:
+    ) -> tuple[MonierWilliamsSourceRecord, ...]:
         """
         Parse Monier-Williams source text.
 
-        The concrete record type produced by the selected parser is
-        preserved.
+        Parameters
+        ----------
+        source_text:
+            Optional source text.
+
+            If supplied, it is parsed directly.
+
+            If omitted, source text is acquired through ``self.acquirer``.
+
+        Returns
+        -------
+        tuple[MonierWilliamsSourceRecord, ...]
+            Canonical acquisition-layer records.
         """
 
         if source_text is None:
@@ -291,34 +289,19 @@ class MonierWilliamsSourceParser:
                 "Monier-Williams source is empty"
             )
 
-        # --------------------------------------------------------------
         # Explicit parser injection always wins.
-        # --------------------------------------------------------------
-
         if self.parser is not None:
-
-            records = self.parser.parse(
-                source_text
-            )
-
             return self._validate_records(
-                records
+                self.parser.parse(source_text)
             )
 
-        # --------------------------------------------------------------
-        # Automatic representation detection.
-        # --------------------------------------------------------------
-
+        # Automatic source representation detection.
         parser = self._create_default_parser(
             source_text
         )
 
-        records = parser.parse(
-            source_text
-        )
-
         return self._validate_records(
-            records
+            parser.parse(source_text)
         )
 
     # ------------------------------------------------------------------
@@ -328,9 +311,9 @@ class MonierWilliamsSourceParser:
     def parse_record(
         self,
         source_text: str,
-    ) -> MonierWilliamsParsedRecord:
+    ) -> MonierWilliamsSourceRecord:
         """
-        Parse exactly one Monier-Williams record.
+        Parse exactly one Monier-Williams source record.
         """
 
         if not isinstance(source_text, str):
@@ -338,9 +321,7 @@ class MonierWilliamsSourceParser:
                 "source_text must be a string"
             )
 
-        records = self.parse(
-            source_text
-        )
+        records = self.parse(source_text)
 
         if len(records) != 1:
             raise ValueError(
@@ -392,7 +373,6 @@ class _TaggedMonierWilliamsParser:
             )
 
         records: list[MonierWilliamsSourceRecord] = []
-
         current: list[str] = []
         inside = False
 
@@ -405,7 +385,6 @@ class _TaggedMonierWilliamsParser:
             # ----------------------------------------------------------
 
             if not stripped:
-
                 if inside:
                     current.append(line)
 
@@ -500,14 +479,12 @@ class _TaggedMonierWilliamsParser:
                 continue
 
             # ----------------------------------------------------------
-            # <L> record identifier.
+            # <L> is the sequence/tag identifier.
             # ----------------------------------------------------------
 
             if stripped.startswith("<L>"):
 
-                value = stripped[
-                    len("<L>"):
-                ].strip()
+                value = stripped[len("<L>"):].strip()
 
                 if value:
                     fields["L"] = value
@@ -522,7 +499,7 @@ class _TaggedMonierWilliamsParser:
                 continue
 
             # ----------------------------------------------------------
-            # Generic MW tag.
+            # Generic MW tag:
             #
             # <k1>rAma
             # <h>m.
@@ -535,13 +512,8 @@ class _TaggedMonierWilliamsParser:
 
                 if close > 1:
 
-                    tag = stripped[
-                        1:close
-                    ]
-
-                    value = stripped[
-                        close + 1:
-                    ].strip()
+                    tag = stripped[1:close]
+                    value = stripped[close + 1:].strip()
 
                     fields[tag] = value
 

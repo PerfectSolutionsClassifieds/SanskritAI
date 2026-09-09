@@ -12,13 +12,20 @@ Stable adapter boundary for Monier-Williams lexical data.
 
 Responsibilities
 ----------------
+
 * source-specific lookup
 * source-specific search
 * structural normalization
 * conversion from acquisition source records
 
+The adapter does not construct canonical
+DictionaryEntry / DictionarySense objects.
+
+That responsibility belongs to ``MonierWilliamsMapper``.
+
 Pipeline
 --------
+
 MonierWilliamsSourceRecord
         ↓
 MonierWilliamsAdapter
@@ -29,12 +36,9 @@ MonierWilliamsMapper
         ↓
 CanonicalDictionaryEntry / CanonicalDictionarySense
 
-The adapter does not construct canonical DictionaryEntry /
-DictionarySense objects.
-
 Version
 -------
-v0.8.0
+v0.7.0
 """
 
 from abc import ABC, abstractmethod
@@ -64,7 +68,10 @@ class MonierWilliamsAdapter(ABC):
 
     @property
     def source(self) -> str:
-        """Return the canonical source identifier."""
+        """
+        Return the canonical source identifier.
+        """
+
         return self.SOURCE
 
     # =========================================================
@@ -76,7 +83,10 @@ class MonierWilliamsAdapter(ABC):
         self,
         headword: str,
     ) -> tuple[MonierWilliamsRecord, ...]:
-        """Lookup a headword."""
+        """
+        Lookup a headword.
+        """
+
         raise NotImplementedError
 
     # =========================================================
@@ -88,7 +98,10 @@ class MonierWilliamsAdapter(ABC):
         self,
         query: str,
     ) -> tuple[MonierWilliamsRecord, ...]:
-        """Search the external dictionary."""
+        """
+        Search the external dictionary.
+        """
+
         raise NotImplementedError
 
     # =========================================================
@@ -99,7 +112,10 @@ class MonierWilliamsAdapter(ABC):
     def all_records(
         self,
     ) -> tuple[MonierWilliamsRecord, ...]:
-        """Return all normalized records."""
+        """
+        Return all normalized records.
+        """
+
         raise NotImplementedError
 
     # =========================================================
@@ -108,8 +124,13 @@ class MonierWilliamsAdapter(ABC):
 
     @property
     def count(self) -> int:
-        """Return the number of available records."""
-        return len(self.all_records())
+        """
+        Return the number of available records.
+        """
+
+        return len(
+            self.all_records()
+        )
 
     # =========================================================
     # Headword normalization
@@ -122,10 +143,15 @@ class MonierWilliamsAdapter(ABC):
         """
         Conservatively normalize a headword for lookup.
         """
-        if not isinstance(value, str):
-            raise TypeError("headword must be a string")
 
-        return " ".join(value.strip().split())
+        if not isinstance(value, str):
+            raise TypeError(
+                "headword must be a string"
+            )
+
+        return " ".join(
+            value.strip().split()
+        )
 
     # =========================================================
     # Acquisition → Domain conversion
@@ -137,116 +163,104 @@ class MonierWilliamsAdapter(ABC):
         record: MonierWilliamsSourceRecord,
     ) -> MonierWilliamsRecord:
         """
-        Convert an acquisition-stage MonierWilliamsSourceRecord
-        into the normalized domain MonierWilliamsRecord.
+        Convert an acquisition-stage
+        ``MonierWilliamsSourceRecord`` into a normalized
+        domain ``MonierWilliamsRecord``.
 
-        This is the single structural boundary between:
+        This method performs structural normalization only.
 
-            acquisition representation
-                    ↓
-            normalized lexical representation
+        It does not:
 
-        This method does not:
         * perform linguistic analysis
         * create canonical entries
         * create canonical senses
         * perform repository registration
         * perform lookup
         """
+
         if record is None:
-            raise TypeError(
-                "record must be a MonierWilliamsSourceRecord"
-            )
-
-        # Runtime validation is intentionally local here so that
-        # the adapter does not create an import cycle through the
-        # acquisition package __init__.py.
-        from SanskritAI.acquisition.lexical.monier_williams.monier_williams_source_record import (
-            MonierWilliamsSourceRecord,
-        )
-
-        if not isinstance(record, MonierWilliamsSourceRecord):
             raise TypeError(
                 "record must be a MonierWilliamsSourceRecord"
             )
 
         fields = record.fields
 
-        headword = (
-            record.headword
-            or fields.get("k1", "")
-            or fields.get("headword", "")
-        ).strip()
-
-        definition = (
-            record.definition
-            or fields.get("e", "")
-            or fields.get("definition", "")
-        ).strip()
-
-        if not headword:
-            raise ValueError(
-                "Monier-Williams SourceRecord has no headword"
-            )
-
-        if not definition:
-            raise ValueError(
-                "Monier-Williams SourceRecord has no definition"
-            )
-
-        transliteration = (
-            record.transliteration
-            or fields.get("transliteration", "")
-        ).strip()
-
-        grammatical_label = (
-            record.grammatical_label
-            or fields.get("grammatical_label", "")
-            or fields.get("h", "")
-        ).strip()
-
-        grammatical_category = (
-            record.grammatical_category
-            or fields.get("grammatical_category", "")
-        ).strip()
-
-        source = (
-            record.source
-            or fields.get("source", "")
-            or cls.SOURCE
-        ).strip()
-
-        source_id = (
-            record.source_id
-            or fields.get("source_id", "")
-        ).strip()
-
-        source_reference = (
-            record.source_reference
-            or fields.get("source_reference", "")
-        ).strip()
-
-        homonym = (
-            record.homonym
-            or fields.get("homonym", "")
-            or fields.get("L", "")
-        ).strip()
-
         return MonierWilliamsRecord(
-            headword=cls.normalize_headword(headword),
-            transliteration=transliteration,
-            definition=definition,
-            grammatical_label=grammatical_label,
-            grammatical_category=grammatical_category,
-            source=source or cls.SOURCE,
-            source_id=source_id,
-            source_reference=source_reference,
-            raw_text=(
-                record.raw_text
-                if isinstance(record.raw_text, str)
+            headword=cls.normalize_headword(
+                record.headword
+            ),
+            transliteration=(
+                record.transliteration.strip()
+                if isinstance(
+                    record.transliteration,
+                    str,
+                )
                 else ""
             ),
-            homonym=homonym,
+            definition=(
+                record.definition.strip()
+                if isinstance(
+                    record.definition,
+                    str,
+                )
+                else ""
+            ),
+            grammatical_label=(
+                record.grammatical_label.strip()
+                if isinstance(
+                    record.grammatical_label,
+                    str,
+                )
+                else ""
+            ),
+            grammatical_category=(
+                record.grammatical_category.strip()
+                if isinstance(
+                    record.grammatical_category,
+                    str,
+                )
+                else ""
+            ),
+            source=(
+                record.source.strip()
+                if isinstance(
+                    record.source,
+                    str,
+                ) and record.source.strip()
+                else cls.SOURCE
+            ),
+            source_id=(
+                record.source_id.strip()
+                if isinstance(
+                    record.source_id,
+                    str,
+                )
+                else ""
+            ),
+            source_reference=(
+                record.source_reference.strip()
+                if isinstance(
+                    record.source_reference,
+                    str,
+                )
+                else ""
+            ),
+            raw_text=(
+                record.raw_text
+                if isinstance(
+                    record.raw_text,
+                    str,
+                )
+                else ""
+            ),
+            homonym=(
+                record.homonym.strip()
+                if isinstance(
+                    record.homonym,
+                    str,
+                )
+                else ""
+            ),
         )
 
     @classmethod
@@ -258,6 +272,7 @@ class MonierWilliamsAdapter(ABC):
         Convert acquisition-stage source records into
         normalized domain records.
         """
+
         return tuple(
             cls.from_source_record(record)
             for record in records
@@ -275,58 +290,93 @@ class MonierWilliamsAdapter(ABC):
         """
         Normalize textual fields without performing
         linguistic interpretation.
+
+        All fields declared by MonierWilliamsRecord
+        are preserved.
         """
-        if not isinstance(record, MonierWilliamsRecord):
+
+        if not isinstance(
+            record,
+            MonierWilliamsRecord,
+        ):
             raise TypeError(
                 "record must be a MonierWilliamsRecord"
             )
 
         return MonierWilliamsRecord(
-            headword=cls.normalize_headword(record.headword),
+            headword=cls.normalize_headword(
+                record.headword
+            ),
             transliteration=(
                 record.transliteration.strip()
-                if isinstance(record.transliteration, str)
+                if isinstance(
+                    record.transliteration,
+                    str,
+                )
                 else ""
             ),
             definition=(
                 record.definition.strip()
-                if isinstance(record.definition, str)
+                if isinstance(
+                    record.definition,
+                    str,
+                )
                 else ""
             ),
             grammatical_label=(
                 record.grammatical_label.strip()
-                if isinstance(record.grammatical_label, str)
+                if isinstance(
+                    record.grammatical_label,
+                    str,
+                )
                 else ""
             ),
             grammatical_category=(
                 record.grammatical_category.strip()
-                if isinstance(record.grammatical_category, str)
+                if isinstance(
+                    record.grammatical_category,
+                    str,
+                )
                 else ""
             ),
             source=(
                 record.source.strip()
-                if isinstance(record.source, str)
-                and record.source.strip()
+                if isinstance(
+                    record.source,
+                    str,
+                ) and record.source.strip()
                 else cls.SOURCE
             ),
             source_id=(
                 record.source_id.strip()
-                if isinstance(record.source_id, str)
+                if isinstance(
+                    record.source_id,
+                    str,
+                )
                 else ""
             ),
             source_reference=(
                 record.source_reference.strip()
-                if isinstance(record.source_reference, str)
+                if isinstance(
+                    record.source_reference,
+                    str,
+                )
                 else ""
             ),
             raw_text=(
                 record.raw_text
-                if isinstance(record.raw_text, str)
+                if isinstance(
+                    record.raw_text,
+                    str,
+                )
                 else ""
             ),
             homonym=(
                 record.homonym.strip()
-                if isinstance(record.homonym, str)
+                if isinstance(
+                    record.homonym,
+                    str,
+                )
                 else ""
             ),
         )
@@ -340,7 +390,10 @@ class MonierWilliamsAdapter(ABC):
         cls,
         records: Iterable[MonierWilliamsRecord],
     ) -> tuple[MonierWilliamsRecord, ...]:
-        """Normalize a sequence of domain records."""
+        """
+        Normalize a sequence of domain records.
+        """
+
         return tuple(
             cls.normalize_record(record)
             for record in records

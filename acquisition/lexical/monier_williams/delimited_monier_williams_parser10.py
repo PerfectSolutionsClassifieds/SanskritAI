@@ -104,7 +104,6 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
         }
 
         missing = self.REQUIRED_COLUMNS - normalized_headers
-
         if missing:
             raise ValueError(
                 "Missing required columns: "
@@ -149,10 +148,7 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
 
             record = MonierWilliamsRecord(
                 headword=headword,
-                transliteration=values.get(
-                    "transliteration",
-                    "",
-                ),
+                transliteration=values.get("transliteration", ""),
                 definition=definition,
                 grammatical_label=values.get(
                     "grammatical_label",
@@ -167,19 +163,13 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
                     "monier-williams",
                 )
                 or "monier-williams",
-                source_id=values.get(
-                    "source_id",
-                    "",
-                ),
+                source_id=values.get("source_id", ""),
                 source_reference=values.get(
                     "source_reference",
                     "",
                 ),
                 raw_text=raw_text,
-                homonym=values.get(
-                    "homonym",
-                    "",
-                ),
+                homonym=values.get("homonym", ""),
             )
 
             records.append(record)
@@ -192,22 +182,8 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
     ) -> tuple[MonierWilliamsRecord, ...]:
         """
         Parse an iterable of source lines.
-
-        Lines may or may not contain their own trailing newline.
-        They are normalized by joining them with newline separators
-        before delegating to parse().
         """
-        normalized_lines = tuple(lines)
-
-        if not normalized_lines:
-            return ()
-
-        return self.parse(
-            "\n".join(
-                line.rstrip("\r\n")
-                for line in normalized_lines
-            )
-        )
+        return self.parse("".join(lines))
 
     def _normalize_row(
         self,
@@ -223,7 +199,6 @@ class DelimitedMonierWilliamsParser(MonierWilliamsParser):
                 continue
 
             normalized_key = key.strip().lower()
-
             normalized_value = (
                 value.strip()
                 if isinstance(value, str)
