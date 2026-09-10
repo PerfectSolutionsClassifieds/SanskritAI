@@ -1,52 +1,83 @@
 
 """
-SanskritAI — Reusable Architectural Audit
+SanskritAI — Reusable Architectural Audit Engine
+=================================================
 
-Purpose
--------
-Provide one reusable architecture-audit script that can be used across
-SanskritAI source/model/validator/repository questions without creating a
-new inspection script for every architectural investigation.
+Architecture-first inspection tool.
 
-Design principles
+Primary principle
 -----------------
-1. Ownership first
-2. Semantics second
-3. Consumers before implementation details
-4. Production code separated from tests
-5. Historical numbered files are ignored
-6. No source-code modifications
-7. No architectural assumptions are imposed
-8. Output should support an explicit architectural decision
+    Ownership -> Boundary -> Semantics -> Contract -> Implementation
+
+This script is intentionally READ-ONLY.
+
+It does not:
+    - modify production code
+    - import project modules
+    - execute application code
+    - instantiate domain models
+    - make architectural changes
+
+It statically analyzes Python source using AST.
+
+Historical files
+----------------
+Files ending with numeric suffixes are ignored:
+
+    example1.py
+    example2.py
+    test_example3.py
+
+Generated audit variants are also ignored:
+
+    *_G1.py
+    *_G2.py
+
+Targets
+-------
+    lexical-source
+    corpus-source
+    canonical-source
+    monier-williams-source
+    all-sources
 
 Examples
 --------
-From the repository root:
+    !cd /content/SanskritAI && \
+        python scripts/audit_architecture.py \
+        --target lexical-source
 
-    python scripts/audit_architecture.py
+    !cd /content/SanskritAI && \
+        python scripts/audit_architecture.py \
+        --target all-sources
 
-    python scripts/audit_architecture.py --target lexical-source
-
-    python scripts/audit_architecture.py --target corpus-source
-
-    python scripts/audit_architecture.py --target canonical-source
-
-    python scripts/audit_architecture.py --target monier-williams-source
-
-    python scripts/audit_architecture.py --target all-sources
-
-Optional:
-
-    python scripts/audit_architecture.py \
+    !cd /content/SanskritAI && \
+        python scripts/audit_architecture.py \
         --target lexical-source \
         --show-code
 
-    python scripts/audit_architecture.py \
+    !cd /content/SanskritAI && \
+        python scripts/audit_architecture.py \
         --target lexical-source \
-        --max-files 300
+        --view summary
 
-The script is intentionally conservative. It reports evidence and signals;
-it does not automatically modify production architecture.
+    !cd /content/SanskritAI && \
+        python scripts/audit_architecture.py \
+        --target lexical-source \
+        --view boundaries
+
+Views
+-----
+    full
+    summary
+    definitions
+    ownership
+    semantics
+    boundaries
+    contracts
+
+Default:
+    full
 """
 
 from __future__ import annotations
@@ -61,10 +92,12 @@ from typing import Iterable
 
 
 # ============================================================================
-# Configuration
+# Repository configuration
 # ============================================================================
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+PACKAGE_ROOT = "SanskritAI"
 
 IGNORED_DIRECTORIES = {
     ".git",
@@ -81,19 +114,15 @@ IGNORED_DIRECTORIES = {
     "build",
 }
 
-# User-directed rule:
-# Ignore historical / duplicate numbered Python files such as:
-#
-#   mapper1.py
-#   mapper2.py
-#   test_source3.py
-#
-# Also ignore common generated audit variants such as:
-#
-#   audit_source_G1.py
-#
-NUMBERED_FILE_RE = re.compile(r"\d+\.py$", re.IGNORECASE)
-GENERATED_AUDIT_RE = re.compile(r"_G\d+\.py$", re.IGNORECASE)
+NUMBERED_FILE_RE = re.compile(
+    r"\d+\.py$",
+    re.IGNORECASE,
+)
+
+GENERATED_AUDIT_RE = re.compile(
+    r"_G\d+\.py$",
+    re.IGNORECASE,
+)
 
 
 TARGETS = {
@@ -104,31 +133,19 @@ TARGETS = {
             "domain/lexical",
             "lexical",
         ],
-        "semantic_fields": [
-            "source_id",
-            "identifier",
-            "name",
-            "source_type",
-            "version",
-            "language",
-            "script",
-            "description",
-            "url",
-            "website",
-            "publisher",
-            "editor",
-            "publication_year",
-        ],
-        "keywords": [
-            "lexical",
-            "source",
-            "dictionary",
-            "record",
-            "repository",
-            "catalog",
-            "validator",
-        ],
+        "semantic_aliases": {
+            "source_id": "identity",
+            "identifier": "identity",
+            "source": "identity",
+            "source_name": "name",
+            "url": "external_reference",
+            "website": "external_reference",
+            "download_url": "external_reference",
+            "api_endpoint": "external_reference",
+            "year": "publication_year",
+        },
     },
+
     "corpus-source": {
         "label": "CorpusSource",
         "symbols": ["CorpusSource"],
@@ -136,34 +153,16 @@ TARGETS = {
             "acquisition",
             "corpus",
         ],
-        "semantic_fields": [
-            "source_id",
-            "name",
-            "source_type",
-            "source_format",
-            "license",
-            "version",
-            "edition",
-            "publisher",
-            "author",
-            "description",
-            "language",
-            "status",
-            "download_urls",
-            "checksum",
-            "local_path",
-            "cache_directory",
-        ],
-        "keywords": [
-            "corpus",
-            "source",
-            "acquisition",
-            "manifest",
-            "provider",
-            "acquirer",
-            "repository",
-        ],
+        "semantic_aliases": {
+            "source_id": "identity",
+            "identifier": "identity",
+            "source_name": "name",
+            "year": "publication_year",
+            "url": "external_reference",
+            "website": "external_reference",
+        },
     },
+
     "canonical-source": {
         "label": "CanonicalSource",
         "symbols": ["CanonicalSource"],
@@ -171,69 +170,37 @@ TARGETS = {
             "acquisition",
             "domain",
             "corpus",
-            "knowledge",
         ],
-        "semantic_fields": [
-            "source_id",
-            "name",
-            "short_name",
-            "source_type",
-            "language",
-            "script",
-            "author",
-            "editor",
-            "publisher",
-            "edition",
-            "publication_year",
-            "version",
-            "website",
-            "download_url",
-            "api_endpoint",
-            "license",
-            "description",
-            "notes",
-            "metadata",
-        ],
-        "keywords": [
-            "canonical",
-            "source",
-            "provenance",
-            "knowledge",
-            "repository",
-        ],
+        "semantic_aliases": {
+            "source_id": "identity",
+            "identifier": "identity",
+            "source_name": "name",
+            "url": "external_reference",
+            "website": "external_reference",
+            "download_url": "external_reference",
+            "api_endpoint": "external_reference",
+            "year": "publication_year",
+        },
     },
+
     "monier-williams-source": {
         "label": "MonierWilliamsSource",
-        "symbols": ["MonierWilliamsSource"],
+        "symbols": [
+            "MonierWilliamsSource",
+        ],
         "paths": [
             "acquisition",
             "domain",
         ],
-        "semantic_fields": [
-            "source_id",
-            "name",
-            "source",
-            "identifier",
-            "source_name",
-            "source_type",
-            "source_format",
-            "encoding",
-            "language",
-            "year",
-            "author",
-            "title",
-            "publisher",
-        ],
-        "keywords": [
-            "monier",
-            "williams",
-            "source",
-            "dictionary",
-            "lexical",
-            "parser",
-            "acquisition",
-        ],
+        "semantic_aliases": {
+            "source_id": "identity",
+            "identifier": "identity",
+            "source": "identity",
+            "source_name": "name",
+            "year": "publication_year",
+        },
     },
+
     "all-sources": {
         "label": "All Source Models",
         "symbols": [
@@ -248,16 +215,17 @@ TARGETS = {
             "domain",
             "lexical",
         ],
-        "semantic_fields": [],
-        "keywords": [
-            "source",
-            "lexical",
-            "corpus",
-            "canonical",
-            "acquisition",
-            "repository",
-            "validator",
-        ],
+        "semantic_aliases": {
+            "source_id": "identity",
+            "identifier": "identity",
+            "source": "identity",
+            "source_name": "name",
+            "url": "external_reference",
+            "website": "external_reference",
+            "download_url": "external_reference",
+            "api_endpoint": "external_reference",
+            "year": "publication_year",
+        },
     },
 }
 
@@ -271,9 +239,10 @@ class SymbolDefinition:
     symbol: str
     file: Path
     relative_path: str
+    module_name: str
     line: int
     bases: list[str] = field(default_factory=list)
-    decorator_names: list[str] = field(default_factory=list)
+    decorators: list[str] = field(default_factory=list)
     fields: list[str] = field(default_factory=list)
     properties: list[str] = field(default_factory=list)
     methods: list[str] = field(default_factory=list)
@@ -287,10 +256,11 @@ class ImportEvidence:
     imported_symbol: str
     module: str
     alias: str | None = None
+    resolved_origin: str = "UNRESOLVED"
 
 
 @dataclass
-class SymbolUsage:
+class UsageEvidence:
     file: Path
     relative_path: str
     line: int
@@ -302,10 +272,20 @@ class SymbolUsage:
 class FileAnalysis:
     file: Path
     relative_path: str
+    module_name: str
     is_test: bool
-    imports: list[ImportEvidence] = field(default_factory=list)
-    definitions: list[SymbolDefinition] = field(default_factory=list)
-    usages: list[SymbolUsage] = field(default_factory=list)
+
+    definitions: list[SymbolDefinition] = field(
+        default_factory=list
+    )
+
+    imports: list[ImportEvidence] = field(
+        default_factory=list
+    )
+
+    usages: list[UsageEvidence] = field(
+        default_factory=list
+    )
 
 
 # ============================================================================
@@ -313,15 +293,6 @@ class FileAnalysis:
 # ============================================================================
 
 def is_ignored_file(path: Path) -> bool:
-    """
-    Ignore historical numbered files and generated audit variants.
-
-    Examples ignored:
-        foo1.py
-        foo2.py
-        test_foo3.py
-        audit_source_G1.py
-    """
     name = path.name
 
     if NUMBERED_FILE_RE.search(name):
@@ -334,20 +305,27 @@ def is_ignored_file(path: Path) -> bool:
 
 
 def is_ignored_directory(path: Path) -> bool:
-    return any(part in IGNORED_DIRECTORIES for part in path.parts)
+    return any(
+        part in IGNORED_DIRECTORIES
+        for part in path.parts
+    )
 
 
 def is_test_file(path: Path) -> bool:
-    parts = {part.lower() for part in path.parts}
+    parts = {
+        part.lower()
+        for part in path.parts
+    }
 
-    if "tests" in parts:
-        return True
-
-    return path.name.startswith("test_")
+    return (
+        "tests" in parts
+        or path.name.startswith("test_")
+    )
 
 
 def iter_python_files(root: Path) -> Iterable[Path]:
     for path in root.rglob("*.py"):
+
         if is_ignored_directory(path):
             continue
 
@@ -358,75 +336,109 @@ def iter_python_files(root: Path) -> Iterable[Path]:
 
 
 # ============================================================================
+# Module naming
+# ============================================================================
+
+def module_name_from_path(path: Path) -> str:
+    relative = path.relative_to(REPO_ROOT)
+
+    parts = list(relative.parts)
+
+    if parts[-1] == "__init__.py":
+        parts = parts[:-1]
+    else:
+        parts[-1] = parts[-1][:-3]
+
+    return ".".join(
+        [PACKAGE_ROOT] + parts
+    )
+
+
+def module_to_relative_path(module: str) -> str:
+    """
+    Convert:
+
+        SanskritAI.lexical.models.lexical_source
+
+    into:
+
+        lexical/models/lexical_source.py
+    """
+
+    prefix = PACKAGE_ROOT + "."
+
+    if module.startswith(prefix):
+        module = module[len(prefix):]
+
+    return module.replace(".", "/") + ".py"
+
+
+# ============================================================================
 # AST helpers
 # ============================================================================
 
-def get_node_name(node: ast.AST) -> str:
+def dotted_name(node: ast.AST) -> str:
     if isinstance(node, ast.Name):
         return node.id
 
     if isinstance(node, ast.Attribute):
+        parent = dotted_name(node.value)
+
+        if parent:
+            return f"{parent}.{node.attr}"
+
         return node.attr
 
-    if isinstance(node, ast.Constant):
-        return str(node.value)
-
     return ""
 
 
-def get_dotted_name(node: ast.AST) -> str:
-    if isinstance(node, ast.Name):
-        return node.id
-
-    if isinstance(node, ast.Attribute):
-        parent = get_dotted_name(node.value)
-        return f"{parent}.{node.attr}" if parent else node.attr
-
-    return ""
-
-
-def get_decorator_name(node: ast.AST) -> str:
+def decorator_name(node: ast.AST) -> str:
     if isinstance(node, ast.Call):
-        return get_dotted_name(node.func)
+        return dotted_name(node.func)
 
-    return get_dotted_name(node)
-
-
-def annotation_name(annotation: ast.AST | None) -> str:
-    if annotation is None:
-        return ""
-
-    return get_dotted_name(annotation)
+    return dotted_name(node)
 
 
-def extract_class_fields(node: ast.ClassDef) -> list[str]:
-    """
-    Collect likely dataclass/model fields without attempting to execute code.
-    """
-    fields: list[str] = []
+def extract_fields(
+    node: ast.ClassDef,
+) -> list[str]:
+
+    fields: set[str] = set()
 
     for item in node.body:
+
         if isinstance(item, ast.AnnAssign):
             if isinstance(item.target, ast.Name):
-                fields.append(item.target.id)
+                fields.add(item.target.id)
 
         elif isinstance(item, ast.Assign):
             for target in item.targets:
                 if isinstance(target, ast.Name):
-                    fields.append(target.id)
+                    fields.add(target.id)
 
-    return sorted(set(fields))
+    return sorted(fields)
 
 
-def extract_class_properties(node: ast.ClassDef) -> list[str]:
-    properties: list[str] = []
+def extract_properties(
+    node: ast.ClassDef,
+) -> list[str]:
+
+    properties = []
 
     for item in node.body:
-        if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+
+        if not isinstance(
+            item,
+            (
+                ast.FunctionDef,
+                ast.AsyncFunctionDef,
+            ),
+        ):
             continue
 
         for decorator in item.decorator_list:
-            name = get_decorator_name(decorator)
+
+            name = decorator_name(decorator)
 
             if name.endswith("property"):
                 properties.append(item.name)
@@ -434,254 +446,417 @@ def extract_class_properties(node: ast.ClassDef) -> list[str]:
     return sorted(set(properties))
 
 
-def extract_class_methods(node: ast.ClassDef) -> list[str]:
-    methods: list[str] = []
+def extract_methods(
+    node: ast.ClassDef,
+) -> list[str]:
 
-    for item in node.body:
-        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            methods.append(item.name)
+    return sorted(
+        {
+            item.name
+            for item in node.body
+            if isinstance(
+                item,
+                (
+                    ast.FunctionDef,
+                    ast.AsyncFunctionDef,
+                ),
+            )
+        }
+    )
 
-    return sorted(set(methods))
 
+def extract_bases(
+    node: ast.ClassDef,
+) -> list[str]:
 
-def extract_base_names(node: ast.ClassDef) -> list[str]:
-    return [
-        get_dotted_name(base)
-        for base in node.bases
-        if get_dotted_name(base)
-    ]
+    return sorted(
+        {
+            dotted_name(base)
+            for base in node.bases
+            if dotted_name(base)
+        }
+    )
 
 
 # ============================================================================
-# AST file analysis
+# File analysis
 # ============================================================================
 
-def analyze_file(path: Path, symbols: list[str]) -> FileAnalysis:
+def analyze_file(
+    path: Path,
+    symbols: list[str],
+) -> FileAnalysis:
+
     relative = path.relative_to(REPO_ROOT).as_posix()
-    analysis = FileAnalysis(
+
+    module_name = module_name_from_path(path)
+
+    result = FileAnalysis(
         file=path,
         relative_path=relative,
+        module_name=module_name,
         is_test=is_test_file(path),
     )
 
     try:
-        text = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        text = path.read_text(encoding="utf-8", errors="replace")
+        text = path.read_text(
+            encoding="utf-8",
+            errors="replace",
+        )
 
-    try:
-        tree = ast.parse(text, filename=str(path))
-    except SyntaxError:
-        return analysis
+        tree = ast.parse(
+            text,
+            filename=str(path),
+        )
+
+    except (
+        OSError,
+        SyntaxError,
+    ):
+        return result
 
     symbol_set = set(symbols)
 
     for node in ast.walk(tree):
 
         # ---------------------------------------------------------------
-        # Definitions
+        # Class definitions
         # ---------------------------------------------------------------
+
         if isinstance(node, ast.ClassDef):
+
             if node.name in symbol_set:
-                analysis.definitions.append(
+
+                result.definitions.append(
                     SymbolDefinition(
                         symbol=node.name,
                         file=path,
                         relative_path=relative,
+                        module_name=module_name,
                         line=node.lineno,
-                        bases=extract_base_names(node),
-                        decorator_names=[
-                            get_decorator_name(d)
+                        bases=extract_bases(node),
+                        decorators=[
+                            decorator_name(d)
                             for d in node.decorator_list
                         ],
-                        fields=extract_class_fields(node),
-                        properties=extract_class_properties(node),
-                        methods=extract_class_methods(node),
+                        fields=extract_fields(node),
+                        properties=extract_properties(node),
+                        methods=extract_methods(node),
                     )
                 )
 
         # ---------------------------------------------------------------
-        # Imports
+        # from x import Symbol
         # ---------------------------------------------------------------
-        elif isinstance(node, ast.ImportFrom):
+
+        elif isinstance(
+            node,
+            ast.ImportFrom,
+        ):
+
             module = node.module or ""
 
             for alias in node.names:
-                imported = alias.name
-                local_name = alias.asname or imported
 
-                if imported in symbol_set:
-                    analysis.imports.append(
-                        ImportEvidence(
-                            file=path,
-                            relative_path=relative,
-                            line=node.lineno,
-                            imported_symbol=imported,
-                            module=module,
-                            alias=alias.asname,
-                        )
-                    )
+                imported_symbol = alias.name
 
-        elif isinstance(node, ast.Import):
-            for alias in node.names:
-                root_name = alias.name.split(".")[0]
+                if imported_symbol not in symbol_set:
+                    continue
 
-                if root_name in symbol_set:
-                    analysis.imports.append(
-                        ImportEvidence(
-                            file=path,
-                            relative_path=relative,
-                            line=node.lineno,
-                            imported_symbol=root_name,
-                            module=alias.name,
-                            alias=alias.asname,
-                        )
-                    )
-
-        # ---------------------------------------------------------------
-        # Symbol usages
-        # ---------------------------------------------------------------
-        elif isinstance(node, ast.Name):
-            if node.id in symbol_set:
-                context = "name"
-
-                if isinstance(node.ctx, ast.Call):
-                    context = "constructor/call"
-
-                analysis.usages.append(
-                    SymbolUsage(
+                result.imports.append(
+                    ImportEvidence(
                         file=path,
                         relative_path=relative,
                         line=node.lineno,
-                        symbol=node.id,
-                        context=context,
+                        imported_symbol=imported_symbol,
+                        module=module,
+                        alias=alias.asname,
                     )
                 )
+
+        # ---------------------------------------------------------------
+        # import x
+        # ---------------------------------------------------------------
+
+        elif isinstance(
+            node,
+            ast.Import,
+        ):
+
+            for alias in node.names:
+
+                imported_root = alias.name.split(".")[0]
+
+                if imported_root not in symbol_set:
+                    continue
+
+                result.imports.append(
+                    ImportEvidence(
+                        file=path,
+                        relative_path=relative,
+                        line=node.lineno,
+                        imported_symbol=imported_root,
+                        module=alias.name,
+                        alias=alias.asname,
+                    )
+                )
+
+        # ---------------------------------------------------------------
+        # Symbol usage
+        # ---------------------------------------------------------------
+
+        elif isinstance(node, ast.Name):
+
+            if node.id not in symbol_set:
+                continue
+
+            context = "reference"
+
+            if isinstance(node.ctx, ast.Store):
+                context = "assignment"
+
+            result.usages.append(
+                UsageEvidence(
+                    file=path,
+                    relative_path=relative,
+                    line=node.lineno,
+                    symbol=node.id,
+                    context=context,
+                )
+            )
 
         elif isinstance(node, ast.Attribute):
-            if node.attr in symbol_set:
-                analysis.usages.append(
-                    SymbolUsage(
-                        file=path,
-                        relative_path=relative,
-                        line=node.lineno,
-                        symbol=node.attr,
-                        context="attribute",
-                    )
+
+            if node.attr not in symbol_set:
+                continue
+
+            result.usages.append(
+                UsageEvidence(
+                    file=path,
+                    relative_path=relative,
+                    line=node.lineno,
+                    symbol=node.attr,
+                    context="attribute",
                 )
+            )
 
-    return analysis
+    return result
 
 
 # ============================================================================
-# Import-origin resolution
+# Definition index
 # ============================================================================
 
-def resolve_import_origin(
-    import_evidence: ImportEvidence,
-    definitions: list[SymbolDefinition],
+def build_definition_index(
+    analyses: list[FileAnalysis],
+) -> dict[str, list[SymbolDefinition]]:
+
+    index: dict[
+        str,
+        list[SymbolDefinition],
+    ] = defaultdict(list)
+
+    for analysis in analyses:
+
+        for definition in analysis.definitions:
+
+            index[definition.symbol].append(
+                definition
+            )
+
+    return index
+
+
+# ============================================================================
+# Import resolution
+# ============================================================================
+
+def resolve_import(
+    evidence: ImportEvidence,
+    definition_index: dict[str, list[SymbolDefinition]],
 ) -> str:
-    """
-    Resolve a symbol import against discovered definitions.
 
-    This is intentionally heuristic. It does not execute imports.
-    """
-
-    module = import_evidence.module
-
-    candidates = [
-        definition
-        for definition in definitions
-        if definition.symbol == import_evidence.imported_symbol
-    ]
+    candidates = definition_index.get(
+        evidence.imported_symbol,
+        [],
+    )
 
     if not candidates:
         return "UNRESOLVED"
 
-    module_tail = module.replace(".", "/")
+    # ---------------------------------------------------------------
+    # Exact module path match.
+    # ---------------------------------------------------------------
+
+    expected_path = module_to_relative_path(
+        (
+            f"{PACKAGE_ROOT}."
+            f"{evidence.module}"
+        )
+    )
 
     exact = [
         definition
         for definition in candidates
-        if definition.relative_path.endswith(module_tail + ".py")
+        if definition.relative_path == expected_path
     ]
 
     if len(exact) == 1:
         return exact[0].relative_path
 
+    # ---------------------------------------------------------------
+    # If only one candidate exists, resolve directly.
+    # ---------------------------------------------------------------
+
     if len(candidates) == 1:
         return candidates[0].relative_path
+
+    # ---------------------------------------------------------------
+    # Explicit source module path may match by suffix.
+    # ---------------------------------------------------------------
+
+    suffix = module_to_relative_path(
+        evidence.module
+    )
+
+    suffix_matches = [
+        definition
+        for definition in candidates
+        if definition.relative_path.endswith(suffix)
+    ]
+
+    if len(suffix_matches) == 1:
+        return suffix_matches[0].relative_path
 
     return "AMBIGUOUS"
 
 
+def resolve_all_imports(
+    analyses: list[FileAnalysis],
+) -> None:
+
+    index = build_definition_index(
+        analyses
+    )
+
+    for analysis in analyses:
+
+        for evidence in analysis.imports:
+
+            evidence.resolved_origin = resolve_import(
+                evidence,
+                index,
+            )
+
+
 # ============================================================================
-# Semantic comparison
+# Semantic normalization
 # ============================================================================
 
-def normalize_field(field: str) -> str:
-    aliases = {
-        "identifier": "identity",
-        "source_id": "identity",
-        "source": "identity",
-        "source_name": "name",
-        "url": "website",
-        "download_url": "website",
-        "api_endpoint": "website",
-        "year": "publication_year",
+def semantic_field(
+    field: str,
+    aliases: dict[str, str],
+) -> str:
+
+    return aliases.get(
+        field,
+        field,
+    )
+
+
+def semantic_fields(
+    definition: SymbolDefinition,
+    aliases: dict[str, str],
+) -> set[str]:
+
+    return {
+        semantic_field(
+            field,
+            aliases,
+        )
+        for field in definition.fields
     }
 
-    return aliases.get(field, field)
+
+# ============================================================================
+# Architecture classification
+# ============================================================================
+
+def layer_for_path(
+    relative_path: str,
+) -> str:
+
+    normalized = relative_path.replace(
+        "\\",
+        "/",
+    ).lower()
+
+    if normalized.startswith("domain/"):
+        return "DOMAIN"
+
+    if normalized.startswith("lexical/"):
+        return "LEXICAL"
+
+    if normalized.startswith("acquisition/"):
+        return "ACQUISITION"
+
+    if normalized.startswith("corpus/"):
+        return "CORPUS"
+
+    if normalized.startswith("core/"):
+        return "CORE"
+
+    if normalized.startswith("models/"):
+        return "MODELS"
+
+    if normalized.startswith("services/"):
+        return "SERVICES"
+
+    if normalized.startswith("pipeline/"):
+        return "PIPELINE"
+
+    return "OTHER"
 
 
-def semantic_field_groups(
-    definitions: list[SymbolDefinition],
-) -> dict[str, set[str]]:
-    result: dict[str, set[str]] = defaultdict(set)
+def component_for_path(
+    relative_path: str,
+) -> str:
 
-    for definition in definitions:
-        for field in definition.fields:
-            result[definition.relative_path].add(normalize_field(field))
+    normalized = relative_path.replace(
+        "\\",
+        "/",
+    ).lower()
 
-    return result
+    mappings = [
+        ("/validators/", "VALIDATOR"),
+        ("/repositories/", "REPOSITORY"),
+        ("/registries/", "REGISTRY"),
+        ("/indexes/", "INDEX"),
+        ("/catalog", "CATALOG"),
+        ("/builders/", "BUILDER"),
+        ("/services/", "SERVICE"),
+        ("/providers/", "PROVIDER"),
+        ("/acquirers/", "ACQUIRER"),
+        ("/adapters/", "ADAPTER"),
+        ("/pipelines/", "PIPELINE"),
+        ("/models/", "MODEL"),
+        ("/sources/", "SOURCE"),
+    ]
 
+    for marker, label in mappings:
 
-def compare_definitions(
-    definitions: list[SymbolDefinition],
-) -> list[tuple[str, str, set[str]]]:
-    results = []
+        if marker in normalized:
+            return label
 
-    for index, left in enumerate(definitions):
-        for right in definitions[index + 1 :]:
-            left_fields = {
-                normalize_field(field)
-                for field in left.fields
-            }
-
-            right_fields = {
-                normalize_field(field)
-                for field in right.fields
-            }
-
-            common = left_fields & right_fields
-
-            if common:
-                results.append(
-                    (
-                        left.relative_path,
-                        right.relative_path,
-                        common,
-                    )
-                )
-
-    return results
+    return "OTHER"
 
 
 # ============================================================================
-# Reporting helpers
+# Reporting
 # ============================================================================
 
 def section(title: str) -> None:
+
     print()
     print("=" * 78)
     print(title)
@@ -689,64 +864,140 @@ def section(title: str) -> None:
 
 
 def subsection(title: str) -> None:
+
     print()
     print("-" * 78)
     print(title)
     print("-" * 78)
 
 
-def print_definition(definition: SymbolDefinition) -> None:
-    print(f"\n{definition.symbol}")
-    print(f"  file        : {definition.relative_path}")
-    print(f"  line        : {definition.line}")
+def print_definitions(
+    definitions: list[SymbolDefinition],
+) -> None:
 
-    print(
-        "  bases       : "
-        + (", ".join(definition.bases) or "(none)")
-    )
+    subsection("TARGET DEFINITIONS")
 
-    print(
-        "  decorators  : "
-        + (", ".join(definition.decorator_names) or "(none)")
-    )
+    if not definitions:
 
-    print(
-        "  fields      : "
-        + (", ".join(definition.fields) or "(none)")
-    )
+        print("No target definitions discovered.")
+        return
 
-    print(
-        "  properties  : "
-        + (", ".join(definition.properties) or "(none)")
-    )
+    for definition in definitions:
 
-    print(
-        "  methods     : "
-        + (", ".join(definition.methods) or "(none)")
-    )
+        print()
+        print(definition.symbol)
+
+        print(
+            f"  file        : "
+            f"{definition.relative_path}"
+        )
+
+        print(
+            f"  module      : "
+            f"{definition.module_name}"
+        )
+
+        print(
+            f"  line        : "
+            f"{definition.line}"
+        )
+
+        print(
+            f"  layer       : "
+            f"{layer_for_path(definition.relative_path)}"
+        )
+
+        print(
+            f"  component   : "
+            f"{component_for_path(definition.relative_path)}"
+        )
+
+        print(
+            "  bases       : "
+            + (
+                ", ".join(definition.bases)
+                or "(none)"
+            )
+        )
+
+        print(
+            "  decorators  : "
+            + (
+                ", ".join(definition.decorators)
+                or "(none)"
+            )
+        )
+
+        print(
+            "  fields      : "
+            + (
+                ", ".join(definition.fields)
+                or "(none)"
+            )
+        )
+
+        print(
+            "  properties  : "
+            + (
+                ", ".join(definition.properties)
+                or "(none)"
+            )
+        )
+
+        print(
+            "  methods     : "
+            + (
+                ", ".join(definition.methods)
+                or "(none)"
+            )
+        )
 
 
 def print_imports(
-    imports: list[ImportEvidence],
-    definitions: list[SymbolDefinition],
+    analyses: list[FileAnalysis],
 ) -> None:
+
+    subsection(
+        "IMPORT OWNERSHIP / RESOLUTION"
+    )
+
+    imports = [
+        evidence
+        for analysis in analyses
+        for evidence in analysis.imports
+    ]
+
+    if not imports:
+
+        print("No explicit imports discovered.")
+        return
+
     for evidence in imports:
-        origin = resolve_import_origin(evidence, definitions)
 
         scope = (
             "TEST"
-            if evidence.file and is_test_file(evidence.file)
+            if is_test_file(evidence.file)
             else "PROD"
         )
 
-        alias = f" as {evidence.alias}" if evidence.alias else ""
+        alias = (
+            f" as {evidence.alias}"
+            if evidence.alias
+            else ""
+        )
 
         print(
             f"[{scope}] "
-            f"{evidence.relative_path}:{evidence.line} "
-            f"imports {evidence.imported_symbol}{alias} "
-            f"from {evidence.module} "
-            f"-> {origin}"
+            f"{evidence.relative_path}:"
+            f"{evidence.line} "
+            f"imports "
+            f"{evidence.imported_symbol}"
+            f"{alias} "
+            f"from "
+            f"{PACKAGE_ROOT}."
+            f"{evidence.module} "
+            f"-> "
+            f"{evidence.resolved_origin}"
         )
 
 
@@ -755,243 +1006,670 @@ def print_consumers(
     definitions: list[SymbolDefinition],
     symbols: list[str],
 ) -> None:
+
+    subsection(
+        "PRODUCTION CONSUMERS"
+    )
+
     definition_files = {
         definition.relative_path
         for definition in definitions
     }
 
+    consumers = {}
+
     for analysis in analyses:
+
+        if analysis.is_test:
+            continue
+
         if analysis.relative_path in definition_files:
             continue
 
-        if not analysis.usages:
-            continue
-
-        relevant = [
+        usages = [
             usage
             for usage in analysis.usages
             if usage.symbol in symbols
         ]
 
-        if not relevant:
-            continue
+        if usages:
+            consumers[
+                analysis.relative_path
+            ] = usages
 
-        scope = "TEST" if analysis.is_test else "PROD"
-
-        lines = sorted({usage.line for usage in relevant})
+    if not consumers:
 
         print(
-            f"[{scope}] "
-            f"{analysis.relative_path} "
+            "No production consumers detected."
+        )
+        return
+
+    for path in sorted(consumers):
+
+        usages = consumers[path]
+
+        lines = sorted(
+            {
+                usage.line
+                for usage in usages
+            }
+        )
+
+        print(
+            f"[{layer_for_path(path)}] "
+            f"{component_for_path(path)} "
+            f"{path} "
             f"lines={lines}"
         )
 
 
-def classify_definition_path(path: str) -> str:
-    normalized = path.replace("\\", "/").lower()
-
-    if "/validators/" in normalized:
-        return "VALIDATOR"
-
-    if "/repositories/" in normalized:
-        return "REPOSITORY"
-
-    if "/registries/" in normalized or "/catalog" in normalized:
-        return "REGISTRY/CATALOG"
-
-    if "/builders/" in normalized:
-        return "BUILDER"
-
-    if "/services/" in normalized:
-        return "SERVICE"
-
-    if "/providers/" in normalized:
-        return "PROVIDER"
-
-    if "/acquirers/" in normalized:
-        return "ACQUIRER"
-
-    if "/models/" in normalized:
-        return "MODEL"
-
-    if "/sources/" in normalized:
-        return "SOURCE"
-
-    if "/adapters/" in normalized:
-        return "ADAPTER"
-
-    if "/pipelines/" in normalized:
-        return "PIPELINE"
-
-    return "OTHER"
-
-
-def print_ownership_summary(
+def print_test_consumers(
+    analyses: list[FileAnalysis],
     definitions: list[SymbolDefinition],
-    imports: list[ImportEvidence],
+    symbols: list[str],
 ) -> None:
-    subsection("OWNERSHIP SIGNALS")
 
-    production_imports = [
-        item
-        for item in imports
-        if not is_test_file(item.file)
-    ]
+    subsection(
+        "TEST CONSUMERS"
+    )
 
-    test_imports = [
-        item
-        for item in imports
-        if is_test_file(item.file)
-    ]
-
-    print(f"Definitions discovered : {len(definitions)}")
-    print(f"Production imports     : {len(production_imports)}")
-    print(f"Test imports           : {len(test_imports)}")
-
-    ownership = defaultdict(list)
-
-    for definition in definitions:
-        ownership[classify_definition_path(definition.relative_path)].append(
-            definition.relative_path
-        )
-
-    for category in sorted(ownership):
-        print(f"\n{category}:")
-        for path in sorted(set(ownership[category])):
-            print(f"  - {path}")
-
-
-def print_semantic_overlap(
-    definitions: list[SymbolDefinition],
-) -> None:
-    subsection("SEMANTIC FIELD OVERLAP")
-
-    comparisons = compare_definitions(definitions)
-
-    if not comparisons:
-        print("No common semantic fields detected.")
-        return
-
-    for left, right, common in comparisons:
-        print(f"\n{left}")
-        print(f"vs")
-        print(f"{right}")
-        print(
-            "  common semantic fields: "
-            + ", ".join(sorted(common))
-        )
-
-
-def print_architectural_decision(
-    definitions: list[SymbolDefinition],
-    production_imports: list[ImportEvidence],
-) -> None:
-    subsection("ARCHITECTURAL SIGNAL")
-
-    if not definitions:
-        print("NO-DEFINITION")
-        print("No target definition was discovered.")
-        return
-
-    if len(definitions) == 1:
-        if production_imports:
-            print("LIKELY SINGLE ACTIVE MODEL")
-            print(
-                "One definition has production consumers. "
-                "No duplicate target definition was found."
-            )
-        else:
-            print("POSSIBLE ORPHAN")
-            print(
-                "One definition exists, but no production import "
-                "was detected by this static audit."
-            )
-        return
-
-    # Multiple definitions.
-    categories = {
-        classify_definition_path(definition.relative_path)
+    definition_files = {
+        definition.relative_path
         for definition in definitions
     }
 
-    if len(categories) > 1:
-        print("LIKELY DISTINCT REPRESENTATIONS")
-        print(
-            "Multiple definitions exist in different architectural "
-            "locations. Compare ownership and semantics before consolidation."
+    consumers = {}
+
+    for analysis in analyses:
+
+        if not analysis.is_test:
+            continue
+
+        if analysis.relative_path in definition_files:
+            continue
+
+        usages = [
+            usage
+            for usage in analysis.usages
+            if usage.symbol in symbols
+        ]
+
+        if usages:
+            consumers[
+                analysis.relative_path
+            ] = usages
+
+    if not consumers:
+
+        print("No test consumers detected.")
+        return
+
+    for path in sorted(consumers):
+
+        lines = sorted(
+            {
+                usage.line
+                for usage in consumers[path]
+            }
         )
+
+        print(
+            f"{path} lines={lines}"
+        )
+
+
+def print_exact_semantics(
+    definitions: list[SymbolDefinition],
+) -> None:
+
+    subsection(
+        "EXACT FIELD COMPARISON"
+    )
+
+    for index, left in enumerate(definitions):
+
+        for right in definitions[index + 1:]:
+
+            common = (
+                set(left.fields)
+                & set(right.fields)
+            )
+
+            only_left = (
+                set(left.fields)
+                - set(right.fields)
+            )
+
+            only_right = (
+                set(right.fields)
+                - set(left.fields)
+            )
+
+            print()
+            print(left.relative_path)
+            print("vs")
+            print(right.relative_path)
+
+            print(
+                "  exact common fields: "
+                + (
+                    ", ".join(
+                        sorted(common)
+                    )
+                    or "(none)"
+                )
+            )
+
+            print(
+                "  left-only fields: "
+                + (
+                    ", ".join(
+                        sorted(only_left)
+                    )
+                    or "(none)"
+                )
+            )
+
+            print(
+                "  right-only fields: "
+                + (
+                    ", ".join(
+                        sorted(only_right)
+                    )
+                    or "(none)"
+                )
+            )
+
+
+def print_semantic_equivalence(
+    definitions: list[SymbolDefinition],
+    aliases: dict[str, str],
+) -> None:
+
+    subsection(
+        "SEMANTIC FIELD COMPARISON"
+    )
+
+    for index, left in enumerate(definitions):
+
+        for right in definitions[index + 1:]:
+
+            left_semantic = semantic_fields(
+                left,
+                aliases,
+            )
+
+            right_semantic = semantic_fields(
+                right,
+                aliases,
+            )
+
+            common = (
+                left_semantic
+                & right_semantic
+            )
+
+            print()
+            print(left.relative_path)
+            print("vs")
+            print(right.relative_path)
+
+            print(
+                "  semantic overlap: "
+                + (
+                    ", ".join(
+                        sorted(common)
+                    )
+                    or "(none)"
+                )
+            )
+
+
+def print_boundary_analysis(
+    analyses: list[FileAnalysis],
+    definitions: list[SymbolDefinition],
+) -> None:
+
+    subsection(
+        "ARCHITECTURAL BOUNDARY ANALYSIS"
+    )
+
+    definition_map = {
+        definition.relative_path:
+            definition
+        for definition in definitions
+    }
+
+    print("Target definitions by layer:")
+
+    for definition in definitions:
+
+        print(
+            f"  "
+            f"{layer_for_path(definition.relative_path):12} "
+            f"{component_for_path(definition.relative_path):14} "
+            f"{definition.relative_path}"
+        )
+
+    print()
+    print("Production imports by boundary:")
+
+    boundaries = defaultdict(list)
+
+    for analysis in analyses:
+
+        if analysis.is_test:
+            continue
+
+        consumer_layer = layer_for_path(
+            analysis.relative_path
+        )
+
+        for evidence in analysis.imports:
+
+            origin = evidence.resolved_origin
+
+            if origin in definition_map:
+
+                origin_layer = layer_for_path(
+                    origin
+                )
+
+                if consumer_layer != origin_layer:
+
+                    key = (
+                        consumer_layer,
+                        origin_layer,
+                    )
+
+                    boundaries[key].append(
+                        (
+                            analysis.relative_path,
+                            origin,
+                            evidence.line,
+                        )
+                    )
+
+    if not boundaries:
+
+        print(
+            "  No cross-layer imports of the "
+            "target definitions detected."
+        )
+
     else:
-        print("DUPLICATE-CANDIDATE")
+
+        for (
+            consumer_layer,
+            origin_layer,
+        ) in sorted(boundaries):
+
+            print()
+            print(
+                f"  {consumer_layer} -> "
+                f"{origin_layer}"
+            )
+
+            for (
+                consumer,
+                origin,
+                line,
+            ) in boundaries[
+                (
+                    consumer_layer,
+                    origin_layer,
+                )
+            ]:
+
+                print(
+                    f"    {consumer}:{line}"
+                    f" -> {origin}"
+                )
+
+
+def print_contract_signals(
+    definitions: list[SymbolDefinition],
+) -> None:
+
+    subsection(
+        "CONTRACT DIFFERENCE SIGNALS"
+    )
+
+    for index, left in enumerate(definitions):
+
+        for right in definitions[index + 1:]:
+
+            print()
+            print(
+                f"{left.relative_path}"
+            )
+            print(
+                f"vs"
+            )
+            print(
+                f"{right.relative_path}"
+            )
+
+            left_methods = set(
+                left.methods
+            )
+
+            right_methods = set(
+                right.methods
+            )
+
+            common_methods = (
+                left_methods
+                & right_methods
+            )
+
+            left_only = (
+                left_methods
+                - right_methods
+            )
+
+            right_only = (
+                right_methods
+                - left_methods
+            )
+
+            print(
+                "  common methods: "
+                + (
+                    ", ".join(
+                        sorted(common_methods)
+                    )
+                    or "(none)"
+                )
+            )
+
+            print(
+                "  left-only methods: "
+                + (
+                    ", ".join(
+                        sorted(left_only)
+                    )
+                    or "(none)"
+                )
+            )
+
+            print(
+                "  right-only methods: "
+                + (
+                    ", ".join(
+                        sorted(right_only)
+                    )
+                    or "(none)"
+                )
+            )
+
+
+def classify_architecture(
+    definitions: list[SymbolDefinition],
+    analyses: list[FileAnalysis],
+) -> str:
+
+    if not definitions:
+        return "NO-DEFINITION"
+
+    if len(definitions) == 1:
+        definition = definitions[0]
+
+        production_imports = [
+            evidence
+            for analysis in analyses
+            if not analysis.is_test
+            for evidence in analysis.imports
+            if evidence.resolved_origin
+            == definition.relative_path
+        ]
+
+        if production_imports:
+            return "ACTIVE-SINGLE-MODEL"
+
+        return "POSSIBLE-ORPHAN"
+
+    layers = {
+        layer_for_path(
+            definition.relative_path
+        )
+        for definition in definitions
+    }
+
+    if len(layers) > 1:
+        return "DISTINCT-REPRESENTATIONS-REVIEW"
+
+    return "DUPLICATE-CANDIDATE"
+
+
+def print_decision(
+    definitions: list[SymbolDefinition],
+    analyses: list[FileAnalysis],
+) -> None:
+
+    subsection(
+        "ARCHITECTURAL DECISION SIGNAL"
+    )
+
+    decision = classify_architecture(
+        definitions,
+        analyses,
+    )
+
+    if decision == "NO-DEFINITION":
+
+        print("NO-DEFINITION")
+
+        return
+
+    if decision == "ACTIVE-SINGLE-MODEL":
+
         print(
-            "Multiple definitions exist within similar architectural "
-            "locations. Consumer and contract analysis is required."
+            "ACTIVE SINGLE MODEL"
         )
 
+        print(
+            "One active production representation "
+            "was discovered."
+        )
 
-# ============================================================================
-# Target-specific discovery
-# ============================================================================
+        return
 
-def relevant_path(path: Path, target_config: dict) -> bool:
-    relative = path.relative_to(REPO_ROOT).as_posix()
+    if decision == "POSSIBLE-ORPHAN":
 
-    configured_paths = target_config.get("paths", [])
+        print(
+            "POSSIBLE ORPHAN"
+        )
 
-    if not configured_paths:
-        return True
+        print(
+            "No production import was statically "
+            "resolved to the definition."
+        )
 
-    return any(
-        relative == prefix
-        or relative.startswith(prefix.rstrip("/") + "/")
-        for prefix in configured_paths
+        return
+
+    if decision == "DISTINCT-REPRESENTATIONS-REVIEW":
+
+        print(
+            "DISTINCT REPRESENTATIONS — "
+            "DO NOT CONSOLIDATE YET"
+        )
+
+        print(
+            "Definitions exist in different "
+            "architectural layers."
+        )
+
+        print(
+            "First establish ownership and "
+            "boundary contracts."
+        )
+
+        return
+
+    print(
+        "DUPLICATE CANDIDATE — "
+        "REQUIRES CONTRACT REVIEW"
     )
 
 
-def analyze_target(target_name: str, show_code: bool = False) -> None:
-    if target_name not in TARGETS:
-        valid = ", ".join(sorted(TARGETS))
-        raise SystemExit(
-            f"Unknown target '{target_name}'. Valid targets: {valid}"
+# ============================================================================
+# Source snippets
+# ============================================================================
+
+def print_source_snippets(
+    definitions: list[SymbolDefinition],
+) -> None:
+
+    subsection(
+        "TARGET SOURCE SNIPPETS"
+    )
+
+    for definition in definitions:
+
+        try:
+
+            lines = definition.file.read_text(
+                encoding="utf-8",
+                errors="replace",
+            ).splitlines()
+
+        except OSError as exc:
+
+            print(
+                f"Unable to read "
+                f"{definition.relative_path}: "
+                f"{exc}"
+            )
+
+            continue
+
+        start = max(
+            0,
+            definition.line - 1,
         )
 
-    config = TARGETS[target_name]
+        end = min(
+            len(lines),
+            start + 100,
+        )
 
-    symbols = config["symbols"]
+        print()
+        print(
+            f"# {definition.relative_path}"
+        )
 
-    section("SANSKRITAI ARCHITECTURAL AUDIT")
+        print(
+            "#" + "-" * 76
+        )
 
-    print(f"Repository : {REPO_ROOT}")
-    print(f"Target     : {target_name}")
-    print(f"Symbols    : {', '.join(symbols)}")
+        for index in range(
+            start,
+            end,
+        ):
+
+            print(
+                f"{index + 1:5}: "
+                f"{lines[index]}"
+            )
+
+
+# ============================================================================
+# Main audit
+# ============================================================================
+
+def run_audit(
+    target_name: str,
+    view: str = "full",
+    show_code: bool = False,
+) -> None:
+
+    if target_name not in TARGETS:
+
+        raise SystemExit(
+            f"Unknown target: {target_name}"
+        )
+
+    config = TARGETS[
+        target_name
+    ]
+
+    symbols = config[
+        "symbols"
+    ]
+
+    section(
+        "SANSKRITAI ARCHITECTURAL AUDIT"
+    )
+
+    print(
+        f"Repository : {REPO_ROOT}"
+    )
+
+    print(
+        f"Target     : {target_name}"
+    )
+
+    print(
+        f"Symbols    : "
+        f"{', '.join(symbols)}"
+    )
 
     print()
-    print("Historical numbered Python files are excluded.")
-    print("Generated _G<number>.py audit files are excluded.")
-    print("Tests and production code are reported separately.")
+    print(
+        "Historical numbered Python files "
+        "are excluded."
+    )
 
-    # ---------------------------------------------------------------------
-    # Discover files
-    # ---------------------------------------------------------------------
+    print(
+        "Generated _G<number>.py files "
+        "are excluded."
+    )
+
+    print(
+        "Production and test code are "
+        "analyzed separately."
+    )
 
     python_files = [
         path
-        for path in iter_python_files(REPO_ROOT)
-        if relevant_path(path, config)
+        for path in iter_python_files(
+            REPO_ROOT
+        )
+        if (
+            not config["paths"]
+            or any(
+                path.relative_to(
+                    REPO_ROOT
+                ).as_posix() == prefix
+                or
+                path.relative_to(
+                    REPO_ROOT
+                ).as_posix().startswith(
+                    prefix.rstrip("/") + "/"
+                )
+                for prefix in config["paths"]
+            )
+        )
     ]
 
-    subsection("1. FILE INVENTORY")
+    print()
+    print(
+        f"Python files scanned: "
+        f"{len(python_files)}"
+    )
 
-    print(f"Python files scanned: {len(python_files)}")
+    analyses = [
+        analyze_file(
+            path,
+            symbols,
+        )
+        for path in python_files
+    ]
 
-    analyses: list[FileAnalysis] = []
-
-    for path in python_files:
-        analysis = analyze_file(path, symbols)
-        analyses.append(analysis)
-
-    # ---------------------------------------------------------------------
-    # Definitions
-    # ---------------------------------------------------------------------
+    resolve_all_imports(
+        analyses
+    )
 
     definitions = [
         definition
@@ -999,191 +1677,204 @@ def analyze_target(target_name: str, show_code: bool = False) -> None:
         for definition in analysis.definitions
     ]
 
-    subsection("2. TARGET DEFINITIONS")
+    views = {
+        "full",
+        "summary",
+        "definitions",
+        "ownership",
+        "semantics",
+        "boundaries",
+        "contracts",
+    }
 
-    if not definitions:
-        print("No target definitions found.")
-    else:
-        for definition in definitions:
-            print_definition(definition)
+    if view not in views:
 
-    # ---------------------------------------------------------------------
-    # Imports
-    # ---------------------------------------------------------------------
+        raise SystemExit(
+            f"Unknown view: {view}"
+        )
 
-    imports = [
+    if view in {
+        "full",
+        "definitions",
+    }:
+
+        print_definitions(
+            definitions
+        )
+
+    if view in {
+        "full",
+        "ownership",
+    }:
+
+        print_imports(
+            analyses
+        )
+
+        print_consumers(
+            analyses,
+            definitions,
+            symbols,
+        )
+
+        print_test_consumers(
+            analyses,
+            definitions,
+            symbols,
+        )
+
+    if view in {
+        "full",
+        "semantics",
+    }:
+
+        print_exact_semantics(
+            definitions
+        )
+
+        print_semantic_equivalence(
+            definitions,
+            config[
+                "semantic_aliases"
+            ],
+        )
+
+    if view in {
+        "full",
+        "boundaries",
+    }:
+
+        print_boundary_analysis(
+            analyses,
+            definitions,
+        )
+
+    if view in {
+        "full",
+        "contracts",
+    }:
+
+        print_contract_signals(
+            definitions
+        )
+
+    if view in {
+        "full",
+        "summary",
+    }:
+
+        print_decision(
+            definitions,
+            analyses,
+        )
+
+    if show_code:
+
+        print_source_snippets(
+            definitions
+        )
+
+    section(
+        "AUDIT SUMMARY"
+    )
+
+    production_imports = [
         evidence
         for analysis in analyses
+        if not analysis.is_test
         for evidence in analysis.imports
     ]
 
-    subsection("3. IMPORT / CONSUMER ORIGINS")
-
-    if not imports:
-        print("No explicit target imports found.")
-    else:
-        print_imports(imports, definitions)
-
-    # ---------------------------------------------------------------------
-    # Ownership
-    # ---------------------------------------------------------------------
-
-    print_ownership_summary(definitions, imports)
-
-    # ---------------------------------------------------------------------
-    # Consumers
-    # ---------------------------------------------------------------------
-
-    subsection("4. DIRECT SYMBOL CONSUMERS")
-
-    print_consumers(
-        analyses=analyses,
-        definitions=definitions,
-        symbols=symbols,
-    )
-
-    # ---------------------------------------------------------------------
-    # Production/test split
-    # ---------------------------------------------------------------------
-
-    subsection("5. PRODUCTION vs TEST USAGE")
-
-    definition_paths = {
-        definition.relative_path
-        for definition in definitions
-    }
-
-    production_usage = defaultdict(list)
-    test_usage = defaultdict(list)
-
-    for analysis in analyses:
-        if analysis.relative_path in definition_paths:
-            continue
-
-        for usage in analysis.usages:
-            if analysis.is_test:
-                test_usage[analysis.relative_path].append(usage)
-            else:
-                production_usage[analysis.relative_path].append(usage)
-
-    print(f"Production consumer files: {len(production_usage)}")
-    print(f"Test consumer files      : {len(test_usage)}")
-
-    if production_usage:
-        print("\nProduction:")
-        for path in sorted(production_usage):
-            print(f"  - {path}")
-
-    if test_usage:
-        print("\nTests:")
-        for path in sorted(test_usage):
-            print(f"  - {path}")
-
-    # ---------------------------------------------------------------------
-    # Semantic fields
-    # ---------------------------------------------------------------------
-
-    print_semantic_overlap(definitions)
-
-    # ---------------------------------------------------------------------
-    # Architecture classification
-    # ---------------------------------------------------------------------
-
-    production_imports = [
-        item
-        for item in imports
-        if not is_test_file(item.file)
+    production_resolved = [
+        evidence
+        for evidence in production_imports
+        if evidence.resolved_origin
+        not in {
+            "UNRESOLVED",
+            "AMBIGUOUS",
+        }
     ]
 
-    print_architectural_decision(
-        definitions=definitions,
-        production_imports=production_imports,
+    production_consumers = set()
+
+    for analysis in analyses:
+
+        if analysis.is_test:
+            continue
+
+        if any(
+            usage.symbol in symbols
+            for usage in analysis.usages
+        ):
+
+            production_consumers.add(
+                analysis.relative_path
+            )
+
+    test_consumers = set()
+
+    for analysis in analyses:
+
+        if not analysis.is_test:
+            continue
+
+        if any(
+            usage.symbol in symbols
+            for usage in analysis.usages
+        ):
+
+            test_consumers.add(
+                analysis.relative_path
+            )
+
+    print(
+        f"Target definitions : "
+        f"{len(definitions)}"
     )
 
-    # ---------------------------------------------------------------------
-    # Semantic ownership matrix
-    # ---------------------------------------------------------------------
+    print(
+        f"Production imports : "
+        f"{len(production_imports)}"
+    )
 
-    subsection("6. FIELD OWNERSHIP MATRIX")
+    print(
+        f"Resolved imports   : "
+        f"{len(production_resolved)}"
+    )
 
-    semantic_fields = config.get("semantic_fields", [])
+    print(
+        f"Production users   : "
+        f"{len(production_consumers)}"
+    )
 
-    if not semantic_fields:
-        print(
-            "No predefined semantic-field matrix for this target. "
-            "Use discovered fields above."
-        )
-    else:
-        for definition in definitions:
-            print()
-            print(definition.relative_path)
+    print(
+        f"Test users         : "
+        f"{len(test_consumers)}"
+    )
 
-            normalized_fields = {
-                normalize_field(field)
-                for field in definition.fields
-            }
+    print()
 
-            for field in semantic_fields:
-                status = "YES" if normalize_field(field) in normalized_fields else "-"
-                print(f"  {field:22} {status}")
+    decision = classify_architecture(
+        definitions,
+        analyses,
+    )
 
-    # ---------------------------------------------------------------------
-    # Optional source snippets
-    # ---------------------------------------------------------------------
-
-    if show_code:
-        subsection("7. TARGET SOURCE SNIPPETS")
-
-        for definition in definitions:
-            try:
-                lines = definition.file.read_text(
-                    encoding="utf-8",
-                    errors="replace",
-                ).splitlines()
-
-                start = max(0, definition.line - 1)
-                end = min(len(lines), start + 80)
-
-                print()
-                print(f"# {definition.relative_path}")
-                print("#" + "-" * 76)
-
-                for index in range(start, end):
-                    print(
-                        f"{index + 1:5}: "
-                        f"{lines[index]}"
-                    )
-
-            except OSError as exc:
-                print(
-                    f"Unable to read {definition.relative_path}: {exc}"
-                )
-
-    # ---------------------------------------------------------------------
-    # Final concise summary
-    # ---------------------------------------------------------------------
-
-    section("AUDIT SUMMARY")
-
-    print(f"Target definitions : {len(definitions)}")
-    print(f"Explicit imports   : {len(imports)}")
-    print(f"Production users   : {len(production_usage)}")
-    print(f"Test users         : {len(test_usage)}")
-
-    if len(definitions) == 0:
-        print("\nDecision: NO-DEFINITION")
-    elif len(definitions) == 1 and production_usage:
-        print("\nDecision: ACTIVE SINGLE MODEL")
-    elif len(definitions) > 1:
-        print("\nDecision: DUPLICATE-CANDIDATE / DISTINCT-REPRESENTATION REVIEW")
-    else:
-        print("\nDecision: POSSIBLE ORPHAN / NEEDS REVIEW")
+    print(
+        f"Decision: {decision}"
+    )
 
     print()
     print(
-        "Guiding principle: "
-        "Inspect architecture by ownership first, "
-        "semantics second, implementation last."
+        "Guiding principle:"
+    )
+
+    print(
+        "Inspect architecture by "
+        "ownership first, "
+        "boundary second, "
+        "semantics third, "
+        "contract fourth, "
+        "implementation last."
     )
 
 
@@ -1192,32 +1883,55 @@ def analyze_target(target_name: str, show_code: bool = False) -> None:
 # ============================================================================
 
 def build_parser() -> argparse.ArgumentParser:
+
     parser = argparse.ArgumentParser(
-        description="Reusable SanskritAI architectural audit."
+        description=(
+            "Reusable SanskritAI "
+            "architectural audit engine."
+        )
     )
 
     parser.add_argument(
         "--target",
         default="lexical-source",
         choices=sorted(TARGETS),
-        help="Architecture target to audit.",
+    )
+
+    parser.add_argument(
+        "--view",
+        default="full",
+        choices=[
+            "full",
+            "summary",
+            "definitions",
+            "ownership",
+            "semantics",
+            "boundaries",
+            "contracts",
+        ],
     )
 
     parser.add_argument(
         "--show-code",
         action="store_true",
-        help="Show source snippets around discovered definitions.",
+        help=(
+            "Show source snippets "
+            "after architectural analysis."
+        ),
     )
 
     return parser
 
 
 def main() -> None:
+
     parser = build_parser()
+
     args = parser.parse_args()
 
-    analyze_target(
+    run_audit(
         target_name=args.target,
+        view=args.view,
         show_code=args.show_code,
     )
 
