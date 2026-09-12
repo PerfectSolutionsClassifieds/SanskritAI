@@ -14,7 +14,6 @@ between parsers, validators and record builders.
 
 Pipeline
 --------
-
 Parser
     ↓
 VargaRecord
@@ -40,7 +39,7 @@ from SanskritAI.amarakosha.enums.Amarakanda import (
 )
 
 
-@dataclass(slots=True, frozen=True)
+@dataclass(slots=True, frozen=True, kw_only=True)
 class VargaRecord(KnowledgeRecord[str]):
     """
     Immutable parser representation of an Amarakośa Varga.
@@ -49,49 +48,38 @@ class VargaRecord(KnowledgeRecord[str]):
     # ---------------------------------------------------------
     # Amarakośa location
     # ---------------------------------------------------------
-
     kanda: Amarakanda
-
     varga_number: int
 
     # ---------------------------------------------------------
     # Canonical title
     # ---------------------------------------------------------
-
     name: str
-
     title: str
 
     # ---------------------------------------------------------
     # Canonical text
     # ---------------------------------------------------------
-
     devanagari: str = ""
-
     iast: str = ""
-
     transliteration: str = ""
 
     # ---------------------------------------------------------
     # Description
     # ---------------------------------------------------------
-
     description: str = ""
 
     # ---------------------------------------------------------
     # Metadata
     # ---------------------------------------------------------
-
     tags: tuple[str, ...] = field(
         default_factory=tuple
     )
-
     notes: str = ""
 
     # ---------------------------------------------------------
     # Convenience
     # ---------------------------------------------------------
-
     @property
     def display_text(self) -> str:
         """

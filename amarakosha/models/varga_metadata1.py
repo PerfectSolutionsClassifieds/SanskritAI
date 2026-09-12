@@ -26,7 +26,7 @@ from SanskritAI.amarakosha.enums.Amarakanda import (
 )
 
 
-@dataclass(slots=True, frozen=True)
+@dataclass(slots=True)
 class VargaMetadata(BaseLexicalMetadata):
     """
     Metadata describing an Amarakośa Varga.
@@ -35,20 +35,29 @@ class VargaMetadata(BaseLexicalMetadata):
     # ---------------------------------------------------------
     # Hierarchy
     # ---------------------------------------------------------
+
     kanda: Amarakanda = Amarakanda.SVARGADI
+
     varga_number: int = 0
 
     # ---------------------------------------------------------
     # Identification
     # ---------------------------------------------------------
+
     name: str = ""
+
     devanagari: str = ""
+
     iast: str = ""
+
     title: str = ""
 
     # ---------------------------------------------------------
     # Editorial
     # ---------------------------------------------------------
+
     description: str = ""
+
     source_edition: str = ""
+
     notes: str = ""

@@ -14,6 +14,7 @@ between parsers, validators and record builders.
 
 Pipeline
 --------
+
 Parser
     ↓
 SynsetRecord
@@ -39,7 +40,7 @@ from SanskritAI.amarakosha.enums.Amarakanda import (
 )
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@dataclass(slots=True, frozen=True)
 class SynsetRecord(KnowledgeRecord[str]):
     """
     Immutable parser representation of an Amarakośa Synset.
@@ -48,26 +49,35 @@ class SynsetRecord(KnowledgeRecord[str]):
     # ---------------------------------------------------------
     # Amarakośa location
     # ---------------------------------------------------------
+
     kanda: Amarakanda
+
     varga: str
+
     verse: int
+
     sequence: int = 1
 
     # ---------------------------------------------------------
     # Canonical text
     # ---------------------------------------------------------
+
     devanagari: str = ""
+
     iast: str = ""
+
     transliteration: str = ""
 
     # ---------------------------------------------------------
     # Semantic information
     # ---------------------------------------------------------
+
     gloss: str = ""
 
     # ---------------------------------------------------------
     # Lexical references
     # ---------------------------------------------------------
+
     lexeme_ids: tuple[str, ...] = field(
         default_factory=tuple
     )
@@ -75,14 +85,17 @@ class SynsetRecord(KnowledgeRecord[str]):
     # ---------------------------------------------------------
     # Metadata
     # ---------------------------------------------------------
+
     tags: tuple[str, ...] = field(
         default_factory=tuple
     )
+
     notes: str = ""
 
     # ---------------------------------------------------------
     # Convenience
     # ---------------------------------------------------------
+
     @property
     def display_text(self) -> str:
         """

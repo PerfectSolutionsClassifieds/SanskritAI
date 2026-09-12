@@ -32,10 +32,12 @@ class AmarakoshaImporter:
         parser: AmarakoshaParser,
         registry: AmarakoshaRegistry,
     ) -> None:
+
         self._parser = parser
         self._registry = registry
 
     # ---------------------------------------------------------
+
     def import_source(
         self,
         source: str,
@@ -44,11 +46,13 @@ class AmarakoshaImporter:
         Import an Amarakośa source.
 
         Concrete implementations will:
+
         1. Parse the source.
         2. Build domain objects.
         3. Register them.
         """
         records = self._parser.parse(source)
+
         # Builder integration will be added in a subsequent
         # implementation milestone.
         for _record in records:

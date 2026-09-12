@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 """
@@ -6,7 +5,6 @@ SanskritAI
 ==========
 
 Base Knowledge Parser
-=====================
 
 Abstract base class for all knowledge parsers.
 
@@ -30,6 +28,7 @@ Concrete implementations
 
 Pipeline
 --------
+
 External Source
         ↓
 BaseKnowledgeParser
@@ -40,6 +39,8 @@ Version
 -------
 v0.6.0
 """
+
+from __future__ import annotations
 
 from abc import ABC
 from typing import Iterable

@@ -14,19 +14,19 @@ v0.4.0
 """
 
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Generic
 
 from SanskritAI.core.typing import TObject
 from SanskritAI.corpus.builders.node_builder import NodeBuilder
 
-TMetadata = TypeVar("TMetadata")
 
 class BaseAmarakoshaBuilder(
-    NodeBuilder[TObject, TMetadata],
-    Generic[TObject, TMetadata],
+    NodeBuilder[TObject],
+    Generic[TObject],
     ABC,
 ):
     """
     Base class for Amarakośa builders.
     """
+
     pass

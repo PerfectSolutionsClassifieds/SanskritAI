@@ -7,11 +7,13 @@ SanskritAI
 Amarakośa Synset
 
 Represents a traditional Amarakośa synonym group.
+
 Unlike DictionarySense, a Synset is a container of Lexemes.
 It models one semantic grouping within the Amarakośa.
 
 Hierarchy
 ---------
+
 Amarakanda
     └── Varga
             └── Synset
@@ -27,14 +29,16 @@ v0.4.0
 
 from typing import Iterable
 
-from SanskritAI.amarakosha.models.synset_metadata import (
-    SynsetMetadata,
-)
 from SanskritAI.corpus.models.container_node import (
     ContainerNode,
 )
+
 from SanskritAI.lexical.models.lexeme import (
     Lexeme,
+)
+
+from SanskritAI.amarakosha.models.synset_metadata import (
+    SynsetMetadata,
 )
 
 
@@ -47,6 +51,7 @@ class Synset(
 ):
     """
     Amarakośa synonym group.
+
     A Synset contains one or more canonical Lexemes that
     together express a shared semantic concept.
     """
@@ -57,6 +62,7 @@ class Synset(
         metadata: SynsetMetadata,
         children: Iterable[Lexeme] | None = None,
     ) -> None:
+
         super().__init__(
             identifier=identifier,
             metadata=metadata,
@@ -66,6 +72,7 @@ class Synset(
     # ---------------------------------------------------------
     # Convenience aliases
     # ---------------------------------------------------------
+
     @property
     def lexemes(self):
         """
@@ -116,6 +123,7 @@ class Synset(
         return self.metadata.synset_identifier
 
     # ---------------------------------------------------------
+
     def add_lexeme(
         self,
         lexeme: Lexeme,
@@ -126,6 +134,7 @@ class Synset(
         self.add_child(lexeme)
 
     # ---------------------------------------------------------
+
     def remove_lexeme(
         self,
         lexeme: Lexeme,

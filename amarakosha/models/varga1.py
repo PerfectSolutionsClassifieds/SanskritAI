@@ -10,6 +10,7 @@ Represents a semantic chapter within an Amarakośa Kāṇḍa.
 
 Hierarchy
 ---------
+
 Amarakanda
     └── Varga
             └── Synset
@@ -25,6 +26,7 @@ from typing import Iterable
 from SanskritAI.corpus.models.container_node import (
     ContainerNode,
 )
+
 from SanskritAI.amarakosha.models.synset import (
     Synset,
 )
@@ -50,6 +52,7 @@ class Varga(
         metadata: VargaMetadata,
         children: Iterable[Synset] | None = None,
     ) -> None:
+
         super().__init__(
             identifier=identifier,
             metadata=metadata,
@@ -57,6 +60,7 @@ class Varga(
         )
 
     # ---------------------------------------------------------
+
     @property
     def synsets(self):
         """
@@ -65,6 +69,7 @@ class Varga(
         return iter(self.children)
 
     # ---------------------------------------------------------
+
     @property
     def kanda(self):
         """
@@ -94,6 +99,7 @@ class Varga(
         return self.metadata.title
 
     # ---------------------------------------------------------
+
     def add_synset(
         self,
         synset: Synset,
@@ -104,6 +110,7 @@ class Varga(
         self.add_child(synset)
 
     # ---------------------------------------------------------
+
     def remove_synset(
         self,
         synset: Synset,

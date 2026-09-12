@@ -30,7 +30,8 @@ Version
 v0.4.0
 """
 
-from SanskritAI.amarakosha.enums.kanda import Amarakanda
+# from SanskritAI.amarakosha.enums.kanda import Amarakanda
+from SanskritAI.amarakosha.enums.Amarakanda import Amarakanda
 
 __all__ = [
     "Amarakanda",

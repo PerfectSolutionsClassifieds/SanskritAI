@@ -24,7 +24,7 @@ from SanskritAI.lexical.models.lexeme import Lexeme
 
 
 class SynsetBuilder(
-    BaseAmarakoshaBuilder[Synset],
+    BaseAmarakoshaBuilder[Synset, SynsetMetadata],
 ):
     """
     Fluent builder for Synset.
@@ -32,45 +32,36 @@ class SynsetBuilder(
 
     def __init__(self) -> None:
         super().__init__()
-
         self._identifier = ""
         self._metadata = SynsetMetadata()
         self._lexemes: list[Lexeme] = []
 
     # ---------------------------------------------------------
-
     def with_identifier(
         self,
         identifier: str,
     ) -> "SynsetBuilder":
-
         self._identifier = identifier
         return self
 
     # ---------------------------------------------------------
-
     def with_metadata(
         self,
         metadata: SynsetMetadata,
     ) -> "SynsetBuilder":
-
         self._metadata = metadata
         return self
 
     # ---------------------------------------------------------
-
     def add_lexeme(
         self,
         lexeme: Lexeme,
     ) -> "SynsetBuilder":
-
         self._lexemes.append(lexeme)
         return self
 
     # ---------------------------------------------------------
-
     def build(self) -> Synset:
-
         return Synset(
             identifier=self._identifier,
             metadata=self._metadata,

@@ -24,7 +24,7 @@ from SanskritAI.amarakosha.models.varga_metadata import (
 
 
 class VargaBuilder(
-    BaseAmarakoshaBuilder[Varga, VargaMetadata],
+    BaseAmarakoshaBuilder[Varga],
 ):
     """
     Fluent builder for Varga.
@@ -32,36 +32,45 @@ class VargaBuilder(
 
     def __init__(self) -> None:
         super().__init__()
+
         self._identifier = ""
         self._metadata = VargaMetadata()
         self._synsets: list[Synset] = []
 
     # ---------------------------------------------------------
+
     def with_identifier(
         self,
         identifier: str,
     ) -> "VargaBuilder":
+
         self._identifier = identifier
         return self
 
     # ---------------------------------------------------------
+
     def with_metadata(
         self,
         metadata: VargaMetadata,
     ) -> "VargaBuilder":
+
         self._metadata = metadata
         return self
 
     # ---------------------------------------------------------
+
     def add_synset(
         self,
         synset: Synset,
     ) -> "VargaBuilder":
+
         self._synsets.append(synset)
         return self
 
     # ---------------------------------------------------------
+
     def build(self) -> Varga:
+
         return Varga(
             identifier=self._identifier,
             metadata=self._metadata,

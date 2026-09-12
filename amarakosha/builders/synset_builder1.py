@@ -4,9 +4,9 @@ from __future__ import annotations
 SanskritAI
 ==========
 
-Varga Builder
+Synset Builder
 
-Fluent builder for Amarakośa Varga objects.
+Fluent builder for Amarakośa Synset objects.
 
 Version
 -------
@@ -17,53 +17,62 @@ from SanskritAI.amarakosha.builders.base_amarakosha_builder import (
     BaseAmarakoshaBuilder,
 )
 from SanskritAI.amarakosha.models.synset import Synset
-from SanskritAI.amarakosha.models.varga import Varga
-from SanskritAI.amarakosha.models.varga_metadata import (
-    VargaMetadata,
+from SanskritAI.amarakosha.models.synset_metadata import (
+    SynsetMetadata,
 )
+from SanskritAI.lexical.models.lexeme import Lexeme
 
 
-class VargaBuilder(
-    BaseAmarakoshaBuilder[Varga, VargaMetadata],
+class SynsetBuilder(
+    BaseAmarakoshaBuilder[Synset],
 ):
     """
-    Fluent builder for Varga.
+    Fluent builder for Synset.
     """
 
     def __init__(self) -> None:
         super().__init__()
+
         self._identifier = ""
-        self._metadata = VargaMetadata()
-        self._synsets: list[Synset] = []
+        self._metadata = SynsetMetadata()
+        self._lexemes: list[Lexeme] = []
 
     # ---------------------------------------------------------
+
     def with_identifier(
         self,
         identifier: str,
-    ) -> "VargaBuilder":
+    ) -> "SynsetBuilder":
+
         self._identifier = identifier
         return self
 
     # ---------------------------------------------------------
+
     def with_metadata(
         self,
-        metadata: VargaMetadata,
-    ) -> "VargaBuilder":
+        metadata: SynsetMetadata,
+    ) -> "SynsetBuilder":
+
         self._metadata = metadata
         return self
 
     # ---------------------------------------------------------
-    def add_synset(
+
+    def add_lexeme(
         self,
-        synset: Synset,
-    ) -> "VargaBuilder":
-        self._synsets.append(synset)
+        lexeme: Lexeme,
+    ) -> "SynsetBuilder":
+
+        self._lexemes.append(lexeme)
         return self
 
     # ---------------------------------------------------------
-    def build(self) -> Varga:
-        return Varga(
+
+    def build(self) -> Synset:
+
+        return Synset(
             identifier=self._identifier,
             metadata=self._metadata,
-            children=self._synsets,
+            children=self._lexemes,
         )

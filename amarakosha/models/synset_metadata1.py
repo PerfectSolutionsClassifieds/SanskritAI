@@ -17,6 +17,7 @@ the traditional Amarakośa hierarchy.
 
 Hierarchy
 ---------
+
 Amarakanda
     └── Varga
             └── Synset
@@ -29,15 +30,15 @@ v0.4.0
 
 from dataclasses import dataclass
 
-from SanskritAI.amarakosha.enums.Amarakanda import (
-    Amarakanda,
-)
 from SanskritAI.lexical.models.base_lexical_metadata import (
     BaseLexicalMetadata,
 )
+from SanskritAI.amarakosha.enums.Amarakanda import (
+    Amarakanda,
+)
 
 
-@dataclass(slots=True, frozen=True)
+@dataclass(slots=True)
 class SynsetMetadata(BaseLexicalMetadata):
     """
     Metadata describing an Amarakośa synonym group.
@@ -46,27 +47,39 @@ class SynsetMetadata(BaseLexicalMetadata):
     # ---------------------------------------------------------
     # Amarakośa hierarchy
     # ---------------------------------------------------------
+
     kanda: Amarakanda = Amarakanda.SVARGADI
+
     varga: str = ""
+
     varga_number: int = 0
+
     verse_number: int = 0
+
     pada_number: int = 0
 
     # ---------------------------------------------------------
     # Synset identity
     # ---------------------------------------------------------
+
     synset_identifier: str = ""
+
     title: str = ""
 
     # ---------------------------------------------------------
     # Editorial information
     # ---------------------------------------------------------
+
     commentary: str = ""
+
     source_edition: str = ""
+
     notes: str = ""
 
     # ---------------------------------------------------------
     # External mappings
     # ---------------------------------------------------------
+
     wordnet_id: str = ""
+
     external_identifier: str = ""
