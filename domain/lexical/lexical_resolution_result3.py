@@ -36,7 +36,7 @@ candidate.
 
 Version
 -------
-v2.2.0
+v2.1.0
 """
 
 from dataclasses import dataclass, field
@@ -202,8 +202,7 @@ class LexicalResolutionResult(
         Return the preferred canonical entry lemma as text.
 
         CanonicalDictionaryEntry owns the lemma directly and
-        exposes its normalized textual representation through
-        ``lemma_text``.
+        exposes its textual representation through ``lemma_text``.
 
         A compatibility fallback is retained for legacy
         entry-like objects that expose ``lexeme.lemma``.
@@ -214,10 +213,6 @@ class LexicalResolutionResult(
         if entry is None:
             return None
 
-        # -----------------------------------------------------
-        # Current canonical contract
-        # -----------------------------------------------------
-
         lemma_text = getattr(
             entry,
             "lemma_text",
@@ -227,10 +222,6 @@ class LexicalResolutionResult(
         if lemma_text is not None:
             return str(lemma_text)
 
-        # -----------------------------------------------------
-        # Legacy compatibility
-        # -----------------------------------------------------
-
         lexeme = getattr(
             entry,
             "lexeme",
@@ -238,7 +229,6 @@ class LexicalResolutionResult(
         )
 
         if lexeme is not None:
-
             lemma = getattr(
                 lexeme,
                 "lemma",
@@ -247,10 +237,6 @@ class LexicalResolutionResult(
 
             if lemma is not None:
                 return str(lemma)
-
-        # -----------------------------------------------------
-        # Final canonical compatibility fallback
-        # -----------------------------------------------------
 
         lemma = getattr(
             entry,
@@ -268,14 +254,11 @@ class LexicalResolutionResult(
         self,
     ):
         """
-        Return a legacy lexical-entry lexeme when one exists.
+        Return a legacy lexeme object when the preferred entry
+        exposes one.
 
         CanonicalDictionaryEntry does not currently define a
-        ``lexeme`` relationship.
-
-        Therefore canonical entries return None rather than
-        imposing a new Lexeme relationship on the canonical
-        dictionary model.
+        ``lexeme`` relationship, so canonical entries return None.
         """
 
         entry = self.preferred_entry

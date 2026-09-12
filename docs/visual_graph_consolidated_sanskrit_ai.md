@@ -335,6 +335,17 @@
             🏗️ Classes:
               • class CanonicalKnowledgeRepository:
                 - __post_init__(self)
+                - add_lexicon(self, lexicon)
+                - register_lexicon(self, lexicon)
+                - clear_lexicons(self)
+                - all_lexicons(self)
+                - get_entry(self, headword)
+                - all_entries(self)
+                - lexical_entry_count(self)
+                - find_entries_by_lemma(self, lemma)
+                - find_entries_by_word_form(self, word_form)
+                - find_senses(self, headword)
+                - search(self, query)
                 - services(self)
                 - lexical(self)
                 - dhatu(self)
@@ -378,15 +389,13 @@
                   - __str__(self)
           📄 canonical_knowledge_repository_builder.py
               ⚙️ Functions:
-                • _extract_lexicons_from_repo(repo)
-                • _ensure_lexical_repository_has_all(repo)
+                • _ensure_lexical_repository_has_all(lexical_repository)
               🏗️ Classes:
                 • class CanonicalKnowledgeRepositoryBuilder:
-                  - __post_init__(self)
                   - build(self, lexicons)
-                  - _register_lexicon(self, lexicon)
-                  - _clear_lexical_repository(self)
+                  - lexical_repository(self)
                   - _populate_lexical_repository(self, lexicons)
+                  - _register_lexicon(lexical_repository, lexicon)
                   - _synchronize_indexes(self)
                   - add_lexicon(self, lexicon)
                   - clear(self)
@@ -422,10 +431,20 @@
           📄 context_index.py
               🏗️ Classes:
                 • class ContextIndex:
+                  - _normalise(value)
+                  - _append_unique(bucket, context)
                   - add(self, context, sense)
+                  - _chapter_identifier(cls, context)
+                  - _sloka_identifier(cls, context)
                   - lookup(self, context_identifier)
+                  - by_purana(self, purana_name)
+                  - by_chapter(self, chapter_identifier)
+                  - by_sloka(self, sloka_identifier)
                   - clear(self)
                   - context_count(self)
+                  - purana_count(self)
+                  - chapter_count(self)
+                  - sloka_count(self)
                   - summary(self)
                   - __contains__(self, context_identifier)
                   - __len__(self)
@@ -474,11 +493,14 @@
               🏗️ Classes:
                 • class SourceIndex:
                   - add(self, source, sense)
-                  - lookup(self, source_id)
+                  - lookup(self, source)
+                  - lookup_name(self, source_name)
+                  - lookup_short_name(self, short_name)
+                  - _normalize_source_id(source)
                   - clear(self)
                   - source_count(self)
                   - summary(self)
-                  - __contains__(self, source_id)
+                  - __contains__(self, source)
                   - __len__(self)
                   - __iter__(self)
                   - __str__(self)
@@ -698,12 +720,10 @@
           📄 delimited_monier_williams_parser.py
               🏗️ Classes:
                 • class DelimitedMonierWilliamsParser:
-                  - __init__(self)
+                  - __init__(self, delimiter)
                   - parse(self, source_text)
                   - parse_lines(self, lines)
-                  - iter_parse(self, source_text)
-                  - _validate_header(self, header)
-                  - _normalize_header(value)
+                  - _normalize_row(self, row)
           📄 file_monier_williams_source.py
               🏗️ Classes:
                 • class FileMonierWilliamsSource:
@@ -729,13 +749,10 @@
                   - read(self)
                   - acquire(self)
                   - count(self)
+                  - _read_source(self)
                   - _source_identifier(self)
                   - _source_name(self)
                   - _line_count(text)
-          📄 monier_williams_parsed_entry.py
-              🏗️ Classes:
-                • class MonierWilliamsParsedEntry:
-                  - __post_init__(self)
           📄 monier_williams_parser.py
               🏗️ Classes:
                 • class MonierWilliamsParser:
@@ -768,6 +785,7 @@
                   - _read_source(self)
                   - _is_tagged_source(source_text)
                   - _create_default_parser(self, source_text)
+                  - _validate_records(records)
                   - parse(self, source_text)
                   - parse_record(self, source_text)
                 • class _TaggedMonierWilliamsParser:
@@ -779,7 +797,8 @@
                   - run(self)
                   - parse(self)
                   - records(self)
-                  - _parse_raw_text(text)
+                  - normalized_records(self)
+                  - _read_source(self)
           📄 monier_williams_source_record.py
               🏗️ Classes:
                 • class MonierWilliamsSourceRecord:
@@ -5849,6 +5868,10 @@
                 - find_senses(self, headword)
                 - search(self, query)
                 - all_entries(self)
+                - add_lexicon(self, lexicon)
+                - register_lexicon(self, lexicon)
+                - clear_lexicons(self)
+                - all(self)
                 - count(self)
                 - __str__(self)
         📄 default_lexical_resolution_strategy.py
@@ -6080,6 +6103,7 @@
               🏗️ Classes:
                 • class InMemoryMonierWilliamsAdapter:
                   - __init__(self, records)
+                  - from_source_records(cls, records)
                   - lookup(self, headword)
                   - search(self, query)
                   - all_records(self)
@@ -6093,13 +6117,22 @@
                   - all_records(self)
                   - count(self)
                   - normalize_headword(value)
+                  - from_source_record(cls, record)
+                  - from_source_records(cls, records)
                   - normalize_record(cls, record)
                   - normalize_records(cls, records)
           📄 monier_williams_mapper.py
               🏗️ Classes:
                 • class MonierWilliamsMapper:
-                  - to_entry(cls, record)
+                  - from_source_record(cls, record)
+                  - from_source_records(cls, records)
+                  - _validate_record(record)
+                  - _resolve_entry_id(record)
+                  - to_source(cls, record)
                   - to_sense(cls, record)
+                  - to_entry_and_sense(cls, record)
+                  - to_entry(cls, record)
+                  - to_entries(cls, records)
           📄 monier_williams_record.py
               🏗️ Classes:
                 • class MonierWilliamsRecord:
@@ -9664,6 +9697,10 @@
             🏗️ Classes:
               • class LexemeBuilder:
                 - __init__(self)
+                - _create_instance(self)
+                - _replace_metadata(self, **changes)
+                - _replace_lexeme(self)
+                - _with_extra(self, key, value)
                 - with_identifier(self, identifier)
                 - with_lemma(self, lemma)
                 - with_transliteration(self, transliteration)
@@ -9672,6 +9709,13 @@
                 - with_frequency(self, frequency)
                 - with_language(self, language)
                 - with_script(self, script)
+                - with_normalized(self, normalized)
+                - with_dictionary(self, dictionary)
+                - with_devanagari(self, devanagari)
+                - with_iast(self, iast)
+                - with_gloss(self, gloss)
+                - with_notes(self, notes)
+                - with_tags(self, tags)
                 - build(self)
         📄 lexeme_record_builder.py
             🏗️ Classes:
@@ -9683,14 +9727,28 @@
             🏗️ Classes:
               • class LexicalRelationBuilder:
                 - __init__(self)
+                - _create_instance(self)
+                - _replace_metadata(self, **changes)
+                - _replace_relation(self)
                 - with_identifier(self, identifier)
                 - with_relation_type(self, relation_type)
                 - between(self, source_identifier, target_identifier)
                 - directed(self, directed)
                 - with_weight(self, weight)
                 - with_confidence(self, confidence)
+                - with_source_dictionary(self, source_dictionary)
+                - with_notes(self, notes)
                 - build(self)
       📂 enums/
+        📄 __init__.py
+        📄 dictionary_source.py
+            🏗️ Classes:
+              • class DictionarySource:
+                - from_value(cls, value)
+        📄 language.py
+            🏗️ Classes:
+              • class Language:
+                - from_value(cls, value)
         📄 lexical_status.py
             🏗️ Classes:
               • class LexicalStatus:
@@ -9700,6 +9758,10 @@
         📄 relation_type.py
             🏗️ Classes:
               • class RelationType:
+        📄 script.py
+            🏗️ Classes:
+              • class Script:
+                - from_value(cls, value)
       📂 models/
         📄 base_lexical_metadata.py
             🏗️ Classes:
@@ -9918,6 +9980,10 @@
         📄 dictionary_sense_validator.py
             🏗️ Classes:
               • class DictionarySenseValidator:
+                - validate(self, obj)
+        📄 lexeme_record_validator.py
+            🏗️ Classes:
+              • class LexemeRecordValidator:
                 - validate(self, obj)
         📄 lexeme_validator.py
             🏗️ Classes:
@@ -10325,12 +10391,465 @@
           🔹 Constants:
             • ROOT
             • TARGETS
+      📄 audit_architecture.py
+          🔹 Constants:
+            • REPO_ROOT
+            • PACKAGE_ROOT
+            • IGNORED_DIRECTORIES
+            • NUMBERED_FILE_RE
+            • GENERATED_AUDIT_RE
+            • TARGETS
+          ⚙️ Functions:
+            • is_ignored_file(path)
+            • is_ignored_directory(path)
+            • is_test_file(path)
+            • iter_python_files(root)
+            • module_name_from_path(path)
+            • module_to_relative_path(module)
+            • dotted_name(node)
+            • decorator_name(node)
+            • extract_fields(node)
+            • extract_properties(node)
+            • extract_methods(node)
+            • extract_bases(node)
+            • analyze_file(path, symbols)
+            • build_definition_index(analyses)
+            • resolve_import(evidence, definition_index)
+            • resolve_all_imports(analyses)
+            • semantic_field(field, aliases)
+            • semantic_fields(definition, aliases)
+            • layer_for_path(relative_path)
+            • component_for_path(relative_path)
+            • section(title)
+            • subsection(title)
+            • print_definitions(definitions)
+            • print_imports(analyses)
+            • print_consumers(analyses, definitions, symbols)
+            • print_test_consumers(analyses, definitions, symbols)
+            • print_exact_semantics(definitions)
+            • print_semantic_equivalence(definitions, aliases)
+            • print_boundary_analysis(analyses, definitions)
+            • print_contract_signals(definitions)
+            • classify_architecture(definitions, analyses)
+            • print_decision(definitions, analyses)
+            • print_source_snippets(definitions)
+            • run_audit(target_name, view, show_code)
+            • build_parser()
+            • main()
+          🏗️ Classes:
+            • class SymbolDefinition:
+            • class ImportEvidence:
+            • class UsageEvidence:
+            • class FileAnalysis:
+      📄 audit_canonical_knowledge_ownership.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_PREFIX
+            • EXCLUDED_DIRS
+          ⚙️ Functions:
+            • is_historical(path)
+            • production_files()
+            • module_name(path)
+            • normalize(module)
+            • imports(path)
+            • layer(path)
+            • main()
+      📄 audit_canonical_source_ownership.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_MODULE
+            • EXCLUDED_DIRS
+          ⚙️ Functions:
+            • is_historical(path)
+            • python_files()
+            • module_name(path)
+            • normalize(module)
+            • imports(path)
+            • main()
+      📄 audit_canonical_source_usage.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_MODULE
+            • TARGET_SYMBOL
+            • EXCLUDED_DIRS
+          ⚙️ Functions:
+            • is_historical(path)
+            • production_python_files()
+            • module_name_from_path(path)
+            • normalize_module(module)
+            • resolve_relative_import(current_module, imported_module, level)
+            • target_bindings(tree, current_module)
+            • main()
+          🏗️ Classes:
+            • class UsageVisitor:
+              - __init__(self, bindings)
+              - _matches_name(self, node)
+              - _matches_attribute(self, node)
+              - visit_Call(self, node)
+              - visit_AnnAssign(self, node)
+              - visit_arg(self, node)
+              - visit_Return(self, node)
+              - visit_Assign(self, node)
+              - visit_Attribute(self, node)
+      📄 audit_domain_acquisition_boundaries.py
+          🔹 Constants:
+            • ROOT
+            • PACKAGE_NAME
+            • EXCLUDED_DIRS
+          ⚙️ Functions:
+            • is_historical(path)
+            • production_python_files()
+            • module_name_from_path(path)
+            • normalize_module(module)
+            • resolve_relative_import(current_module, imported_module, level)
+            • imports_for_file(path)
+            • main()
+      📄 audit_domain_lexical_source_construction.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_IMPORT
+            • TARGET_CLASS
+          ⚙️ Functions:
+            • is_historical_python_file(path)
+            • iter_python_files()
+            • dotted_name(node)
+            • analyze(path)
+            • main()
+      📄 audit_domain_lexical_source_consumers.py
+          🔹 Constants:
+            • ROOT
+            • TARGET
+            • NUMERIC_SUFFIX_RE
+          ⚙️ Functions:
+            • is_historical_python_file(path)
+            • iter_python_files()
+            • module_name(path)
+            • dotted_name(node)
+            • analyze(path)
+            • main()
+      📄 audit_domain_lexical_source_tests.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_MODULE
+            • TARGET_CLASS
+          ⚙️ Functions:
+            • iter_test_files()
+            • dotted_name(node)
+            • analyze(path)
+            • main()
+      📄 audit_domain_to_lexical_source_boundary.py
+          🔹 Constants:
+            • ROOT
+            • DOMAIN_MODULE
+            • LEXICAL_MODULE
+            • LAYER_NAMES
+          ⚙️ Functions:
+            • is_historical_python_file(path)
+            • iter_python_files()
+            • layer_for(path)
+            • analyze(path)
+            • main()
+      📄 audit_knowledge_layer_dependencies.py
+          🔹 Constants:
+            • ROOT
+            • EXCLUDED_DIRS
+          ⚙️ Functions:
+            • is_historical(path)
+            • production_files()
+            • module_name(path)
+            • normalize(module)
+            • imports(path)
+            • classify(module)
+            • main()
+      📄 audit_lexical_source_api_matrix.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
+          ⚙️ Functions:
+            • annotation(node)
+            • inspect(path)
+            • main()
+      📄 audit_lexical_source_construction.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_MODULES
+            • NUMBERED_RE
+            • GENERATED_RE
+          ⚙️ Functions:
+            • excluded(path)
+            • dotted(node)
+            • main()
+      📄 audit_lexical_source_consumer_details.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_MODULES
+            • NUMBERED_FILE_RE
+            • GENERATED_COPY_RE
+          ⚙️ Functions:
+            • excluded(path)
+            • dotted(node)
+            • annotation(node)
+            • main()
+      📄 audit_lexical_source_consumers.py
+          🔹 Constants:
+            • ROOT
+            • DOMAIN_LEXICAL_SOURCE
+            • MODEL_LEXICAL_SOURCE
+            • TARGETS
+          ⚙️ Functions:
+            • is_historical_duplicate(path)
+            • is_production_python(path)
+            • module_name(path)
+            • resolve_relative_import(current_module, node)
+            • imported_lexical_sources(tree, current_module)
+            • expression_contains_alias(node, aliases)
+            • annotation_text(annotation)
+            • call_is_target(node, aliases)
+            • unique(items)
+      📄 audit_lexical_source_dependency_chain.py
+          🔹 Constants:
+            • ROOT
+            • TARGET
+            • NUMBERED_FILE_RE
+            • GENERATED_COPY_RE
+          ⚙️ Functions:
+            • excluded(path)
+            • dotted(node)
+            • main()
+      📄 audit_lexical_source_direct_references.py
+          🔹 Constants:
+            • ROOT
+            • NUMBERED_FILE_RE
+            • GENERATED_COPY_RE
+          ⚙️ Functions:
+            • is_excluded(path)
+            • production_files()
+            • dotted_name(node)
+            • source_lines(path)
+            • main()
+      📄 audit_lexical_source_implementations.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
+            • NUMBERED_FILE_RE
+            • GENERATED_COPY_RE
+          ⚙️ Functions:
+            • excluded(path)
+            • annotation_text(node)
+            • inspect_file(label, path)
+            • main()
+      📄 audit_lexical_source_model_chain.py
+          🔹 Constants:
+            • ROOT
+            • NUMBERED_RE
+            • GENERATED_RE
+            • TARGET_FILES
+          ⚙️ Functions:
+            • excluded(path)
+            • annotation(node)
+            • main()
+      📄 audit_lexical_source_occurrences.py
+          🔹 Constants:
+            • ROOT
+            • NUMBERED_FILE_RE
+            • GENERATED_COPY_RE
+          ⚙️ Functions:
+            • excluded(path)
+            • main()
+      📄 audit_lexical_source_ownership.py
+          🔹 Constants:
+            • ROOT
+            • PACKAGE_NAME
+            • DOMAIN_MODULE
+            • KERNEL_MODULE
+            • EXCLUDED_DIRS
+          ⚙️ Functions:
+            • is_historical(path)
+            • python_files()
+            • is_test(path)
+            • is_production(path)
+            • module_name_from_path(path)
+            • normalize_import_module(module)
+            • resolve_relative_import(current_module, imported_module, level)
+            • imported_symbols(path)
+            • matches_target(module, symbol, target_module)
+            • main()
+      📄 audit_lexical_source_reexports.py
+          🔹 Constants:
+            • ROOT
+            • NUMBERED_FILE_RE
+            • GENERATED_COPY_RE
+          ⚙️ Functions:
+            • excluded(path)
+            • dotted(node)
+            • main()
+      📄 audit_lexical_source_validator_boundary.py
+          🔹 Constants:
+            • ROOT
+            • TARGET
+          ⚙️ Functions:
+            • dotted(node)
+            • annotation(node)
+            • main()
+      📄 audit_lexical_source_validator_ownership.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
+          ⚙️ Functions:
+            • dotted(node)
+            • annotation(node)
+            • inspect(path)
+            • main()
+      📄 audit_monier_williams_boundaries.py
+          🔹 Constants:
+            • ROOT
+            • EXCLUDED_DIRS
+            • HISTORICAL_PATTERN
+            • PATTERNS
+          ⚙️ Functions:
+            • active_python_files()
+            • audit_pattern(pattern)
+            • main()
+      📄 audit_monier_williams_parsed_entry.py
+          🔹 Constants:
+            • ROOT
+            • TARGET
+            • EXCLUDED_DIRS
+          ⚙️ Functions:
+            • active_python_files()
+            • classify(path)
+            • main()
+      📄 audit_monier_williams_source_boundaries.py
+          🔹 Constants:
+            • PROJECT_ROOT
+            • TARGETS
+          ⚙️ Functions:
+            • module_name(path)
+            • expression_name(node)
+            • get_import_name(node)
+            • collect_class_information(node)
+            • locate_target_definitions()
+            • find_consumers(boundaries)
+            • classify_boundary(boundary)
+            • print_boundary(boundary, index)
+            • print_comparison(boundaries)
+            • main()
+          🏗️ Classes:
+            • class SourceBoundary:
+      📄 audit_source_files.py
+          🔹 Constants:
+            • ROOT
+            • KEYWORDS
+          ⚙️ Functions:
+            • main()
+      📄 audit_source_model_api_usage.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
+            • EXCLUDED_PARTS
+          ⚙️ Functions:
+            • is_excluded(path)
+            • attribute_name(node)
+            • root_name(node)
+            • main()
+      📄 audit_source_model_construction.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
+          ⚙️ Functions:
+            • is_historical_duplicate(path)
+            • is_production_python(path)
+            • module_name(path)
+            • imported_targets(tree)
+            • target_from_expr(node, aliases)
+            • annotation_contains_target(annotation, target_name)
+      📄 audit_source_model_contracts.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
+            • SEMANTIC_GROUPS
+            • FIELD_TO_SEMANTIC
+          ⚙️ Functions:
+            • is_historical_duplicate(path)
+            • is_production_python(path)
+            • module_name(path)
+            • extract_class_contract(path, target_name)
+            • semantic_fields(fields)
+            • format_set(values)
+      📄 audit_source_model_dependencies.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_MODULES
+            • EXCLUDED_PARTS
+          ⚙️ Functions:
+            • excluded(path)
+            • relative(path)
+            • inspect(path)
+            • main()
+      📄 audit_source_model_import_graph.py
+          🔹 Constants:
+            • ROOT
+            • SOURCE_MODULES
+            • EXCLUDED_PARTS
+          ⚙️ Functions:
+            • excluded(path)
+            • main()
+      📄 audit_source_model_ownership.py
+          🔹 Constants:
+            • ROOT
+            • MODEL_OWNERSHIP
+          ⚙️ Functions:
+            • is_historical_duplicate(path)
+            • is_production_python(path)
+            • module_name(path)
+            • class_info(node)
+      📄 audit_source_model_relationships.py
+          🔹 Constants:
+            • PROJECT_ROOT
+            • TARGET_NAMES
+            • EXCLUDED_PARTS
+            • NUMBERED_COPY_PATTERN
+            • TARGET_MODULES
+          ⚙️ Functions:
+            • relative_name(path)
+            • excluded(path)
+            • source_reference_lines(path)
+            • scan()
+            • print_report(relationships)
+            • main()
+      📄 audit_source_model_usage.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_NAMES
+            • EXCLUDED_PARTS
+            • EXCLUDED_PREFIXES
+          ⚙️ Functions:
+            • iter_python_files(root)
+            • classify_line(line)
+            • main()
+      📄 audit_source_models.py
+          🔹 Constants:
+            • ROOT
+            • TARGET_CLASSES
+            • EXCLUDED_PARTS
+            • EXCLUDED_PREFIXES
+          ⚙️ Functions:
+            • iter_python_files(root)
+            • get_class_definitions(path)
+            • main()
       📄 backup_database.py
           ⚙️ Functions:
             • main()
       📄 build_dictionary.py
           ⚙️ Functions:
             • build_dictionary(csv_path, output_path)
+            • main()
+      📄 compare_source_models.py
+          🔹 Constants:
+            • ROOT
+            • TARGETS
+          ⚙️ Functions:
+            • class_info(path, target)
             • main()
       📄 import_amarakosha.py
           ⚙️ Functions:
@@ -10353,6 +10872,80 @@
       📄 rebuild_indexes.py
           ⚙️ Functions:
             • main()
+      📂 audits/
+        📄 audit_amarakosha_batch4a.py
+            🔹 Constants:
+              • ROOT
+              • AMARAKOSHA_ROOT
+              • TEST_ROOT
+              • OUTPUT_DIR
+              • REPORT_PATH
+            ⚙️ Functions:
+              • is_excluded_python_file(path)
+              • active_python_files(root)
+              • safe_parse(path)
+              • dotted_name(node)
+              • class_bases(node)
+              • imported_names(tree)
+              • defined_classes(tree)
+              • defined_functions(tree)
+              • constructor_calls(tree)
+              • audit()
+        📄 audit_amarakosha_batch4b_ownership.py
+            🔹 Constants:
+              • ROOT
+              • SEARCH_ROOTS
+              • TARGET_SYMBOLS
+            ⚙️ Functions:
+              • excluded(path)
+              • python_files()
+              • dotted_name(node)
+              • source_text(path)
+              • symbol_from_name(name)
+              • analyze(path)
+              • main()
+        📄 audit_amarakosha_batch4c_dataflow.py
+            🔹 Constants:
+              • ROOT
+              • AMARAKOSHA
+            ⚙️ Functions:
+              • excluded(path)
+              • dotted_name(node)
+              • parse(path)
+              • main()
+        📄 audit_amarakosha_batch4d_contracts.py
+            🔹 Constants:
+              • ROOT
+              • AMARAKOSHA
+            ⚙️ Functions:
+              • excluded(path)
+              • dotted_name(node)
+              • annotation_text(node)
+              • default_text(node)
+              • format_arguments(args)
+              • class_contract(node)
+              • extract_classes(path)
+              • main()
+        📄 audit_amarakosha_batch4e_runtime.py
+            🔹 Constants:
+              • SCRIPT_PATH
+              • REPOSITORY_ROOT
+              • PACKAGE_ROOT
+              • SEPARATOR
+            ⚙️ Functions:
+              • section(title)
+              • safe_signature(obj)
+              • safe_source(obj)
+              • safe_call(label, callable_obj, *args, **kwargs)
+              • dump_annotations(cls)
+              • dump_public_methods(obj)
+              • dump_public_attributes(obj)
+              • main()
+        📄 create_amarakosha_batch5_mapping_matrix.py
+            🔹 Constants:
+              • ROOT
+              • OUTPUT
+              • HEADER
     📂 services/
       📄 __init__.py
       📄 analysis_service.py
@@ -10657,6 +11250,24 @@
         📄 _updated_make_manifest.py
             ⚙️ Functions:
               • make_manifest()
+        📄 test_acquisition_architecture_boundary.py
+            ⚙️ Functions:
+              • make_source()
+              • make_manifest()
+              • test_source_acquirer_defines_only_generic_acquisition_operation()
+              • test_source_acquirer_operates_on_acquisition_manifest()
+              • test_acquisition_pipeline_does_not_perform_acquisition_itself()
+              • test_acquisition_pipeline_is_an_orchestration_boundary()
+              • test_acquisition_service_defines_application_facing_acquire_boundary()
+              • test_default_acquisition_service_delegates_to_pipeline()
+              • test_generic_pipeline_does_not_require_url_logic()
+              • test_default_source_acquirer_exposes_generic_acquisition_operation()
+              • test_default_source_acquirer_can_be_constructed()
+              • test_acquisition_result_is_the_generic_output_boundary()
+            🏗️ Classes:
+              • class RecordingSourceAcquirer:
+                - __init__(self)
+                - acquire(self, manifest)
         📄 test_acquisition_manifest.py
             ⚙️ Functions:
               • make_source()
@@ -10933,6 +11544,9 @@
                   - transform(self, entry)
           📄 test_canonical_knowledge_repository.py
               ⚙️ Functions:
+                • make_sense(sense_id, headword, definition)
+                • make_entry(headword)
+                • make_lexicon(identifier, entries)
                 • test_default_construction()
                 • test_registry_is_constructed()
                 • test_services_returns_registry()
@@ -10967,6 +11581,29 @@
                 • test_canonical_repository_has_twelve_components()
                 • test_repository_instances_are_distinct()
                 • test_constructed_services_are_distinct()
+                • test_new_repository_has_no_lexicons()
+                • test_add_lexicon_registers_lexicon()
+                • test_register_lexicon_is_alias_for_add_lexicon()
+                • test_add_lexicon_replaces_same_identifier()
+                • test_clear_lexicons_removes_all_lexicons()
+                • test_get_entry_returns_matching_entry()
+                • test_get_entry_returns_none_for_unknown_headword()
+                • test_get_entry_searches_all_registered_lexicons()
+                • test_get_entry_returns_first_matching_lexicon()
+                • test_all_entries_returns_entries_from_all_lexicons()
+                • test_all_entries_is_empty_without_lexicons()
+                • test_lexical_entry_count_counts_all_entries()
+                • test_find_entries_by_lemma_returns_matching_entries()
+                • test_find_entries_by_lemma_returns_empty_tuple_when_unmatched()
+                • test_find_entries_by_word_form_matches_headword()
+                • test_find_entries_by_word_form_returns_empty_tuple_when_unmatched()
+                • test_find_senses_returns_senses_for_headword()
+                • test_find_senses_returns_empty_tuple_for_unknown_headword()
+                • test_search_returns_empty_tuple_for_empty_query()
+                • test_search_matches_headword()
+                • test_search_matches_transliteration_case_insensitively()
+                • test_search_returns_empty_tuple_when_no_match()
+                • test_canonical_source_can_be_attached_to_sense()
           📄 test_knowledge_service_registry.py
               ⚙️ Functions:
                 • make_components()
@@ -11147,6 +11784,43 @@
                   • test_contains_checks_source_id()
                   • test_iteration_returns_sorted_source_ids()
                   • test_string_representation_contains_source_count()
+          📂 integration/
+            📄 test_canonical_knowledge_integration.py
+                ⚙️ Functions:
+                  • make_record(headword, record_id)
+                  • make_lexicon(identifier, name, version)
+                  • make_index_builder()
+                  • test_canonical_records_can_be_represented_as_lexicon()
+                  • test_canonical_lexicon_contains_entries()
+                  • test_canonical_entries_contain_contexts_and_sources()
+                  • test_repository_builder_populates_repository_and_indexes()
+                  • test_repository_builder_populates_lookup_indexes()
+                  • test_repository_builder_rebuild_replaces_previous_state()
+                  • test_repository_builder_accepts_multiple_lexicons()
+                  • test_repository_exposes_canonical_lexical_graph()
+                  • test_canonical_knowledge_build_is_end_to_end()
+            📄 test_knowledge_lookup_integration.py
+                ⚙️ Functions:
+                  • make_graph()
+                  • test_lookup_headword_returns_canonical_dictionary_entry()
+                  • test_lookup_lemma_returns_canonical_lemma()
+                  • test_lookup_lemma_text_returns_canonical_lemma()
+                  • test_lookup_context_returns_senses()
+                  • test_lookup_context_for_purana()
+                  • test_lookup_context_for_chapter()
+                  • test_lookup_context_for_sloka()
+                  • test_lookup_source()
+                  • test_lookup_source_name()
+                  • test_lookup_source_short_name()
+                  • test_prefix_search()
+                  • test_unified_search()
+                  • test_missing_lookup_returns_empty_or_none_without_error()
+            📄 test_lexical_acquisition_integration.py
+                ⚙️ Functions:
+                  • make_source(tmp_path)
+                  • test_connector_to_raw_entries_to_canonical_records(tmp_path)
+                  • test_connector_discovery_reports_local_resource(tmp_path)
+                  • test_acquisition_preserves_source_provenance(tmp_path)
           📂 lookup/
             📄 test_lexical_lookup_engine.py
                 ⚙️ Functions:
@@ -11530,16 +12204,32 @@
                   • class StubSource:
                     - __init__(self, text)
                     - acquire(self)
-            📄 test_monier_williams_parsed_entry.py
-                ⚙️ Functions:
-                  • test_parsed_entry_stores_required_fields()
-                  • test_parsed_entry_stores_optional_fields()
-                  • test_empty_headword_is_rejected()
-                  • test_empty_definition_is_rejected()
-                  • test_metadata_is_immutable()
             📄 test_monier_williams_parser.py
                 ⚙️ Functions:
                   • test_parse_lines_delegates_to_parse()
+            📄 test_monier_williams_source_acquirer_integration.py
+                🔹 Constants:
+                  • MW_SOURCE
+                ⚙️ Functions:
+                  • test_local_source_acquirer_is_independent_of_parser(tmp_path)
+                  • test_local_source_acquirer_returns_raw_text_only(tmp_path)
+                  • test_acquirer_can_feed_monier_williams_parser(tmp_path)
+                  • test_acquirer_to_parser_preserves_source_record_boundary(tmp_path)
+                  • test_source_acquirer_has_no_parser_responsibility()
+                  • test_source_acquirer_is_not_a_parser()
+                  • test_existing_service_pipeline_remains_independent_of_local_acquirer(tmp_path)
+            📄 test_monier_williams_source_boundary_integration.py
+                🔹 Constants:
+                  • MW_SOURCE
+                ⚙️ Functions:
+                  • test_raw_source_flows_through_complete_boundary()
+                  • test_source_boundary_preserves_raw_mw_record_text()
+                  • test_pipeline_uses_injected_parser_as_single_parser_authority()
+                🏗️ Classes:
+                  • class BoundaryStubSource:
+                    - identifier(self)
+                    - source_name(self)
+                    - read(self)
             📄 test_monier_williams_source_parser.py
                 🔹 Constants:
                   • MW_SAMPLE
@@ -11555,9 +12245,27 @@
                   • test_parser_rejects_orphan_lend()
                   • test_parser_rejects_source_without_records()
                   • test_parse_record_requires_one_record()
+            📄 test_monier_williams_source_parser_contract.py
+                🔹 Constants:
+                  • MW_SAMPLE
+                ⚙️ Functions:
+                  • test_source_parser_returns_tuple()
+                  • test_source_parser_normalizes_list_return()
+                  • test_source_parser_rejects_invalid_parser_result()
+                  • test_source_parser_rejects_wrong_record_type()
+                  • test_parse_record_returns_source_record()
+                🏗️ Classes:
+                  • class ListReturningParser:
+                    - parse(self, source_text)
+                  • class InvalidReturningParser:
+                    - parse(self, source_text)
+                  • class WrongRecordParser:
+                    - parse(self, source_text)
             📄 test_monier_williams_source_pipeline.py
                 ⚙️ Functions:
                   • test_pipeline_acquires_and_parses()
+                  • test_pipeline_returns_source_records_only()
+                  • test_pipeline_preserves_native_mw_raw_text()
                 🏗️ Classes:
                   • class StubSource:
                     - identifier(self)
@@ -11569,6 +12277,48 @@
                   • test_source_record_unknown_field_is_preserved()
                   • test_source_record_requires_positive_sequence()
                   • test_source_record_requires_raw_text()
+            📄 test_monier_williams_source_to_record_boundary.py
+                🔹 Constants:
+                  • MW_SAMPLE
+                ⚙️ Functions:
+                  • test_source_record_is_explicitly_normalized_to_adapter_record()
+                  • test_source_record_preserves_source_id_when_present()
+                  • test_source_record_rejects_invalid_boundary_input()
+            📄 test_monier_williams_source_to_record_pipeline_integration.py
+                🔹 Constants:
+                  • MW_SAMPLE
+                ⚙️ Functions:
+                  • test_pipeline_normalizes_source_records_to_adapter_records()
+                🏗️ Classes:
+                  • class StubSource:
+                    - __init__(self, text)
+                    - read(self)
+      📂 architecture/
+        📄 test_domain_acquisition_boundary.py
+            🔹 Constants:
+              • ROOT
+              • EXCLUDED_DIRS
+            ⚙️ Functions:
+              • is_historical(path)
+              • module_name(path)
+              • normalize(module)
+              • imports(path)
+              • test_domain_acquisition_dependencies_are_explicitly_visible()
+              • test_no_lexical_source_cross_layer_dependency()
+        📄 test_lexical_source_architecture_decision.py
+            🔹 Constants:
+              • REPO_ROOT
+              • DOMAIN_SOURCE
+              • KERNEL_SOURCE
+            ⚙️ Functions:
+              • _module_name(path)
+              • _imports_from(path)
+              • test_both_lexical_source_definitions_exist()
+              • test_domain_and_kernel_lexical_source_are_separate_modules()
+              • test_domain_lexical_source_does_not_import_kernel_lexical_source()
+              • test_kernel_lexical_source_does_not_import_domain_lexical_source()
+              • test_architecture_does_not_require_a_lexical_source_mapper_yet()
+              • test_architecture_decision_is_retain_both()
       📂 core/
         📄 test_typing.py
             ⚙️ Functions:
@@ -12464,14 +13214,27 @@
           📄 test_default_lexical_repository.py
               ⚙️ Functions:
                 • make_repository()
+                • test_repository_stores_canonical_repository()
                 • test_get_entry_delegates()
+                • test_get_entry_returns_none_when_canonical_returns_none()
                 • test_find_entries_by_lemma_delegates()
                 • test_find_entries_by_word_form_delegates()
                 • test_find_senses_delegates()
                 • test_search_delegates()
                 • test_all_entries_delegates()
                 • test_count_uses_canonical_repository_count()
-                • test_display_contract()
+                • test_count_reflects_current_canonical_repository_count()
+                • test_add_lexicon_delegates()
+                • test_register_lexicon_delegates_through_add_lexicon()
+                • test_clear_lexicons_delegates()
+                • test_all_returns_registered_lexicons()
+                • test_display_name()
+                • test_display_text()
+                • test_display_description()
+                • test_string_representation_uses_display_text()
+                • test_repository_is_frozen()
+                • test_repository_uses_slots()
+                • test_repository_does_not_duplicate_lexicon_state()
           📄 test_default_lexical_resolution_strategy.py
               🏗️ Classes:
                 • class TestDefaultLexicalResolutionStrategy:
@@ -12509,7 +13272,27 @@
               ⚙️ Functions:
                 • test_lexical_repository_is_abstract()
                 • test_concrete_repository_can_implement_contract()
-                • test_repository_display_contract()
+                • test_repository_exposes_identity_lookup_contract()
+                • test_repository_exposes_lemma_lookup_contract()
+                • test_repository_exposes_word_form_lookup_contract()
+                • test_repository_exposes_sense_lookup_contract()
+                • test_repository_exposes_search_contract()
+                • test_repository_exposes_enumeration_contract()
+                • test_repository_exposes_count_contract()
+                • test_repository_display_name_defaults_to_class_name()
+                • test_repository_display_text_defaults_to_display_name()
+                • test_repository_display_description_identifies_canonical_adapter()
+                • test_repository_display_description_is_non_empty()
+                • test_repository_implements_complete_abstract_contract()
+              🏗️ Classes:
+                • class ConcreteLexicalRepository:
+                  - get_entry(self, headword)
+                  - find_entries_by_lemma(self, lemma)
+                  - find_entries_by_word_form(self, word_form)
+                  - find_senses(self, headword)
+                  - search(self, query)
+                  - all_entries(self)
+                  - count(self)
           📄 test_lexical_resolution_composition.py
               🏗️ Classes:
                 • class TestLexicalResolutionComposition:
@@ -12566,6 +13349,23 @@
                   - test_resolve_uses_context_subject_as_word_form(self)
                   - test_contribute_enriches_resolution_result(self)
                   - test_contribute_preserves_context(self)
+          📄 test_lexical_source.py
+              ⚙️ Functions:
+                • test_lexical_source_can_be_created()
+                • test_lexical_source_defaults()
+                • test_lexical_source_strips_string_fields()
+                • test_display_name()
+                • test_display_text_without_version()
+                • test_display_text_with_version()
+                • test_display_description()
+                • test_has_version()
+                • test_has_description()
+                • test_has_url()
+                • test_canonical_name_uses_dictionary_source()
+                • test_to_dict()
+                • test_string_representation_without_version()
+                • test_string_representation_with_version()
+                • test_lexical_source_is_immutable()
           📄 test_lookup_candidate.py
               ⚙️ Functions:
                 • make_entry()
@@ -12582,6 +13382,77 @@
                 • test_equal_scores_use_alphabetical_headword()
                 • test_empty_candidates_return_empty_tuple()
                 • test_generator_input_is_supported()
+          📄 test_token.py
+              ⚙️ Functions:
+                • make_lemma()
+                • make_word_form(text)
+                • make_token(text, position, description)
+                • test_token_can_be_created()
+                • test_token_preserves_word_form()
+                • test_token_preserves_position()
+                • test_token_preserves_description()
+                • test_display_name()
+                • test_display_text()
+                • test_display_description()
+                • test_lemma_delegates_to_word_form()
+                • test_canonical_form_delegates_to_word_form()
+                • test_is_lemma_delegates_to_word_form()
+                • test_token_using_lemma_form()
+                • test_string_representation()
+                • test_token_is_immutable()
+                • test_token_is_immutable_for_position()
+          📂 acquisition/
+            📄 test_monier_williams_acquisition_contract.py
+                ⚙️ Functions:
+                  • test_read_based_source_is_supported()
+                  • test_source_read_returns_raw_content_unchanged()
+                  • test_acquire_only_compatibility_source_is_supported()
+                  • test_acquire_only_source_is_supported_by_read_boundary()
+                  • test_invalid_source_fails_with_explicit_contract_error()
+                  • test_local_source_acquirer_reads_text(tmp_path)
+                  • test_local_source_acquirer_exposes_path(tmp_path)
+                  • test_local_source_acquirer_exposes_encoding(tmp_path)
+                  • test_local_source_acquirer_rejects_missing_file(tmp_path)
+                  • test_local_source_acquirer_rejects_directory(tmp_path)
+                🏗️ Classes:
+                  • class ReadOnlySource:
+                    - __init__(self, text)
+                    - read(self)
+                  • class AcquireOnlySource:
+                    - source(self)
+                    - identifier(self)
+                    - source_name(self)
+                    - acquire(self)
+                  • class InvalidSource:
+            📄 test_monier_williams_generic_boundary.py
+                ⚙️ Functions:
+                  • test_monier_williams_source_is_not_generic_source_acquirer()
+                  • test_monier_williams_acquisition_service_is_not_generic_service()
+                  • test_monier_williams_service_is_not_generic_pipeline()
+                  • test_monier_williams_service_does_not_use_generic_manifest_as_primary_input()
+                  • test_generic_acquisition_stack_remains_independent()
+                🏗️ Classes:
+                  • class FakeGenericAcquirer:
+                    - __init__(self)
+                    - acquire(self, manifest)
+            📄 test_monier_williams_source_service_boundary.py
+                ⚙️ Functions:
+                  • test_acquisition_service_remains_source_oriented()
+                  • test_acquisition_service_does_not_require_source_acquirer()
+                  • test_acquisition_service_can_still_delegate_to_parser()
+                  • test_local_source_acquirer_is_an_independent_acquisition_mechanism(tmp_path)
+                  • test_local_source_acquirer_does_not_require_acquisition_service(tmp_path)
+                  • test_source_acquirer_output_can_feed_parser_directly(tmp_path)
+                  • test_acquisition_service_does_not_depend_on_source_acquirer_type()
+                  • test_source_and_source_acquirer_are_distinct_boundaries()
+                  • test_local_acquirer_and_service_can_coexist_without_being_coupled(tmp_path)
+                🏗️ Classes:
+                  • class StubSource:
+                    - __init__(self, text)
+                    - read(self)
+                  • class StubParser:
+                    - __init__(self)
+                    - parse(self, text)
           📂 adapters/
             📄 test_monier_williams_adapter.py
                 ⚙️ Functions:
@@ -12597,11 +13468,36 @@
                   • test_all_records_returns_all_records()
                   • test_records_are_normalized()
                   • test_normalize_headword_requires_string()
+            📄 test_monier_williams_adapter_source_boundary.py
+                ⚙️ Functions:
+                  • test_source_record_converts_to_monier_williams_record()
+                  • test_source_record_requires_headword()
+                  • test_source_record_requires_definition()
+            📄 test_monier_williams_canonical_mapper.py
+                ⚙️ Functions:
+                  • make_record(headword, transliteration, definition, source_id)
+                  • test_mapper_creates_canonical_sense()
+                  • test_mapper_creates_canonical_entry()
+                  • test_mapper_entry_owns_canonical_sense()
+                  • test_mapper_entries_can_construct_canonical_lexicon()
+                  • test_mapper_preserves_source_metadata()
             📄 test_monier_williams_mapper.py
                 ⚙️ Functions:
                   • make_record()
-                  • test_to_entry_preserves_source_information()
-                  • test_to_sense_preserves_definition()
+                  • test_to_source_returns_canonical_source()
+                  • test_to_entry_returns_canonical_dictionary_entry()
+                  • test_to_entry_owns_canonical_sense()
+                  • test_to_sense_returns_canonical_dictionary_sense()
+                  • test_to_sense_can_derive_entry_id()
+                  • test_to_sense_accepts_explicit_sense_number()
+                  • test_to_sense_accepts_explicit_sense_id()
+                  • test_to_entry_and_sense_returns_matching_pair()
+                  • test_to_entry_and_sense_preserves_sense_number()
+                  • test_to_entries_returns_canonical_entries()
+                  • test_mapper_preserves_source_metadata()
+                  • test_mapper_rejects_invalid_record()
+                  • test_mapper_rejects_empty_entry_id()
+                  • test_mapper_rejects_invalid_sense_number()
           📂 validators/
             📄 test_dictionary_entry_validator.py
                 ⚙️ Functions:
@@ -12611,23 +13507,15 @@
                   • test_validator_rejects_arbitrary_object()
                   • test_empty_identifier_is_invalid()
                   • test_whitespace_identifier_is_invalid()
+                  • test_empty_headword_is_invalid()
                   • test_empty_lemma_is_invalid()
-                  • test_whitespace_lemma_is_invalid()
                   • test_empty_language_is_invalid()
-                  • test_empty_source_produces_warning()
-                  • test_source_is_not_required_for_structural_validity()
+                  • test_empty_dictionary_name_produces_warning()
                   • test_empty_transliteration_is_allowed()
-                  • test_empty_description_is_allowed()
-                  • test_empty_senses_are_allowed()
-                  • test_valid_sense_identifiers_are_accepted()
-                  • test_multiple_invalid_required_fields_are_reported()
-                  • test_invalid_object_returns_validation_result()
-                  • test_invalid_object_produces_dic001()
                   • test_validator_can_be_reused()
                   • test_dictionary_entry_is_immutable()
-                  • test_dictionary_entry_reports_senses()
-                  • test_dictionary_entry_without_senses_reports_no_senses()
-                  • test_validator_does_not_mutate_entry()
+                  • test_invalid_object_returns_validation_result()
+                  • test_invalid_object_produces_dic001()
             📄 test_dictionary_sense_validator.py
                 ⚙️ Functions:
                   • make_sense()
@@ -12636,31 +13524,19 @@
                   • test_validator_rejects_arbitrary_object()
                   • test_empty_identifier_is_invalid()
                   • test_whitespace_identifier_is_invalid()
-                  • test_empty_entry_id_is_invalid()
-                  • test_whitespace_entry_id_is_invalid()
-                  • test_empty_meaning_is_invalid()
-                  • test_whitespace_meaning_is_invalid()
+                  • test_empty_definition_is_invalid()
                   • test_empty_language_is_invalid()
-                  • test_empty_source_produces_warning()
-                  • test_empty_source_does_not_make_sense_invalid()
-                  • test_empty_transliteration_is_allowed()
-                  • test_empty_grammatical_label_is_allowed()
-                  • test_empty_usage_is_allowed()
-                  • test_empty_examples_are_allowed()
+                  • test_empty_optional_fields_are_allowed()
+                  • test_sense_number_must_be_positive()
                   • test_valid_examples_are_accepted()
-                  • test_multiple_required_fields_are_reported()
+                  • test_dictionary_sense_is_immutable()
+                  • test_dictionary_sense_reports_definition()
+                  • test_dictionary_sense_reports_examples()
+                  • test_dictionary_sense_reports_transliteration()
+                  • test_dictionary_sense_reports_grammatical_note()
                   • test_invalid_object_returns_validation_result()
                   • test_invalid_object_produces_ds001()
                   • test_validator_can_be_reused()
-                  • test_dictionary_sense_is_immutable()
-                  • test_dictionary_sense_reports_examples()
-                  • test_dictionary_sense_without_examples_reports_no_examples()
-                  • test_dictionary_sense_reports_source()
-                  • test_dictionary_sense_reports_grammatical_label()
-                  • test_dictionary_sense_reports_transliteration()
-                  • test_dictionary_sense_display_name_is_meaning()
-                  • test_dictionary_sense_display_text_uses_transliteration()
-                  • test_dictionary_sense_string_uses_display_text()
             📄 test_lexeme_validator.py
                 ⚙️ Functions:
                   • make_lexeme()
@@ -14358,6 +15234,22 @@
         📄 test_knowledge_service_registry.py
             ⚙️ Functions:
               • test_knowledge_service_registry_imports()
+        📄 test_monier_williams_canonical_knowledge_flow.py
+            ⚙️ Functions:
+              • make_source_record()
+              • make_canonical_lexicon(entry)
+              • test_source_record_to_normalized_record()
+              • test_normalized_record_to_canonical_entry_and_sense()
+              • test_canonical_lexicon_to_canonical_knowledge_repository()
+              • test_complete_monier_williams_canonical_knowledge_flow()
+        📄 test_monier_williams_canonical_pipeline.py
+            ⚙️ Functions:
+              • make_record(headword, transliteration, definition, source_id)
+              • test_monier_williams_to_canonical_repository()
+              • test_monier_williams_entries_are_searchable_through_repository()
+        📄 test_monier_williams_default_lexical_repository.py
+            ⚙️ Functions:
+              • test_full_monier_williams_to_default_lexical_repository()
         📄 test_resolution_services.py
             ⚙️ Functions:
               • test_resolution_services_are_importable()
@@ -14400,6 +15292,66 @@
         📄 test_serialization.py
             ⚙️ Functions:
               • test()
+        📂 builders/
+          📄 test_lexeme_builder.py
+              ⚙️ Functions:
+                • test_lexeme_builder_builds_lexeme()
+                • test_lexeme_builder_maps_transliteration()
+                • test_lexeme_builder_maps_part_of_speech()
+                • test_lexeme_builder_maps_root()
+                • test_lexeme_builder_maps_frequency()
+                • test_lexeme_builder_maps_language()
+                • test_lexeme_builder_maps_script()
+                • test_lexeme_builder_maps_normalized_record_field()
+                • test_lexeme_builder_maps_dictionary_record_field()
+                • test_lexeme_builder_maps_devanagari()
+                • test_lexeme_builder_maps_iast()
+                • test_lexeme_builder_maps_gloss()
+                • test_lexeme_builder_maps_notes()
+                • test_lexeme_builder_maps_tags()
+                • test_lexeme_builder_supports_fluent_chaining()
+                • test_lexeme_builder_preserves_multiple_extra_fields()
+                • test_lexeme_builder_produces_immutable_lexeme()
+                • test_lexeme_builder_default_values_are_preserved()
+          📄 test_lexeme_builder_lifecycle.py
+              ⚙️ Functions:
+                • test_lexeme_builder_has_initial_instance()
+                • test_lexeme_builder_instance_tracks_fluent_state()
+                • test_lexeme_builder_build_returns_current_instance()
+                • test_lexeme_builder_reset_restores_default_state()
+                • test_lexeme_builder_clone_preserves_state()
+                • test_lexeme_builder_from_instance_restores_state()
+          📄 test_lexeme_record_builder.py
+              ⚙️ Functions:
+                • make_record(**overrides)
+                • test_lexeme_record_builder_builds_lexeme()
+                • test_lexeme_record_builder_normalizes_lemma()
+                • test_lexeme_record_builder_normalizes_optional_text()
+                • test_lexeme_record_builder_preserves_dictionary()
+                • test_lexeme_record_builder_preserves_language()
+                • test_lexeme_record_builder_preserves_script()
+                • test_lexeme_record_builder_preserves_tags_as_tuple()
+                • test_lexeme_record_builder_preserves_empty_optional_values()
+                • test_lexeme_record_builder_preserves_identifier()
+                • test_lexeme_record_builder_exposes_record_type()
+                • test_lexeme_record_builder_rejects_wrong_record_type()
+                • test_lexeme_record_builder_returns_immutable_lexeme()
+                • test_lexeme_record_builder_does_not_mutate_record()
+                • test_lexeme_record_builder_maps_all_record_information()
+          📄 test_lexeme_record_builder_validation.py
+              ⚙️ Functions:
+                • make_record(**overrides)
+                • test_build_validated_succeeds_for_valid_record()
+                • test_build_validated_rejects_invalid_record()
+                • test_build_many_returns_build_results()
+          📄 test_lexical_relation_builder.py
+              ⚙️ Functions:
+                • test_lexical_relation_builder_builds_relation()
+                • test_lexical_relation_builder_supports_weight_and_confidence()
+                • test_lexical_relation_builder_supports_directed()
+                • test_lexical_relation_builder_has_instance()
+                • test_lexical_relation_builder_reset()
+                • test_lexical_relation_builder_clone()
         📂 models/
           📄 test_dictionary_entry.py
               ⚙️ Functions:
