@@ -1,0 +1,863 @@
+{
+  "repository": "/content/SanskritAI",
+  "amarakosha_root": "/content/SanskritAI/amarakosha",
+  "files": [
+    {
+      "file": "amarakosha/__init__.py",
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "SanskritAI.amarakosha.enums.Amarakanda.Amarakanda"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/builders/base_amarakosha_builder.py",
+      "classes": [
+        {
+          "name": "BaseAmarakoshaBuilder",
+          "line": 24,
+          "bases": [
+            "ABC"
+          ],
+          "methods": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "SanskritAI.core.typing.TObject",
+        "SanskritAI.corpus.builders.node_builder.NodeBuilder",
+        "__future__.annotations",
+        "abc.ABC",
+        "typing.Generic",
+        "typing.TypeVar"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/builders/base_knowledge_record_builder.py",
+      "classes": [
+        {
+          "name": "BaseKnowledgeRecordBuilder",
+          "line": 34,
+          "bases": [
+            "ABC"
+          ],
+          "methods": [
+            "normalize_optional",
+            "normalize_text",
+            "record_type"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "record_type",
+          "line": 44
+        },
+        {
+          "name": "normalize_text",
+          "line": 55
+        },
+        {
+          "name": "normalize_optional",
+          "line": 64
+        }
+      ],
+      "imports": [
+        "SanskritAI.core.builders.record_builder.RecordBuilder",
+        "SanskritAI.core.records.knowledge_record.KnowledgeRecord",
+        "SanskritAI.core.typing.TObject",
+        "__future__.annotations",
+        "abc.ABC",
+        "typing.Generic"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/builders/synset_builder.py",
+      "classes": [
+        {
+          "name": "SynsetBuilder",
+          "line": 24,
+          "bases": [],
+          "methods": [
+            "__init__",
+            "_create_instance",
+            "add_lexeme",
+            "build",
+            "with_identifier",
+            "with_metadata"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "__init__",
+          "line": 34
+        },
+        {
+          "name": "_create_instance",
+          "line": 43
+        },
+        {
+          "name": "with_identifier",
+          "line": 55
+        },
+        {
+          "name": "with_metadata",
+          "line": 64
+        },
+        {
+          "name": "add_lexeme",
+          "line": 73
+        },
+        {
+          "name": "build",
+          "line": 82
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.builders.base_amarakosha_builder.BaseAmarakoshaBuilder",
+        "SanskritAI.amarakosha.models.synset.Synset",
+        "SanskritAI.amarakosha.models.synset_metadata.SynsetMetadata",
+        "SanskritAI.lexical.models.lexeme.Lexeme",
+        "__future__.annotations"
+      ],
+      "constructor_calls": [
+        {
+          "name": "SynsetMetadata",
+          "line": 38
+        },
+        {
+          "name": "Synset",
+          "line": 48
+        },
+        {
+          "name": "Synset",
+          "line": 83
+        },
+        {
+          "name": "SynsetMetadata",
+          "line": 50
+        }
+      ]
+    },
+    {
+      "file": "amarakosha/builders/synset_record_builder.py",
+      "classes": [
+        {
+          "name": "SynsetRecordBuilder",
+          "line": 66,
+          "bases": [],
+          "methods": [
+            "__init__",
+            "build",
+            "clear_lexemes",
+            "record_type",
+            "with_lexemes"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "__init__",
+          "line": 79
+        },
+        {
+          "name": "record_type",
+          "line": 91
+        },
+        {
+          "name": "with_lexemes",
+          "line": 98
+        },
+        {
+          "name": "clear_lexemes",
+          "line": 122
+        },
+        {
+          "name": "build",
+          "line": 135
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.builders.base_knowledge_record_builder.BaseKnowledgeRecordBuilder",
+        "SanskritAI.amarakosha.builders.synset_builder.SynsetBuilder",
+        "SanskritAI.amarakosha.models.synset.Synset",
+        "SanskritAI.amarakosha.records.synset_record.SynsetRecord",
+        "SanskritAI.amarakosha.validators.synset_validator.SynsetValidator",
+        "SanskritAI.core.records.knowledge_record.KnowledgeRecord",
+        "SanskritAI.lexical.models.lexeme.Lexeme",
+        "__future__.annotations",
+        "collections.abc.Iterable"
+      ],
+      "constructor_calls": [
+        {
+          "name": "SynsetValidator",
+          "line": 81
+        },
+        {
+          "name": "SynsetBuilder",
+          "line": 154
+        }
+      ]
+    },
+    {
+      "file": "amarakosha/builders/varga_builder.py",
+      "classes": [
+        {
+          "name": "VargaBuilder",
+          "line": 24,
+          "bases": [],
+          "methods": [
+            "__init__",
+            "_create_instance",
+            "add_synset",
+            "build",
+            "with_identifier",
+            "with_metadata"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "__init__",
+          "line": 34
+        },
+        {
+          "name": "_create_instance",
+          "line": 43
+        },
+        {
+          "name": "with_identifier",
+          "line": 55
+        },
+        {
+          "name": "with_metadata",
+          "line": 64
+        },
+        {
+          "name": "add_synset",
+          "line": 73
+        },
+        {
+          "name": "build",
+          "line": 82
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.builders.base_amarakosha_builder.BaseAmarakoshaBuilder",
+        "SanskritAI.amarakosha.models.synset.Synset",
+        "SanskritAI.amarakosha.models.varga.Varga",
+        "SanskritAI.amarakosha.models.varga_metadata.VargaMetadata",
+        "__future__.annotations"
+      ],
+      "constructor_calls": [
+        {
+          "name": "VargaMetadata",
+          "line": 38
+        },
+        {
+          "name": "Varga",
+          "line": 48
+        },
+        {
+          "name": "Varga",
+          "line": 83
+        },
+        {
+          "name": "VargaMetadata",
+          "line": 50
+        }
+      ]
+    },
+    {
+      "file": "amarakosha/enums/Amarakanda.py",
+      "classes": [
+        {
+          "name": "Amarakanda",
+          "line": 30,
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "methods": [
+            "devanagari",
+            "english_name",
+            "iast",
+            "order"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "english_name",
+          "line": 46
+        },
+        {
+          "name": "devanagari",
+          "line": 59
+        },
+        {
+          "name": "iast",
+          "line": 72
+        },
+        {
+          "name": "order",
+          "line": 85
+        }
+      ],
+      "imports": [
+        "__future__.annotations",
+        "enum.Enum"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/importers/__init__.py",
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "SanskritAI.amarakosha.importers.amarakosha_importer.AmarakoshaImporter"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/importers/amarakosha_importer.py",
+      "classes": [
+        {
+          "name": "AmarakoshaImporter",
+          "line": 80,
+          "bases": [],
+          "methods": [
+            "__init__",
+            "_build_synset",
+            "_build_varga",
+            "_resolve_lexemes",
+            "import_record",
+            "import_records",
+            "import_source",
+            "lexical_repository",
+            "parser",
+            "registry"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "__init__",
+          "line": 98
+        },
+        {
+          "name": "parser",
+          "line": 113
+        },
+        {
+          "name": "registry",
+          "line": 118
+        },
+        {
+          "name": "lexical_repository",
+          "line": 123
+        },
+        {
+          "name": "import_source",
+          "line": 133
+        },
+        {
+          "name": "import_record",
+          "line": 151
+        },
+        {
+          "name": "import_records",
+          "line": 185
+        },
+        {
+          "name": "_build_synset",
+          "line": 207
+        },
+        {
+          "name": "_resolve_lexemes",
+          "line": 227
+        },
+        {
+          "name": "_build_varga",
+          "line": 281
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.builders.synset_record_builder.SynsetRecordBuilder",
+        "SanskritAI.amarakosha.builders.varga_builder.VargaBuilder",
+        "SanskritAI.amarakosha.models.synset.Synset",
+        "SanskritAI.amarakosha.models.varga.Varga",
+        "SanskritAI.amarakosha.parsers.amarakosha_parser.AmarakoshaParser",
+        "SanskritAI.amarakosha.records.synset_record.SynsetRecord",
+        "SanskritAI.amarakosha.records.varga_record.VargaRecord",
+        "SanskritAI.amarakosha.registries.amarakosha_registry.AmarakoshaRegistry",
+        "SanskritAI.lexical.models.lexeme.Lexeme",
+        "SanskritAI.lexical.repositories.lexical_repository.LexicalRepository",
+        "__future__.annotations",
+        "collections.abc.Iterable"
+      ],
+      "constructor_calls": [
+        {
+          "name": "SynsetRecordBuilder",
+          "line": 216
+        },
+        {
+          "name": "VargaBuilder",
+          "line": 292
+        }
+      ]
+    },
+    {
+      "file": "amarakosha/models/synset.py",
+      "classes": [
+        {
+          "name": "Synset",
+          "line": 36,
+          "bases": [],
+          "methods": [
+            "__init__",
+            "add_lexeme",
+            "kanda",
+            "lexemes",
+            "pada_number",
+            "remove_lexeme",
+            "synset_identifier",
+            "varga",
+            "varga_number",
+            "verse_number"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "__init__",
+          "line": 50
+        },
+        {
+          "name": "lexemes",
+          "line": 69
+        },
+        {
+          "name": "kanda",
+          "line": 76
+        },
+        {
+          "name": "varga",
+          "line": 83
+        },
+        {
+          "name": "varga_number",
+          "line": 90
+        },
+        {
+          "name": "verse_number",
+          "line": 97
+        },
+        {
+          "name": "pada_number",
+          "line": 104
+        },
+        {
+          "name": "synset_identifier",
+          "line": 111
+        },
+        {
+          "name": "add_lexeme",
+          "line": 119
+        },
+        {
+          "name": "remove_lexeme",
+          "line": 130
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.models.synset_metadata.SynsetMetadata",
+        "SanskritAI.corpus.models.container_node.ContainerNode",
+        "SanskritAI.lexical.models.lexeme.Lexeme",
+        "__future__.annotations",
+        "typing.Iterable"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/models/synset_metadata.py",
+      "classes": [
+        {
+          "name": "SynsetMetadata",
+          "line": 41,
+          "bases": [
+            "BaseLexicalMetadata"
+          ],
+          "methods": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "SanskritAI.amarakosha.enums.Amarakanda.Amarakanda",
+        "SanskritAI.lexical.models.base_lexical_metadata.BaseLexicalMetadata",
+        "__future__.annotations",
+        "dataclasses.dataclass"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/models/varga.py",
+      "classes": [
+        {
+          "name": "Varga",
+          "line": 30,
+          "bases": [],
+          "methods": [
+            "__init__",
+            "add_synset",
+            "kanda",
+            "name",
+            "remove_synset",
+            "synsets",
+            "title",
+            "varga_number"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "__init__",
+          "line": 41
+        },
+        {
+          "name": "synsets",
+          "line": 58
+        },
+        {
+          "name": "kanda",
+          "line": 67
+        },
+        {
+          "name": "varga_number",
+          "line": 74
+        },
+        {
+          "name": "name",
+          "line": 81
+        },
+        {
+          "name": "title",
+          "line": 88
+        },
+        {
+          "name": "add_synset",
+          "line": 96
+        },
+        {
+          "name": "remove_synset",
+          "line": 107
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.models.synset.Synset",
+        "SanskritAI.amarakosha.models.varga_metadata.VargaMetadata",
+        "SanskritAI.corpus.models.container_node.ContainerNode",
+        "__future__.annotations",
+        "typing.Iterable"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/models/varga_metadata.py",
+      "classes": [
+        {
+          "name": "VargaMetadata",
+          "line": 30,
+          "bases": [
+            "BaseLexicalMetadata"
+          ],
+          "methods": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "SanskritAI.amarakosha.enums.Amarakanda.Amarakanda",
+        "SanskritAI.lexical.models.base_lexical_metadata.BaseLexicalMetadata",
+        "__future__.annotations",
+        "dataclasses.dataclass"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/parsers/__init__.py",
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "SanskritAI.amarakosha.parsers.amarakosha_parser.AmarakoshaParser"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/parsers/amarakosha_parser.py",
+      "classes": [
+        {
+          "name": "AmarakoshaParser",
+          "line": 51,
+          "bases": [
+            "BaseKnowledgeParser"
+          ],
+          "methods": [
+            "knowledge_source",
+            "parse",
+            "parse_kanda",
+            "parse_synset",
+            "parse_varga"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "knowledge_source",
+          "line": 57
+        },
+        {
+          "name": "parse",
+          "line": 64
+        },
+        {
+          "name": "parse_kanda",
+          "line": 87
+        },
+        {
+          "name": "parse_varga",
+          "line": 98
+        },
+        {
+          "name": "parse_synset",
+          "line": 109
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.parsers.base_knowledge_parser.BaseKnowledgeParser",
+        "SanskritAI.amarakosha.records.synset_record.SynsetRecord",
+        "SanskritAI.amarakosha.records.varga_record.VargaRecord",
+        "__future__.annotations",
+        "collections.abc.Iterable"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/parsers/base_knowledge_parser.py",
+      "classes": [
+        {
+          "name": "BaseKnowledgeParser",
+          "line": 51,
+          "bases": [
+            "ABC"
+          ],
+          "methods": [
+            "knowledge_source",
+            "normalize_optional",
+            "normalize_text",
+            "parse_lines",
+            "subsystem"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "normalize_text",
+          "line": 63
+        },
+        {
+          "name": "normalize_optional",
+          "line": 72
+        },
+        {
+          "name": "parse_lines",
+          "line": 85
+        },
+        {
+          "name": "subsystem",
+          "line": 106
+        },
+        {
+          "name": "knowledge_source",
+          "line": 113
+        }
+      ],
+      "imports": [
+        "SanskritAI.core.parsers.base_parser.BaseParser",
+        "SanskritAI.core.records.knowledge_record.KnowledgeRecord",
+        "__future__.annotations",
+        "abc.ABC",
+        "typing.Iterable"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/records/__init__.py",
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "SanskritAI.amarakosha.records.synset_record.SynsetRecord",
+        "SanskritAI.amarakosha.records.varga_record.VargaRecord"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/records/synset_record.py",
+      "classes": [
+        {
+          "name": "SynsetRecord",
+          "line": 47,
+          "bases": [],
+          "methods": [
+            "display_text"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "display_text",
+          "line": 98
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.enums.Amarakanda.Amarakanda",
+        "SanskritAI.core.records.knowledge_record.KnowledgeRecord",
+        "__future__.annotations",
+        "dataclasses.dataclass",
+        "dataclasses.field"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/records/varga_record.py",
+      "classes": [
+        {
+          "name": "VargaRecord",
+          "line": 43,
+          "bases": [],
+          "methods": [
+            "display_text"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "display_text",
+          "line": 84
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.enums.Amarakanda.Amarakanda",
+        "SanskritAI.core.records.knowledge_record.KnowledgeRecord",
+        "__future__.annotations",
+        "dataclasses.dataclass",
+        "dataclasses.field"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/registries/__init__.py",
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "SanskritAI.amarakosha.registries.amarakosha_registry.AmarakoshaRegistry"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/registries/amarakosha_registry.py",
+      "classes": [
+        {
+          "name": "AmarakoshaRegistry",
+          "line": 23,
+          "bases": [],
+          "methods": [
+            "register_many",
+            "synsets",
+            "vargas"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "register_many",
+          "line": 30
+        },
+        {
+          "name": "vargas",
+          "line": 38
+        },
+        {
+          "name": "synsets",
+          "line": 44
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.models.synset.Synset",
+        "SanskritAI.amarakosha.models.varga.Varga",
+        "SanskritAI.core.registries.base_registry.BaseRegistry",
+        "__future__.annotations",
+        "typing.Iterable"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/validators/base_knowledge_validator.py",
+      "classes": [
+        {
+          "name": "BaseKnowledgeValidator",
+          "line": 23,
+          "bases": [
+            "ABC"
+          ],
+          "methods": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "SanskritAI.core.typing.TObject",
+        "SanskritAI.core.validators.validator.Validator",
+        "__future__.annotations",
+        "abc.ABC",
+        "typing.Generic"
+      ],
+      "constructor_calls": []
+    },
+    {
+      "file": "amarakosha/validators/synset_validator.py",
+      "classes": [
+        {
+          "name": "SynsetValidator",
+          "line": 28,
+          "bases": [],
+          "methods": [
+            "validate"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "validate",
+          "line": 35
+        }
+      ],
+      "imports": [
+        "SanskritAI.amarakosha.models.synset.Synset",
+        "SanskritAI.amarakosha.validators.base_knowledge_validator.BaseKnowledgeValidator",
+        "SanskritAI.core.validators.validation_issue.ValidationIssue",
+        "SanskritAI.core.validators.validation_result.ValidationResult",
+        "__future__.annotations"
+      ],
+      "constructor_calls": []
+    }
+  ],
+  "summary": {
+    "python_files": 23,
+    "classes": 18,
+    "functions": 68,
+    "constructor_calls": 12
+  }
+}

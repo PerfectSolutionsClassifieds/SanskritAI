@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-"""
-SanskritAI
-==========
+"""SanskritAI
+===========
 
 Varga Record
 
-Immutable parser record representing a single Amarakośa
-Varga.
+Immutable parser record representing a single Amarakośa Varga.
 
-A VargaRecord is the canonical parser output exchanged
-between parsers, validators and record builders.
+A VargaRecord is the canonical parser output exchanged between
+parsers, validators, and record builders.
 
 Pipeline
 --------
@@ -41,25 +39,26 @@ from SanskritAI.amarakosha.enums.Amarakanda import (
 
 @dataclass(slots=True, frozen=True, kw_only=True)
 class VargaRecord(KnowledgeRecord[str]):
-    """
-    Immutable parser representation of an Amarakośa Varga.
-    """
+    """Immutable parser representation of an Amarakośa Varga."""
 
     # ---------------------------------------------------------
     # Amarakośa location
     # ---------------------------------------------------------
+
     kanda: Amarakanda
     varga_number: int
 
     # ---------------------------------------------------------
     # Canonical title
     # ---------------------------------------------------------
+
     name: str
     title: str
 
     # ---------------------------------------------------------
     # Canonical text
     # ---------------------------------------------------------
+
     devanagari: str = ""
     iast: str = ""
     transliteration: str = ""
@@ -67,11 +66,13 @@ class VargaRecord(KnowledgeRecord[str]):
     # ---------------------------------------------------------
     # Description
     # ---------------------------------------------------------
+
     description: str = ""
 
     # ---------------------------------------------------------
     # Metadata
     # ---------------------------------------------------------
+
     tags: tuple[str, ...] = field(
         default_factory=tuple
     )
@@ -80,11 +81,11 @@ class VargaRecord(KnowledgeRecord[str]):
     # ---------------------------------------------------------
     # Convenience
     # ---------------------------------------------------------
+
     @property
     def display_text(self) -> str:
-        """
-        Preferred display representation.
-        """
+        """Return the preferred display representation."""
+
         return (
             self.devanagari
             or self.iast

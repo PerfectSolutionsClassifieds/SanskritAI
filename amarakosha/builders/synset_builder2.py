@@ -17,15 +17,14 @@ from SanskritAI.amarakosha.builders.base_amarakosha_builder import (
     BaseAmarakoshaBuilder,
 )
 from SanskritAI.amarakosha.models.synset import Synset
-from SanskritAI.amarakosha.models.synset_metadata import SynsetMetadata
+from SanskritAI.amarakosha.models.synset_metadata import (
+    SynsetMetadata,
+)
 from SanskritAI.lexical.models.lexeme import Lexeme
 
 
 class SynsetBuilder(
-    BaseAmarakoshaBuilder[
-        Synset,
-        SynsetMetadata,
-    ],
+    BaseAmarakoshaBuilder[Synset, SynsetMetadata],
 ):
     """
     Fluent builder for Synset.
@@ -33,25 +32,11 @@ class SynsetBuilder(
 
     def __init__(self) -> None:
         super().__init__()
-
         self._identifier = ""
         self._metadata = SynsetMetadata()
         self._lexemes: list[Lexeme] = []
 
     # ---------------------------------------------------------
-
-    def _create_instance(self) -> Synset:
-        """
-        Create the initial empty Synset required by
-        BaseAmarakoshaBuilder / BaseBuilder.
-        """
-        return Synset(
-            identifier="",
-            metadata=SynsetMetadata(),
-        )
-
-    # ---------------------------------------------------------
-
     def with_identifier(
         self,
         identifier: str,
@@ -60,7 +45,6 @@ class SynsetBuilder(
         return self
 
     # ---------------------------------------------------------
-
     def with_metadata(
         self,
         metadata: SynsetMetadata,
@@ -69,7 +53,6 @@ class SynsetBuilder(
         return self
 
     # ---------------------------------------------------------
-
     def add_lexeme(
         self,
         lexeme: Lexeme,
@@ -78,7 +61,6 @@ class SynsetBuilder(
         return self
 
     # ---------------------------------------------------------
-
     def build(self) -> Synset:
         return Synset(
             identifier=self._identifier,

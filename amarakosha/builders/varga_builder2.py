@@ -18,14 +18,13 @@ from SanskritAI.amarakosha.builders.base_amarakosha_builder import (
 )
 from SanskritAI.amarakosha.models.synset import Synset
 from SanskritAI.amarakosha.models.varga import Varga
-from SanskritAI.amarakosha.models.varga_metadata import VargaMetadata
+from SanskritAI.amarakosha.models.varga_metadata import (
+    VargaMetadata,
+)
 
 
 class VargaBuilder(
-    BaseAmarakoshaBuilder[
-        Varga,
-        VargaMetadata,
-    ],
+    BaseAmarakoshaBuilder[Varga, VargaMetadata],
 ):
     """
     Fluent builder for Varga.
@@ -33,25 +32,11 @@ class VargaBuilder(
 
     def __init__(self) -> None:
         super().__init__()
-
         self._identifier = ""
         self._metadata = VargaMetadata()
         self._synsets: list[Synset] = []
 
     # ---------------------------------------------------------
-
-    def _create_instance(self) -> Varga:
-        """
-        Create the initial empty Varga required by
-        BaseAmarakoshaBuilder / BaseBuilder.
-        """
-        return Varga(
-            identifier="",
-            metadata=VargaMetadata(),
-        )
-
-    # ---------------------------------------------------------
-
     def with_identifier(
         self,
         identifier: str,
@@ -60,7 +45,6 @@ class VargaBuilder(
         return self
 
     # ---------------------------------------------------------
-
     def with_metadata(
         self,
         metadata: VargaMetadata,
@@ -69,7 +53,6 @@ class VargaBuilder(
         return self
 
     # ---------------------------------------------------------
-
     def add_synset(
         self,
         synset: Synset,
@@ -78,7 +61,6 @@ class VargaBuilder(
         return self
 
     # ---------------------------------------------------------
-
     def build(self) -> Varga:
         return Varga(
             identifier=self._identifier,

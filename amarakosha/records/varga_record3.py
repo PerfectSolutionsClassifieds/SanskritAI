@@ -4,25 +4,25 @@ from __future__ import annotations
 SanskritAI
 ==========
 
-Synset Record
+Varga Record
 
-Immutable parser record representing a single Amarakośa synset.
+Immutable parser record representing a single Amarakośa
+Varga.
 
-A SynsetRecord is the canonical parser output exchanged
-between parsers, validators, and record builders.
+A VargaRecord is the canonical parser output exchanged
+between parsers, validators and record builders.
 
 Pipeline
 --------
-
 Parser
     ↓
-SynsetRecord
+VargaRecord
     ↓
-SynsetValidator
+VargaValidator
     ↓
-SynsetRecordBuilder
+VargaRecordBuilder
     ↓
-Synset
+Varga
 
 Version
 -------
@@ -39,61 +39,47 @@ from SanskritAI.amarakosha.enums.Amarakanda import (
 )
 
 
-@dataclass(
-    slots=True,
-    frozen=True,
-    kw_only=True,
-)
-class SynsetRecord(KnowledgeRecord[str]):
+@dataclass(slots=True, frozen=True, kw_only=True)
+class VargaRecord(KnowledgeRecord[str]):
     """
-    Immutable parser representation of an Amarakośa Synset.
+    Immutable parser representation of an Amarakośa Varga.
     """
 
     # ---------------------------------------------------------
     # Amarakośa location
     # ---------------------------------------------------------
-
     kanda: Amarakanda
-    varga: str
-    verse: int
-    sequence: int = 1
+    varga_number: int
+
+    # ---------------------------------------------------------
+    # Canonical title
+    # ---------------------------------------------------------
+    name: str
+    title: str
 
     # ---------------------------------------------------------
     # Canonical text
     # ---------------------------------------------------------
-
     devanagari: str = ""
     iast: str = ""
     transliteration: str = ""
 
     # ---------------------------------------------------------
-    # Semantic information
+    # Description
     # ---------------------------------------------------------
-
-    gloss: str = ""
-
-    # ---------------------------------------------------------
-    # Lexical references
-    # ---------------------------------------------------------
-
-    lexeme_ids: tuple[str, ...] = field(
-        default_factory=tuple
-    )
+    description: str = ""
 
     # ---------------------------------------------------------
     # Metadata
     # ---------------------------------------------------------
-
     tags: tuple[str, ...] = field(
         default_factory=tuple
     )
-
     notes: str = ""
 
     # ---------------------------------------------------------
     # Convenience
     # ---------------------------------------------------------
-
     @property
     def display_text(self) -> str:
         """
@@ -102,5 +88,6 @@ class SynsetRecord(KnowledgeRecord[str]):
         return (
             self.devanagari
             or self.iast
-            or self.transliteration
+            or self.title
+            or self.name
         )

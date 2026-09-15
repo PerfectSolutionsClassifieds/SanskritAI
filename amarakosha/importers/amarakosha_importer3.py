@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 """
@@ -6,41 +7,38 @@ SanskritAI
 
 Amarakośa Importer
 
-Coordinates parsing, lexical-reference resolution,
-domain-object construction, and registration for
-Amarakośa knowledge resources.
+Coordinates parsing, lexical-reference resolution, domain-object
+construction, and registration for Amarakośa knowledge resources.
 
 Architecture
 ------------
 
 AmarakoshaParser
-       |
-       v
+        |
+        v
 SynsetRecord / VargaRecord
-       |
-       v
+        |
+        v
 AmarakoshaImporter
-       |
-       +--> LexicalRepository
-       |       |
-       |       +--> get_lexeme()
-       |
-       +--> SynsetRecordBuilder
-       |
-       +--> VargaBuilder
-       |
-       v
+        |
+        +--> LexicalRepository
+        |       |
+        |       +--> get_lexeme()
+        |
+        +--> SynsetRecordBuilder
+        |
+        +--> VargaBuilder
+        |
+        v
 AmarakoshaRegistry
 
-The importer is the orchestration boundary for
-Amarakośa records.
+The importer is the orchestration boundary for Amarakośa records.
 
-No separate LexemeResolver or AmarakośaOrchestrator
-is introduced.
+No separate LexemeResolver or AmarakośaOrchestrator is introduced.
 
 Version
 -------
-v0.5.1
+v0.5.0
 """
 
 from collections.abc import Iterable
@@ -91,6 +89,7 @@ class AmarakoshaImporter:
     5. Register constructed domain objects.
 
     The importer does not own lexical lookup semantics.
+
     It delegates lexical identity resolution to the existing
     LexicalRepository contract.
     """
@@ -120,9 +119,7 @@ class AmarakoshaImporter:
         return self._registry
 
     @property
-    def lexical_repository(
-        self,
-    ) -> LexicalRepository | None:
+    def lexical_repository(self) -> LexicalRepository | None:
         """Return the optional lexical repository."""
         return self._lexical_repository
 
@@ -155,13 +152,12 @@ class AmarakoshaImporter:
         """
         Import one already-parsed Amarakośa record.
 
-        SynsetRecord instances are resolved and converted
-        into Synset objects.
+        SynsetRecord instances are resolved and converted into
+        Synset objects.
 
         VargaRecord instances are converted into Varga objects.
 
-        The constructed object is registered before being
-        returned.
+        The constructed object is registered before being returned.
         """
         if isinstance(record, SynsetRecord):
             synset = self._build_synset(record)

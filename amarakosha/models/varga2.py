@@ -22,9 +22,15 @@ v0.4.0
 
 from typing import Iterable
 
-from SanskritAI.corpus.models.container_node import ContainerNode
-from SanskritAI.amarakosha.models.synset import Synset
-from SanskritAI.amarakosha.models.varga_metadata import VargaMetadata
+from SanskritAI.corpus.models.container_node import (
+    ContainerNode,
+)
+from SanskritAI.amarakosha.models.synset import (
+    Synset,
+)
+from SanskritAI.amarakosha.models.varga_metadata import (
+    VargaMetadata,
+)
 
 
 class Varga(
@@ -47,13 +53,10 @@ class Varga(
         super().__init__(
             identifier=identifier,
             metadata=metadata,
+            children=children,
         )
 
-        if children is not None:
-            self.extend(children)
-
     # ---------------------------------------------------------
-
     @property
     def synsets(self):
         """
@@ -62,7 +65,6 @@ class Varga(
         return iter(self.children)
 
     # ---------------------------------------------------------
-
     @property
     def kanda(self):
         """
@@ -92,7 +94,6 @@ class Varga(
         return self.metadata.title
 
     # ---------------------------------------------------------
-
     def add_synset(
         self,
         synset: Synset,
@@ -103,7 +104,6 @@ class Varga(
         self.add_child(synset)
 
     # ---------------------------------------------------------
-
     def remove_synset(
         self,
         synset: Synset,
