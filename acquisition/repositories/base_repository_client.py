@@ -37,7 +37,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 from SanskritAI.acquisition.downloaders.http_downloader import (
-    HttpDownloader,
+    HTTPDownloader,
 )
 
 
@@ -48,10 +48,10 @@ class BaseRepositoryClient(ABC):
 
     def __init__(
         self,
-        downloader: HttpDownloader | None = None,
+        downloader: HTTPDownloader | None = None,
     ) -> None:
 
-        self._downloader = downloader or HttpDownloader()
+        self._downloader = downloader or HTTPDownloader()
 
     # ---------------------------------------------------------
     # Repository Identity
@@ -169,7 +169,7 @@ class BaseRepositoryClient(ABC):
     @property
     def downloader(
         self,
-    ) -> HttpDownloader:
+    ) -> HTTPDownloader:
 
         return self._downloader
 

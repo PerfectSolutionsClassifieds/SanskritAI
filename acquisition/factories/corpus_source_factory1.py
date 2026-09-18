@@ -17,11 +17,12 @@ Responsibilities
 * Populate common metadata consistently
 
 The factory intentionally does NOT:
-* discover resources
-* download files
-* validate files
-* normalize content
-* parse corpora
+
+    • discover resources
+    • download files
+    • validate files
+    • normalize content
+    • parse corpora
 
 Version
 -------
@@ -54,10 +55,11 @@ class CorpusSourceFactory:
         cls,
         path: str | Path,
         *,
-        source_type: SourceType = SourceType.UNKNOWN,
-        status: SourceStatus = SourceStatus.REGISTERED,
+        source_type: SourceType = SourceType.LOCAL,
+        status: SourceStatus = SourceStatus.AVAILABLE,
         metadata: dict | None = None,
     ) -> CorpusSource:
+
         path = Path(path).expanduser().resolve()
 
         source_format = SourceFormatDetector.detect(path)
@@ -70,6 +72,7 @@ class CorpusSourceFactory:
         file_metadata = dict(metadata or {})
 
         if path.exists():
+
             stat = path.stat()
 
             file_metadata.setdefault(
@@ -88,12 +91,16 @@ class CorpusSourceFactory:
             )
 
         return CorpusSource(
-            source_id=str(path),
-            name=path.stem,
+            identifier=str(path),
+            title=path.stem,
             source_type=source_type,
             source_format=source_format,
             status=status,
             local_path=path,
+            download_url=None,
+            checksum=None,
+            description=None,
+            license=None,
             metadata=file_metadata,
         )
 
@@ -107,11 +114,13 @@ class CorpusSourceFactory:
         url: str,
         *,
         title: str | None = None,
-        source_type: SourceType = SourceType.UNKNOWN,
-        status: SourceStatus = SourceStatus.REGISTERED,
+        source_type: SourceType = SourceType.REMOTE,
+        status: SourceStatus = SourceStatus.AVAILABLE,
         metadata: dict | None = None,
     ) -> CorpusSource:
+
         parsed = urlparse(url)
+
         filename = Path(parsed.path).name
 
         source_format = (
@@ -120,12 +129,16 @@ class CorpusSourceFactory:
         )
 
         return CorpusSource(
-            source_id=url,
-            name=title or Path(filename).stem,
+            identifier=url,
+            title=title or Path(filename).stem,
             source_type=source_type,
             source_format=source_format,
             status=status,
-            download_urls=[url],
+            local_path=None,
+            download_url=url,
+            checksum=None,
+            description=None,
+            license=None,
             metadata=dict(metadata or {}),
         )
 
@@ -141,7 +154,7 @@ class CorpusSourceFactory:
         title: str,
         source_type: SourceType,
         source_format: SourceFormat,
-        status: SourceStatus = SourceStatus.REGISTERED,
+        status: SourceStatus = SourceStatus.AVAILABLE,
         local_path: str | Path | None = None,
         download_url: str | None = None,
         checksum: str | None = None,
@@ -149,23 +162,18 @@ class CorpusSourceFactory:
         license: str | None = None,
         metadata: dict | None = None,
     ) -> CorpusSource:
+
         if isinstance(local_path, str):
             local_path = Path(local_path)
 
-        download_urls = (
-            [download_url]
-            if download_url
-            else []
-        )
-
         return CorpusSource(
-            source_id=identifier,
-            name=title,
+            identifier=identifier,
+            title=title,
             source_type=source_type,
             source_format=source_format,
             status=status,
             local_path=local_path,
-            download_urls=download_urls,
+            download_url=download_url,
             checksum=checksum,
             description=description,
             license=license,
@@ -180,6 +188,7 @@ class CorpusSourceFactory:
     def is_supported(
         path: str | Path,
     ) -> bool:
+
         return SourceFormatDetector.is_supported(path)
 
     # ---------------------------------------------------------
@@ -187,4 +196,5 @@ class CorpusSourceFactory:
     # ---------------------------------------------------------
 
     def __repr__(self) -> str:
+
         return "CorpusSourceFactory()"

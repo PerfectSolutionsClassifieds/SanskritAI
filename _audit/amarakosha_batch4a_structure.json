@@ -736,7 +736,7 @@
       "classes": [
         {
           "name": "VargaRecord",
-          "line": 43,
+          "line": 41,
           "bases": [],
           "methods": [
             "display_text"
@@ -746,7 +746,7 @@
       "functions": [
         {
           "name": "display_text",
-          "line": 84
+          "line": 86
         }
       ],
       "imports": [

@@ -88,12 +88,16 @@ class CorpusSourceFactory:
             )
 
         return CorpusSource(
-            source_id=str(path),
-            name=path.stem,
+            identifier=str(path),
+            title=path.stem,
             source_type=source_type,
             source_format=source_format,
             status=status,
             local_path=path,
+            download_url=None,
+            checksum=None,
+            description=None,
+            license=None,
             metadata=file_metadata,
         )
 
@@ -120,12 +124,16 @@ class CorpusSourceFactory:
         )
 
         return CorpusSource(
-            source_id=url,
-            name=title or Path(filename).stem,
+            identifier=url,
+            title=title or Path(filename).stem,
             source_type=source_type,
             source_format=source_format,
             status=status,
-            download_urls=[url],
+            local_path=None,
+            download_url=url,
+            checksum=None,
+            description=None,
+            license=None,
             metadata=dict(metadata or {}),
         )
 
@@ -152,20 +160,14 @@ class CorpusSourceFactory:
         if isinstance(local_path, str):
             local_path = Path(local_path)
 
-        download_urls = (
-            [download_url]
-            if download_url
-            else []
-        )
-
         return CorpusSource(
-            source_id=identifier,
-            name=title,
+            identifier=identifier,
+            title=title,
             source_type=source_type,
             source_format=source_format,
             status=status,
             local_path=local_path,
-            download_urls=download_urls,
+            download_url=download_url,
             checksum=checksum,
             description=description,
             license=license,
