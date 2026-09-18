@@ -1851,6 +1851,7 @@
             🏗️ Classes:
               • class SynsetBuilder:
                 - __init__(self)
+                - _create_instance(self)
                 - with_identifier(self, identifier)
                 - with_metadata(self, metadata)
                 - add_lexeme(self, lexeme)
@@ -1860,11 +1861,14 @@
               • class SynsetRecordBuilder:
                 - __init__(self)
                 - record_type(self)
+                - with_lexemes(self, lexemes)
+                - clear_lexemes(self)
                 - build(self, record)
         📄 varga_builder.py
             🏗️ Classes:
               • class VargaBuilder:
                 - __init__(self)
+                - _create_instance(self)
                 - with_identifier(self, identifier)
                 - with_metadata(self, metadata)
                 - add_synset(self, synset)
@@ -1882,8 +1886,16 @@
         📄 amarakosha_importer.py
             🏗️ Classes:
               • class AmarakoshaImporter:
-                - __init__(self, parser, registry)
+                - __init__(self, parser, registry, lexical_repository)
+                - parser(self)
+                - registry(self)
+                - lexical_repository(self)
                 - import_source(self, source)
+                - import_record(self, record)
+                - import_records(self, records)
+                - _build_synset(self, record)
+                - _resolve_lexemes(self, record)
+                - _build_varga(self, record)
       📂 models/
         📄 synset.py
             🏗️ Classes:
@@ -10857,6 +10869,12 @@
       📄 import_puranas.py
           ⚙️ Functions:
             • main()
+      📄 parse_saved_pages.py
+          ⚙️ Functions:
+            • extract_from_archive_search(html)
+            • extract_from_generic_html(html)
+            • parse_file(path)
+            • main()
       📄 prototype_reader_utility.py
           🔹 Constants:
             • SLOKA_IAST
@@ -10941,11 +10959,324 @@
               • dump_public_methods(obj)
               • dump_public_attributes(obj)
               • main()
+        📄 audit_amarakosha_batch5a_mapping_evidence.py
+            🔹 Constants:
+              • REPOSITORY_ROOT
+              • PACKAGE_ROOT
+            ⚙️ Functions:
+              • heading(title)
+              • subheading(title)
+              • show_signature(obj, label)
+              • show_source(obj, label)
+              • show_dataclass_fields(cls, label)
+              • show_public_members(obj, label)
+              • import_components()
+              • main()
+        📄 audit_amarakosha_batch5b_mapping_matrix.py
+            🔹 Constants:
+              • WIDTH
+              • MAPPING_ROWS
+            ⚙️ Functions:
+              • section(title)
+              • show_signature(label, obj)
+              • show_fields(label, cls)
+              • show_source(label, obj)
+              • main()
+        📄 audit_amarakosha_batch5c_builder_importer_boundary.py
+            🔹 Constants:
+              • WIDTH
+            ⚙️ Functions:
+              • section(title)
+              • show_signature(label, obj)
+              • show_source(label, obj)
+              • show_abstract_contract(label, cls)
+              • show_class_hierarchy(label, cls)
+              • show_public_methods(label, cls)
+              • inspect_method(label, cls, method_name)
+              • main()
+        📄 audit_amarakosha_batch5d_runtime_construction.py
+            🔹 Constants:
+              • ROOT
+              • HISTORICAL_SUFFIX_RE
+            ⚙️ Functions:
+              • is_production_python_file(path)
+              • section(title)
+              • report_object(label, obj)
+              • report_class(label, cls)
+              • report_signature(label, obj)
+              • report_source(label, obj, max_lines)
+              • report_dataclass(label, cls)
+              • safe_import(module_name)
+              • module_name_from_path(path)
+              • discover_lexeme_classes()
+        📄 audit_amarakosha_batch5e_builder_framework_contract.py
+            🔹 Constants:
+              • REPO_ROOT
+              • NUMERIC_SUFFIX_RE
+              • GEN_SUFFIX_RE
+            ⚙️ Functions:
+              • is_production_python_file(path)
+              • module_name_from_path(path)
+              • discover_modules_containing_symbol(symbol)
+              • import_first_working(module_names, symbol)
+              • print_signature(label, obj)
+              • print_source(label, obj, max_lines)
+              • print_mro(label, cls)
+              • print_abstracts(label, cls)
+        📄 audit_amarakosha_batch5f_synset_varga_compatibility.py
+            🔹 Constants:
+              • REPO_ROOT
+              • NUMERIC_SUFFIX_RE
+              • GEN_SUFFIX_RE
+            ⚙️ Functions:
+              • is_production_python_file(path)
+              • module_name_from_path(path)
+              • discover_symbol(symbol)
+              • resolve_symbol(symbol)
+              • show_signature(label, obj)
+              • inspect_class(label, cls)
+              • show_method_source(cls, method_name)
+              • builder_contract(cls)
+              • constructor_parameters(cls)
+        📄 audit_amarakosha_batch5g_repair_contract.py
+            🔹 Constants:
+              • REPO_ROOT
+              • NUMERIC_SUFFIX_RE
+              • GEN_SUFFIX_RE
+            ⚙️ Functions:
+              • is_production_python_file(path)
+              • module_name_from_path(path)
+              • discover_symbol(symbol)
+              • resolve_symbol(symbol)
+              • show_source(cls, method_name)
+        📄 audit_amarakosha_batch5g_runtime.py
+            ⚙️ Functions:
+              • section(title)
+        📄 audit_amarakosha_batch5h1_semantic_mapping.py
+            🔹 Constants:
+              • ROOT
+            ⚙️ Functions:
+              • section(title)
+              • source(obj)
+        📄 audit_amarakosha_batch5h2_lexeme_varga.py
+            🔹 Constants:
+              • ROOT
+              • HISTORICAL_SUFFIX_RE
+              • GENERATION_SUFFIX_RE
+            ⚙️ Functions:
+              • is_production_python_file(path)
+              • production_python_files()
+              • source_text(path)
+              • print_section(title)
+              • show_signature(label, obj)
+              • show_source(label, obj)
+              • resolve(label, module_name, attribute)
+        📄 audit_amarakosha_batch5h3_builder_repository_boundary.py
+            🔹 Constants:
+              • ROOT
+            ⚙️ Functions:
+              • section(title)
+              • subsection(title)
+              • show_signature(label, obj)
+              • show_source(label, obj, max_lines)
+        📄 audit_amarakosha_batch5h4_current_builder.py
+        📄 audit_amarakosha_batch5h4_synset_record_builder_runtime.py
+        📄 audit_amarakosha_batch5h5_importer_boundary.py
+        📄 audit_amarakosha_batch5h5c_importer_runtime.py
+            ⚙️ Functions:
+              • section(title)
+        📄 audit_amarakosha_batch5h5d_parser_record_semantics.py
+            🔹 Constants:
+              • ROOT
+              • PROJECT_PARENT
+            ⚙️ Functions:
+              • production_python_files(directory)
+              • ast_imports_and_calls(path)
+              • print_dataclass_contract(record_type)
+              • main()
+        📄 audit_amarakosha_batch5h5e1_parser_input_contract.py
+            🔹 Constants:
+              • ROOT
+              • PROJECT_PARENT
+            ⚙️ Functions:
+              • production_python_files(directory)
+              • source_text(path)
+              • executable_symbol_references(path, symbols)
+              • main()
+        📄 audit_amarakosha_batch5h5e2_source_format.py
+            🔹 Constants:
+              • ROOT
+              • PROJECT_PARENT
+              • MAX_TEXT_PREVIEW
+              • TEXT_EXTENSIONS
+              • SOURCE_KEYWORDS
+              • STRUCTURE_KEYWORDS
+            ⚙️ Functions:
+              • is_historical_file(path)
+              • is_excluded_path(path)
+              • production_python_files()
+              • repository_text_files()
+              • read_text(path)
+              • keyword_hits(text, keywords)
+              • likely_amarakosha_text(text)
+              • compact_preview(text)
+              • parser_record_references(path)
+              • main()
+        📄 audit_amarakosha_batch5h5e3_parser_grammar_mapping.py
+            🔹 Constants:
+              • REPO_ROOT
+              • SEARCH_ROOTS
+              • TEXT_EXTENSIONS
+              • PYTHON_EXTENSIONS
+              • SOURCE_TERMS
+              • GRAMMAR_TERMS
+              • RECORD_TERMS
+              • EXCLUDED_DIR_NAMES
+            ⚙️ Functions:
+              • is_historical_or_duplicate(path)
+              • is_excluded(path)
+              • iter_files()
+              • safe_read(path)
+              • contains_any(text, terms)
+              • preview(text, limit)
+              • executable_names(path)
+              • constructor_calls(path)
+              • dataclass_fields(cls)
+              • main()
+        📄 audit_amarakosha_batch5h5e4_source_acquisition_path.py
+            🔹 Constants:
+              • REPO_ROOT
+              • SEARCH_ROOTS
+              • TEXT_EXTENSIONS
+              • PYTHON_EXTENSIONS
+              • EXCLUDED_DIR_NAMES
+              • SOURCE_TERMS
+              • ACQUISITION_TERMS
+              • FORMAT_TERMS
+              • PROVIDER_TERMS
+            ⚙️ Functions:
+              • is_historical_or_duplicate(path)
+              • is_excluded(path)
+              • iter_files()
+              • safe_read(path)
+              • contains_any(text, terms)
+              • matched_terms(text, terms)
+              • preview(text, limit)
+              • executable_symbol_references(path)
+              • url_like_strings(path)
+              • main()
+        📄 audit_amarakosha_batch5h5e5_concrete_source_artifact.py
+            🔹 Constants:
+              • REPO_ROOT
+              • EXCLUDED_DIR_NAMES
+              • EXCLUDED_FILE_PATTERNS
+              • DOC_SUFFIXES
+              • TEXT_SUFFIXES
+              • SOURCE_TERMS
+              • ACQUISITION_TERMS
+              • FORMAT_TERMS
+              • RAW_DEVANAGARI_RE
+              • URL_RE
+            ⚙️ Functions:
+              • is_excluded_file(path)
+              • safe_read(path, limit)
+              • relative(path)
+              • source_score(path, text)
+              • classify(path, text)
+        📄 audit_amarakosha_batch5h5e6_acquisition_boundary.py
+            🔹 Constants:
+              • REPO_ROOT
+              • EXCLUDED_DIRS
+              • EXCLUDED_PYTHON_PATTERNS
+              • SOURCE_TERMS
+              • ACQUISITION_CLASSES
+              • PROVIDER_TERMS
+              • ACQUISITION_TERMS
+            ⚙️ Functions:
+              • is_excluded(path)
+              • read_text(path, limit)
+              • rel(path)
+              • source_matches(text)
+              • acquisition_matches(text)
+              • provider_matches(text)
+              • python_definitions(path)
+        📄 audit_amarakosha_batch5h5e7_acquisition_contract.py
+            🔹 Constants:
+              • REPO_ROOT
+              • EXCLUDED_DIRS
+              • EXCLUDED_PYTHON_PATTERNS
+              • TARGET_FILES
+            ⚙️ Functions:
+              • is_excluded(path)
+              • read_text(path, limit)
+              • rel(path)
+              • parse_python(path)
+              • definitions(path)
+              • imports(path)
+              • call_names(path)
+              • source_lines(path)
+              • executable_urls(path)
+        📄 audit_amarakosha_batch5h_record_builder_contract.py
+            🔹 Constants:
+              • ROOT
+            ⚙️ Functions:
+              • section(title)
+              • show_signature(label, obj)
+              • show_source(label, obj)
+              • source_path(obj)
         📄 create_amarakosha_batch5_mapping_matrix.py
             🔹 Constants:
               • ROOT
               • OUTPUT
               • HEADER
+      📂 data_extraction/
+        📄 archive_api_to_mw_json.py
+            🔹 Constants:
+              • HEADERS
+              • API_BASE
+              • LEMMA_LIST
+            ⚙️ Functions:
+              • query_archive_api(lemma, rows)
+              • find_text_download_url(item_identifier)
+              • fetch_text_from_url(url)
+              • extract_candidate_blocks(text)
+              • main()
+        📄 archive_to_mw_json.py
+            🔹 Constants:
+              • HEADERS
+              • TIMEOUT
+            ⚙️ Functions:
+              • load_links()
+              • fetch_url(url)
+              • find_text_download(item_url)
+              • extract_candidate_blocks(text)
+              • main()
+        📄 extract_archive_links.py
+            ⚙️ Functions:
+              • find_archive_item(html)
+              • extract_lemma_from_filename(fn)
+              • main()
+        📄 extract_archive_links_broad.py
+            ⚙️ Functions:
+              • extract_lemma_from_filename(fn)
+              • find_details_urls(html)
+              • main()
+        📄 parse_saved_pages.py
+            ⚙️ Functions:
+              • extract_from_archive_search(html)
+              • extract_from_generic_html(html)
+              • parse_file(path)
+              • main()
+        📄 probe_mw_and_fallbacks.py
+            🔹 Constants:
+              • HEADERS
+              • TIMEOUT
+              • LEMMA_LIST
+              • ENDPOINTS
+            ⚙️ Functions:
+              • try_url(url)
+              • probe_lemma(lemma)
+              • main()
     📂 services/
       📄 __init__.py
       📄 analysis_service.py

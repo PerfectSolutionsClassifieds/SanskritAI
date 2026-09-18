@@ -1517,6 +1517,16 @@
                 - __str__(self)
       📂 sources/
         📄 __init__.py
+        📄 amarakosha.py
+            🔹 Constants:
+              • AMARAKOSHA_SOURCE_ID
+              • AMARAKOSHA_NAME
+              • AMARAKOSHA_ARTIFACT
+              • AMARAKOSHA_SHA256
+              • AMARAKOSHA_PROVENANCE_URL
+            ⚙️ Functions:
+              • create_amarakosha_source()
+              • get_amarakosha_source()
         📄 monier_williams.py
             🏗️ Classes:
               • class MonierWilliamsSource:
@@ -11094,6 +11104,250 @@
               • ast_imports_and_calls(path)
               • print_dataclass_contract(record_type)
               • main()
+        📄 audit_amarakosha_batch5h5e10_registry_factory_runtime.py
+            🔹 Constants:
+              • REPO_ROOT
+              • IMPORTS
+        📄 audit_amarakosha_batch5h5e10r1_runtime_bootstrap.py
+            🔹 Constants:
+              • REPO_ROOT
+              • REPO_PARENT
+              • TARGETS
+              • OBJECT_TARGETS
+        📄 audit_amarakosha_batch5h5e10r2_sourceformat_compatibility.py
+            🔹 Constants:
+              • REPO_ROOT
+              • REPO_PARENT
+              • SOURCE_FORMAT_FILE
+              • CORPUS_SOURCE_FACTORY_FILE
+            ⚙️ Functions:
+              • section(title)
+              • ast_attribute_references(path, attribute)
+        📄 audit_amarakosha_batch5h5e10r3_sourceformat_detector.py
+            🔹 Constants:
+              • REPO_ROOT
+              • REPO_PARENT
+              • DETECTOR_FILE
+              • SOURCE_FORMAT_FILE
+              • FACTORY_FILE
+            ⚙️ Functions:
+              • section(title)
+              • production_python_files()
+        📄 audit_amarakosha_batch5h5e11r_workregistry_runtime_trace.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • PACKAGE_PARENT
+            ⚙️ Functions:
+              • section(title)
+              • show_attribute(obj, name)
+              • main()
+        📄 audit_amarakosha_batch5h5e12r4r_runtime_factory.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • FACTORY_PATH
+            ⚙️ Functions:
+              • fail(message)
+              • section(title)
+              • main()
+        📄 audit_amarakosha_batch5h5e12r_factory_callers.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • PACKAGE_PARENT
+            ⚙️ Functions:
+              • section(title)
+              • bootstrap()
+              • production_python_files()
+              • search_factory_calls()
+              • print_context(path, line_number, radius)
+              • inspect_caller_context(path, line_number)
+              • main()
+        📄 audit_amarakosha_batch5h5e12r_factory_semantic_decision.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • PACKAGE_PARENT
+            ⚙️ Functions:
+              • section(title)
+              • read_text(path)
+              • show_context(path, start, end)
+              • active_source_lines(path)
+              • find_active_pattern(path, pattern)
+              • main()
+        📄 audit_amarakosha_batch5h5e12r_sourcetype_compatibility.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • PACKAGE_PARENT
+            ⚙️ Functions:
+              • section(title)
+              • bootstrap()
+              • production_python_files()
+              • find_source_type_references()
+              • main()
+        📄 audit_amarakosha_batch5h5e12r_sourcetype_semantic_usage.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • PACKAGE_PARENT
+            ⚙️ Functions:
+              • section(title)
+              • bootstrap()
+              • production_python_files()
+              • active_source_type_references(path)
+              • all_active_references()
+              • print_file_context(path, line_number, radius)
+              • inspect_signature(owner, name)
+              • main()
+        📄 audit_amarakosha_batch5h5e12r_workdefinition_source_factory.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • PACKAGE_PARENT
+            ⚙️ Functions:
+              • section(title)
+              • show_attribute(obj, name)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r1_acquisition_boundary.py
+            🔹 Constants:
+              • PROJECT_ROOT
+            ⚙️ Functions:
+              • fail(message)
+              • section(title)
+              • production_py_files(root)
+              • search_production_references(token)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r2_provider_manifest_trace.py
+            🔹 Constants:
+              • PROJECT_ROOT
+            ⚙️ Functions:
+              • fail(message)
+              • section(title)
+              • is_historical_python(path)
+              • classify_path(path)
+              • production_files()
+              • all_nonhistorical_python_files()
+              • matches(token)
+              • print_matches(label, token, files, limit)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r3_abstract_lexical_manifest.py
+            🔹 Constants:
+              • PROJECT_ROOT
+            ⚙️ Functions:
+              • section(title)
+              • fail(message)
+              • show_class(cls, label)
+              • show_members(cls)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r4r_generic_acquisition_boundary.py
+            🔹 Constants:
+              • PROJECT_ROOT
+            ⚙️ Functions:
+              • section(title)
+              • fail(message)
+              • is_historical_python(path)
+              • classify_path(path)
+              • production_files()
+              • print_class(cls, label)
+              • print_public_methods(cls)
+              • find_token(token, files)
+              • print_token(label, token, files, limit)
+              • safe_import(module_path)
+              • classes_defined_in_module(module)
+              • print_module_classes(module)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r4s1_http_downloader_contract.py
+            🔹 Constants:
+              • PROJECT_ROOT
+            ⚙️ Functions:
+              • section(title)
+              • is_historical_python(path)
+              • classify(path)
+              • production_files()
+              • find_exact(token, files)
+              • print_matches(title, token, files)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r4s2_muktabodha_syntax.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • TARGET
+            ⚙️ Functions:
+              • section(title)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r5_concrete_source_artifact.py
+            🔹 Constants:
+              • REPO_ROOT
+              • PROJECT_PARENT
+              • SCRIPTS_DIR
+              • AUDITS_DIR
+              • PRODUCTION_ROOTS
+              • HISTORICAL_SUFFIX_RE
+              • GENERATION_SUFFIX_RE
+            ⚙️ Functions:
+              • is_excluded_path(path)
+              • iter_production_files()
+              • iter_production_python_files()
+              • safe_read_text(path)
+              • bootstrap_package()
+              • section(number, title)
+              • print_matches(label, matches, max_items)
+              • audit_workregistry()
+              • audit_amarakosha_files()
+              • audit_filename_candidates()
+              • audit_non_python_artifacts()
+              • audit_acquisition_declarations()
+              • audit_url_resource_declarations()
+              • audit_parser_importer_boundary()
+              • audit_parser_resource_clues()
+              • audit_specific_acquisition_abstractions()
+              • audit_ast_artifact_clues()
+              • conclusion()
+              • main()
+        📄 audit_amarakosha_batch5h5e13r6_corpus_source_declaration.py
+            🔹 Constants:
+              • REPO_ROOT
+              • PROJECT_PARENT
+              • RESOURCE_ROOT
+              • AMARAKOSHA_ROOT
+              • SERVICES_IMPORTER_ROOT
+              • HISTORICAL_SUFFIX_RE
+              • GENERATION_SUFFIX_RE
+            ⚙️ Functions:
+              • section(number, title)
+              • is_excluded(path)
+              • safe_read(path)
+              • iter_production_python_files()
+              • bootstrap()
+              • audit_work_definition()
+              • inspect_corpus_source()
+              • inspect_source_enums()
+              • inspect_parser_contract()
+              • find_concrete_artifacts()
+              • find_source_location_evidence()
+              • inspect_corpus_source_factory()
+              • declaration_decision(artifacts, location_evidence, parser_evidence)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r6a_concrete_artifact_discovery.py
+            🔹 Constants:
+              • REPO_ROOT
+              • SEARCH_DIRECTORIES
+              • NON_ARTIFACT_EXTENSIONS
+              • LIKELY_ARTIFACT_EXTENSIONS
+              • IGNORED_DIRECTORY_NAMES
+              • DUPLICATE_PYTHON_RE
+              • AMARAKOSHA_RE
+              • SOURCE_URL_RE
+            ⚙️ Functions:
+              • print_header(title)
+              • is_ignored_path(path)
+              • is_candidate_artifact(path)
+              • safe_read_text(path, limit)
+              • git_output(*args)
+              • relative(path)
+        📄 audit_amarakosha_batch5h5e13r6b_verified_artifact.py
+            🔹 Constants:
+              • REPO_ROOT
+              • ARTIFACT
+            ⚙️ Functions:
+              • header(title)
+        📄 audit_amarakosha_batch5h5e13r6c_corpus_source_runtime.py
+            🔹 Constants:
+              • REPO_ROOT
         📄 audit_amarakosha_batch5h5e1_parser_input_contract.py
             🔹 Constants:
               • ROOT
@@ -11216,6 +11470,38 @@
               • call_names(path)
               • source_lines(path)
               • executable_urls(path)
+        📄 audit_amarakosha_batch5h5e8_work_resource_acquisition.py
+            🔹 Constants:
+              • REPO_ROOT
+              • EXCLUDED_DIRS
+              • EXCLUDED_PYTHON_PATTERNS
+              • TARGET_FILES
+              • AMARAKOSHA_TERMS
+              • CONSTRUCTION_TERMS
+            ⚙️ Functions:
+              • is_excluded(path)
+              • read_text(path, limit)
+              • rel(path)
+              • parse_python(path)
+              • definitions(path)
+              • constructor_calls(path)
+              • relevant_lines(path)
+              • amarakosha_lines(path)
+        📄 audit_amarakosha_batch5h5e9_work_registry_manifest_trace.py
+            🔹 Constants:
+              • REPO_ROOT
+              • EXCLUDED_DIRS
+              • EXCLUDED_PYTHON_PATTERNS
+              • AMARAKOSHA_TERMS
+              • TARGET_FILES
+              • CONSTRUCTION_NAMES
+            ⚙️ Functions:
+              • is_excluded(path)
+              • read_text(path, limit)
+              • rel(path)
+              • parse_python(path)
+              • call_names(path)
+              • relevant_lines(path)
         📄 audit_amarakosha_batch5h_record_builder_contract.py
             🔹 Constants:
               • ROOT
@@ -11229,6 +11515,56 @@
               • ROOT
               • OUTPUT
               • HEADER
+        📄 repair_amarakosha_batch5h5e10r4_sourceformat_detector.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • PACKAGE_PARENT
+              • TARGET
+              • BACKUP
+            ⚙️ Functions:
+              • section(title)
+              • main()
+        📄 repair_amarakosha_batch5h5e12r4_factory_defaults.py
+            🔹 Constants:
+              • PROJECT_ROOT
+              • FACTORY_PATH
+              • BACKUP_DIR
+              • STALE_LOCAL
+              • STALE_REMOTE
+              • CANONICAL_UNKNOWN
+              • STALE_FACTORY_REFS
+            ⚙️ Functions:
+              • fail(message)
+              • section(title)
+              • count_exact(source, pattern)
+              • active_source_type_refs(source)
+              • backup_factory()
+              • validate_signature_context(source, method_name, expected_default)
+              • main()
+        📄 repair_amarakosha_batch5h5e13r4s3_http_downloader_compatibility.py
+            🔹 Constants:
+              • ROOT
+              • PRODUCTION_ROOTS
+            ⚙️ Functions:
+              • is_historical_or_generated(path)
+              • is_production_file(path)
+              • production_python_files()
+              • parse(path)
+              • validate_http_downloader()
+              • find_stale_references()
+              • repair_file(path)
+              • main()
+        📄 repair_amarakosha_batch5h5e13r4s4_muktabodha_syntax.py
+            🔹 Constants:
+              • ROOT
+              • TARGET
+              • EXPECTED_FUTURE_IMPORT
+            ⚙️ Functions:
+              • parse_source(text)
+              • future_import_nodes(tree)
+              • source_future_import_locations(text)
+              • validate_repaired_state(text)
+              • main()
       📂 data_extraction/
         📄 archive_api_to_mw_json.py
             🔹 Constants:
