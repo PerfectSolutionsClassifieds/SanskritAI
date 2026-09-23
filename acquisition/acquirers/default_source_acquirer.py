@@ -57,6 +57,7 @@ from SanskritAI.acquisition.models.acquisition_result import (
 from SanskritAI.acquisition.models.source_status import (
     SourceStatus,
 )
+from SanskritAI.acquisition.downloaders.local_file_importer import LocalFileImporter
 
 
 class DefaultSourceAcquirer:
@@ -119,6 +120,11 @@ class DefaultSourceAcquirer:
             # ----------------------------------------------------------
             # Validate executable manifest
             # ----------------------------------------------------------
+
+            local_importer = LocalFileImporter()
+
+            if local_importer.supports(manifest):
+                return local_importer.download(manifest)
 
             self._validate_manifest(
                 manifest,

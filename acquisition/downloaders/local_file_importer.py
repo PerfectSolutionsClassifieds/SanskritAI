@@ -49,15 +49,58 @@ class LocalFileImporter(BaseDownloader):
     # BaseDownloader API
     # ------------------------------------------------------------------
 
+    def _resolve_source_path(
+        self,
+        manifest: AcquisitionManifest,
+    ) -> Path | None:
+        """
+        Resolve the local source path for this importer.
+
+        Canonical precedence
+        --------------------
+        1. manifest.source.local_path
+        2. manifest.metadata["source_path"] compatibility fallback
+        3. None
+
+        The canonical source identity belongs to CorpusSource.
+        LocalFileImporter owns the normalization required by
+        local filesystem acquisition.
+        """
+        local_path = getattr(
+            manifest.source,
+            "local_path",
+            None,
+        )
+
+        if local_path is not None:
+            return Path(local_path)
+
+        metadata_path = manifest.get_metadata(
+            "source_path"
+        )
+
+        if metadata_path is not None:
+            return Path(metadata_path)
+
+        return None
+
     def supports(
         self,
         manifest: AcquisitionManifest,
     ) -> bool:
         """
-        Returns True if the manifest specifies a local source path.
+        Returns True if the manifest specifies a local source.
+
+        Canonical source:
+            manifest.source.local_path
+
+        Compatibility fallback:
+            manifest.metadata["source_path"]
         """
-        source_path = manifest.get_metadata("source_path")
-        return source_path is not None
+        return self._resolve_source_path(
+            manifest
+        ) is not None
+
 
     def download(
         self,
@@ -67,30 +110,37 @@ class LocalFileImporter(BaseDownloader):
         Copies a local file or directory into the acquisition
         destination.
         """
+        result = AcquisitionResult(
+            source=manifest.source
+        )
 
-        result = AcquisitionResult(source=manifest.source)
+        source_path = self._resolve_source_path(
+            manifest
+        )
 
-        source = manifest.get_metadata("source_path")
-
-        if source is None:
+        if source_path is None:
             result.add_error(
-                "Manifest metadata does not contain 'source_path'."
+                "Manifest does not contain a local source path."
             )
-            return self.finalize_result(result)
-
-        source_path = Path(source)
+            return self.finalize_result(
+                result
+            )
 
         if not source_path.exists():
             result.add_error(
                 f"Source does not exist: {source_path}"
             )
-            return self.finalize_result(result)
+            return self.finalize_result(
+                result
+            )
 
         if manifest.destination_directory is None:
             result.add_error(
                 "Manifest.destination_directory is not configured."
             )
-            return self.finalize_result(result)
+            return self.finalize_result(
+                result
+            )
 
         self.validate_destination(
             manifest.destination_directory
@@ -103,10 +153,14 @@ class LocalFileImporter(BaseDownloader):
                     manifest,
                 )
 
-                result.add_downloaded_file(destination)
+                result.add_downloaded_file(
+                    destination
+                )
 
                 try:
-                    result.bytes_downloaded = destination.stat().st_size
+                    result.bytes_downloaded = (
+                        destination.stat().st_size
+                    )
                 except OSError:
                     pass
 
@@ -117,10 +171,14 @@ class LocalFileImporter(BaseDownloader):
                 )
 
                 for file in copied:
-                    result.add_downloaded_file(file)
+                    result.add_downloaded_file(
+                        file
+                    )
 
                     try:
-                        result.bytes_downloaded += file.stat().st_size
+                        result.bytes_downloaded += (
+                            file.stat().st_size
+                        )
                     except OSError:
                         pass
 
@@ -128,16 +186,24 @@ class LocalFileImporter(BaseDownloader):
                 result.add_error(
                     f"Unsupported source: {source_path}"
                 )
-                return self.finalize_result(result)
+
+                return self.finalize_result(
+                    result
+                )
 
             result.message = (
                 f"Imported local resource: {source_path}"
             )
 
         except Exception as exc:
-            result.add_error(str(exc))
+            result.add_error(
+                str(exc)
+            )
 
-        return self.finalize_result(result)
+        return self.finalize_result(
+            result
+        )
+
 
     # ------------------------------------------------------------------
     # Internal helpers

@@ -26,8 +26,8 @@ processing layers respectively.
 
 from dataclasses import dataclass
 
-from SanskritAI.domain.acquisition.source_format import SourceFormat
-from SanskritAI.domain.acquisition.source_type import SourceType
+from SanskritAI.acquisition.models.source_format import SourceFormat
+from SanskritAI.acquisition.models.source_type import SourceType
 
 
 @dataclass(frozen=True)

@@ -178,6 +178,7 @@
         📄 local_file_importer.py
             🏗️ Classes:
               • class LocalFileImporter:
+                - _resolve_source_path(self, manifest)
                 - supports(self, manifest)
                 - download(self, manifest)
                 - _copy_file(self, source, manifest)
@@ -1527,6 +1528,12 @@
             ⚙️ Functions:
               • create_amarakosha_source()
               • get_amarakosha_source()
+        📄 amarakosha_manifest.py
+            🔹 Constants:
+              • AMARAKOSHA_MANIFEST_ID
+            ⚙️ Functions:
+              • create_amarakosha_manifest()
+              • get_amarakosha_manifest()
         📄 monier_williams.py
             🏗️ Classes:
               • class MonierWilliamsSource:
@@ -10900,6 +10907,13 @@
       📄 rebuild_indexes.py
           ⚙️ Functions:
             • main()
+      📄 repair_amarakosha_batch5h5e13r8f3_local_dispatch.py
+          🔹 Constants:
+            • TARGET
+            • IMPORT_ANCHOR
+            • IMPORT_LINE
+            • OLD
+            • NEW
       📂 audits/
         📄 audit_amarakosha_batch4a.py
             🔹 Constants:
@@ -11203,6 +11217,87 @@
               • section(title)
               • show_attribute(obj, name)
               • main()
+        📄 audit_amarakosha_batch5h5e13r11_local_registration_contract.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • PATHS
+              • AMARAKOSHA_ARTIFACT
+            ⚙️ Functions:
+              • banner(title)
+              • read(path)
+              • syntax_check(path)
+              • hash_file(path)
+              • get_class(tree, name)
+              • get_method(class_node, name)
+              • method_source(path, class_name, method_name)
+              • ast_calls(source)
+              • contains_any(source, values)
+              • definitions(source)
+        📄 audit_amarakosha_batch5h5e13r12_acquirer_control_flow.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • ACQUIRER_FILE
+              • SOURCE_FILE
+              • MANIFEST_FILE
+              • ARTIFACT
+              • EXPECTED_SHA256
+              • EXPECTED_SIZE
+            ⚙️ Functions:
+              • banner(title)
+              • syntax_check(path)
+              • sha256(path)
+              • production_ast()
+              • find_method(tree, name)
+              • source_segment(source, node)
+              • call_names(node)
+              • attribute_names(node)
+              • string_constants(node)
+              • statement_labels(method)
+              • describe_if_conditions(method, source)
+              • locate_call(method, name)
+              • locate_attribute(method, name)
+              • analyze_order(method, source)
+              • inspect_local_conditions(method, source)
+              • inspect_status_transitions(method, source)
+              • inspect_returns(method, source)
+              • inspect_try_structure(method)
+              • inspect_disabled_guard(method, source)
+              • runtime_contract()
+              • main()
+        📄 audit_amarakosha_batch5h5e13r13_local_registration_semantics.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • ACQUIRER_FILE
+              • IMPORTER_FILE
+              • SOURCE_FILE
+              • MANIFEST_FILE
+              • RESULT_FILE
+              • STATUS_FILE
+              • AMARAKOSHA_SOURCE_FILE
+              • AMARAKOSHA_MANIFEST_FILE
+              • ARTIFACT
+              • EXPECTED_SIZE
+              • EXPECTED_SHA256
+            ⚙️ Functions:
+              • banner(title)
+              • syntax_check(path)
+              • sha256(path)
+              • parse_module(path)
+              • find_class(tree, class_name)
+              • find_method(class_node, method_name)
+              • source_segment(source, node)
+              • call_names(node)
+              • attribute_names(node)
+              • find_calls(method, target)
+              • find_returns_of_call(method, target)
+              • find_conditions_containing(method, marker)
+              • print_method_contract(path, class_name, method_name)
+              • runtime_objects()
+              • runtime_local_importer(manifest)
+              • main()
         📄 audit_amarakosha_batch5h5e13r1_acquisition_boundary.py
             🔹 Constants:
               • PROJECT_ROOT
@@ -11348,6 +11443,248 @@
         📄 audit_amarakosha_batch5h5e13r6c_corpus_source_runtime.py
             🔹 Constants:
               • REPO_ROOT
+        📄 audit_amarakosha_batch5h5e13r7_acquisition_manifest_contract.py
+            🔹 Constants:
+              • REPO_ROOT
+              • AMARAKOSHA_ARTIFACT
+              • AMARAKOSHA_SOURCE_ID
+              • AMARAKOSHA_NAME
+              • AMARAKOSHA_SHA256
+              • AMARAKOSHA_PROVENANCE_URL
+              • AMARAKOSHA_MANIFEST_ID
+            ⚙️ Functions:
+              • fail(message)
+              • bootstrap()
+              • is_historical_or_duplicate(path)
+              • locate_acquisition_manifest_source()
+              • import_manifest_class(module_name)
+              • inspect_constructor(cls)
+              • inspect_class_structure(cls)
+              • verify_required_contract(signature)
+              • create_amarakosha_source()
+              • construct_manifest(ManifestClass, signature, source)
+              • print_manifest(manifest)
+              • validate_manifest(manifest, source)
+              • validate_serialization(manifest)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r7a_manifest_runtime.py
+            🔹 Constants:
+              • ROOT
+              • PARENT
+              • ARTIFACT
+              • MODULE
+            ⚙️ Functions:
+              • section(title)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r7b_raw_pdf_environment.py
+            🔹 Constants:
+              • REPO_ROOT
+              • RAW_AMARAKOSHA_DIR
+        📄 audit_amarakosha_batch5h5e13r7c_pdf_collection.py
+            🔹 Constants:
+              • REPO_ROOT
+              • PDF_DIR
+            ⚙️ Functions:
+              • sha256(path)
+        📄 audit_amarakosha_batch5h5e13r7d_pdf_content_provenance.py
+            🔹 Constants:
+              • REPO_ROOT
+              • PDF_DIR
+              • AMARAKOSHA_TXT
+            ⚙️ Functions:
+              • sha256(path)
+              • normalize_sample(text, limit)
+        📄 audit_amarakosha_batch5h5e13r7e_provenance_relationship.py
+            🔹 Constants:
+              • REPO_ROOT
+              • PDF_DIR
+              • AMARAKOSHA_TXT
+              • EXPECTED_PDFS
+            ⚙️ Functions:
+              • sha256(path)
+              • normalize(text)
+              • extract_pdf_text(path)
+              • find_first(text, patterns)
+        📄 audit_amarakosha_batch5h5e13r8_runtime_acquisition_contract.py
+            🔹 Constants:
+              • ROOT
+              • PARENT
+              • ARTIFACT
+              • SOURCE_MODULE
+              • MANIFEST_MODULE
+              • GENERIC_MANIFEST_MODULE
+            ⚙️ Functions:
+              • section(title)
+              • import_module_checked(module_name)
+              • describe_public_members(module, title)
+              • find_manifest_factory(module)
+              • bootstrap_check()
+              • describe_runtime_class(module_name, class_name)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r8_runtime_entrypoint_discovery.py
+            🔹 Constants:
+              • ROOT
+              • ACQUISITION_ROOT
+              • PARENT
+              • EXCLUDED_DIRS
+              • DUPLICATE_SUFFIX_RE
+              • TARGET_SYMBOLS
+            ⚙️ Functions:
+              • section(title)
+              • is_production_python(path)
+              • production_files()
+              • safe_relative(path)
+              • parse_file(path)
+              • dotted_name(node)
+              • collect_ast_references(path)
+              • collect_text_evidence(path, text)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r8a_runtime_call_chain.py
+            🔹 Constants:
+              • ROOT
+              • ACQUISITION_ROOT
+              • DUPLICATE_RE
+              • TARGET_FILES
+              • TARGET_CALLS
+            ⚙️ Functions:
+              • is_production_python(path)
+              • parse(path)
+              • qualified_call_name(node)
+              • call_matches(node, names)
+        📄 audit_amarakosha_batch5h5e13r8b_runtime_contract.py
+            🔹 Constants:
+              • ROOT
+        📄 audit_amarakosha_batch5h5e13r8c_local_importer_contract.py
+            🔹 Constants:
+              • ROOT
+        📄 audit_amarakosha_batch5h5e13r8d_generic_local_acquisition_dispatch.py
+            🔹 Constants:
+              • ROOT
+              • ACQUISITION
+              • DUPLICATE_RE
+              • TARGETS
+            ⚙️ Functions:
+              • is_production_python(path)
+              • search_text(term)
+        📄 audit_amarakosha_batch5h5e13r8e0_runtime_bootstrap.py
+            🔹 Constants:
+              • REPO_ROOT
+              • REPO_PARENT
+        📄 audit_amarakosha_batch5h5e13r8e1_local_importer_runtime.py
+            🔹 Constants:
+              • REPO_ROOT
+              • REPO_PARENT
+              • SOURCE
+              • EXPECTED_SHA256
+            ⚙️ Functions:
+              • sha256(path)
+        📄 audit_amarakosha_batch5h5e13r8e1a_result_contract.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+        📄 audit_amarakosha_batch5h5e13r8e1b_local_importer_integrity.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • EXPECTED_SHA256
+              • EXPECTED_SIZE
+              • SOURCE
+            ⚙️ Functions:
+              • sha256(path)
+        📄 audit_amarakosha_batch5h5e13r8e_generic_runtime_probe.py
+            🔹 Constants:
+              • ROOT
+              • SOURCE
+              • EXPECTED_FILENAME
+              • EXPECTED_SIZE
+              • EXPECTED_SHA256
+            ⚙️ Functions:
+              • sha256(path)
+        📄 audit_amarakosha_batch5h5e13r8f0_local_dispatch_boundary.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • ACQUISITION_ROOT
+              • TARGETS
+        📄 audit_amarakosha_batch5h5e13r8f10_manifest_semantics.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • FILES
+              • AMARAKOSHA_ARTIFACT
+            ⚙️ Functions:
+              • banner(title)
+              • read(path)
+              • syntax_check(path)
+              • hash_file(path)
+              • dedent(source)
+              • get_class(tree, name)
+              • get_method(class_node, name)
+              • method_source(path, class_name, method_name)
+              • contains_text(source, *values)
+              • contains_any_text(source, *values)
+              • calls_method(source, method_name)
+              • find_definitions(source, names)
+        📄 audit_amarakosha_batch5h5e13r8f1_local_dispatch_contract.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+        📄 audit_amarakosha_batch5h5e13r8f2_local_dispatch_regression.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • SOURCE
+            ⚙️ Functions:
+              • sha256(path)
+        📄 audit_amarakosha_batch5h5e13r8f5_default_acquirer_local_runtime.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • SOURCE_PATH
+              • EXPECTED_SIZE
+              • EXPECTED_SHA256
+            ⚙️ Functions:
+              • sha256(path)
+        📄 audit_amarakosha_batch5h5e13r8f6_local_source_resolution.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • TARGET
+            ⚙️ Functions:
+              • read_source()
+              • inspect_ast(source)
+              • find_class(tree, name)
+              • find_method(cls, name)
+              • contains_text(source, text)
+              • main()
+        📄 audit_amarakosha_batch5h5e13r8f7_local_source_compatibility.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+            ⚙️ Functions:
+              • main()
+        📄 audit_amarakosha_batch5h5e13r8f9_local_acquisition_lifecycle.py
+            🔹 Constants:
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • LOCAL_IMPORTER
+              • BASE_DOWNLOADER
+              • DEFAULT_SOURCE_ACQUIRER
+              • ACQUISITION_RESULT
+              • ACQUISITION_MANIFEST
+              • AMARAKOSHA_SOURCE
+              • AMARAKOSHA_MANIFEST
+              • AMARAKOSHA_ARTIFACT
+            ⚙️ Functions:
+              • banner(title)
+              • syntax_check(path)
+              • get_class(tree, name)
+              • get_method(class_node, name)
+              • method_source(path, class_name, method_name)
+              • has_call(source, name)
+              • contains_attribute_access(source, attribute)
+              • hash_file(path)
+              • physical_same_path(a, b)
         📄 audit_amarakosha_batch5h5e1_parser_input_contract.py
             🔹 Constants:
               • ROOT
@@ -11510,11 +11847,66 @@
               • show_signature(label, obj)
               • show_source(label, obj)
               • source_path(obj)
+        📄 audit_dictionary_raw_sources_mw_amarakosha.py
+            🔹 Constants:
+              • ROOT
+              • SOURCES
+            ⚙️ Functions:
+              • sha256(path)
         📄 create_amarakosha_batch5_mapping_matrix.py
             🔹 Constants:
               • ROOT
               • OUTPUT
               • HEADER
+      📂 data_extraction/
+        📄 archive_api_to_mw_json.py
+            🔹 Constants:
+              • HEADERS
+              • API_BASE
+              • LEMMA_LIST
+            ⚙️ Functions:
+              • query_archive_api(lemma, rows)
+              • find_text_download_url(item_identifier)
+              • fetch_text_from_url(url)
+              • extract_candidate_blocks(text)
+              • main()
+        📄 archive_to_mw_json.py
+            🔹 Constants:
+              • HEADERS
+              • TIMEOUT
+            ⚙️ Functions:
+              • load_links()
+              • fetch_url(url)
+              • find_text_download(item_url)
+              • extract_candidate_blocks(text)
+              • main()
+        📄 extract_archive_links.py
+            ⚙️ Functions:
+              • find_archive_item(html)
+              • extract_lemma_from_filename(fn)
+              • main()
+        📄 extract_archive_links_broad.py
+            ⚙️ Functions:
+              • extract_lemma_from_filename(fn)
+              • find_details_urls(html)
+              • main()
+        📄 parse_saved_pages.py
+            ⚙️ Functions:
+              • extract_from_archive_search(html)
+              • extract_from_generic_html(html)
+              • parse_file(path)
+              • main()
+        📄 probe_mw_and_fallbacks.py
+            🔹 Constants:
+              • HEADERS
+              • TIMEOUT
+              • LEMMA_LIST
+              • ENDPOINTS
+            ⚙️ Functions:
+              • try_url(url)
+              • probe_lemma(lemma)
+              • main()
+      📂 repairs/
         📄 repair_amarakosha_batch5h5e10r4_sourceformat_detector.py
             🔹 Constants:
               • PROJECT_ROOT
@@ -11565,53 +11957,52 @@
               • source_future_import_locations(text)
               • validate_repaired_state(text)
               • main()
-      📂 data_extraction/
-        📄 archive_api_to_mw_json.py
+        📄 repair_amarakosha_batch5h5e13r6c_r1_monier_williams_import.py
             🔹 Constants:
-              • HEADERS
-              • API_BASE
-              • LEMMA_LIST
+              • REPO_ROOT
+              • MONIER_WILLIAMS_FILE
+              • OLD_SOURCE_FORMAT_IMPORT
+              • OLD_SOURCE_TYPE_IMPORT
+              • NEW_SOURCE_FORMAT_IMPORT
+              • NEW_SOURCE_TYPE_IMPORT
             ⚙️ Functions:
-              • query_archive_api(lemma, rows)
-              • find_text_download_url(item_identifier)
-              • fetch_text_from_url(url)
-              • extract_candidate_blocks(text)
+              • fail(message)
+              • compile_file(path)
+              • validate_ast(path)
               • main()
-        📄 archive_to_mw_json.py
+        📄 repair_amarakosha_batch5h5e13r8f3_local_dispatch.py
             🔹 Constants:
-              • HEADERS
-              • TIMEOUT
-            ⚙️ Functions:
-              • load_links()
-              • fetch_url(url)
-              • find_text_download(item_url)
-              • extract_candidate_blocks(text)
-              • main()
-        📄 extract_archive_links.py
-            ⚙️ Functions:
-              • find_archive_item(html)
-              • extract_lemma_from_filename(fn)
-              • main()
-        📄 extract_archive_links_broad.py
-            ⚙️ Functions:
-              • extract_lemma_from_filename(fn)
-              • find_details_urls(html)
-              • main()
-        📄 parse_saved_pages.py
-            ⚙️ Functions:
-              • extract_from_archive_search(html)
-              • extract_from_generic_html(html)
-              • parse_file(path)
-              • main()
-        📄 probe_mw_and_fallbacks.py
+              • TARGET
+              • BACKUP
+              • IMPORT_LINE
+        📄 repair_amarakosha_batch5h5e13r8f8_local_importer_source_resolution.py
             🔹 Constants:
-              • HEADERS
-              • TIMEOUT
-              • LEMMA_LIST
-              • ENDPOINTS
+              • REPO_ROOT
+              • WORKSPACE_ROOT
+              • TARGET
+              • BACKUP
             ⚙️ Functions:
-              • try_url(url)
-              • probe_lemma(lemma)
+              • bootstrap_runtime_import_path()
+              • parse_source(source)
+              • find_class(tree, class_name)
+              • find_method(class_node, method_name)
+              • has_method(class_node, method_name)
+              • executable_body(method_node)
+              • executable_nodes(method_node)
+              • is_manifest_source_expression(node)
+              • is_getattr_local_path_call(node)
+              • canonical_local_path_resolution_exists(method_node)
+              • direct_local_path_access_exists(method_node)
+              • direct_get_metadata_source_path_exists(method_node)
+              • resolver_call_exists(method_node)
+              • build_resolver_method()
+              • build_supports_method()
+              • build_download_method()
+              • insert_resolver_method(source)
+              • replace_methods(source)
+              • build_updated_source(original)
+              • verify_updated_contract(source)
+              • runtime_contract_check()
               • main()
     📂 services/
       📄 __init__.py

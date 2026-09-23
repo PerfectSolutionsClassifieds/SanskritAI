@@ -49,7 +49,7 @@ Version
 v0.7.0
 """
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from typing import Iterator
 

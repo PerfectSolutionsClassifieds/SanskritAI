@@ -1,4 +1,4 @@
-"SanskritAI as on ::::: 18-09-2026 21:47:48"
+"SanskritAI as on ::::: 23-09-2026 12:12:22"
 SanskritAI/
 ├── .coverage
 ├── .git
@@ -1158,6 +1158,7 @@ SanskritAI/
 │   │   │   ├── 6d241333b01a5a04be56ec3f0aa4702ba5f5d2
 │   │   │   ├── b9b77ef6184f18c0b5e447f7e195b79f9323f4
 │   │   │   ├── c402988f5062b5d85e7e3502db9437c116c63d
+│   │   │   ├── d9d39049bca62a91928c9c9be0df1bffac5833
 │   │   │   └── f57f43d54c6eab4df5d8b817dd56d71ecd9275
 │   │   ├── 66
 │   │   │   ├── 0d69e94a6c93473fc09257a279537fffe98db7
@@ -1671,6 +1672,7 @@ SanskritAI/
 │   │   │   ├── 5f989c1cf73bf74da304ee5fa177272ee5d6c4
 │   │   │   ├── 7bd2621391cce86ff9905536e915950d69ec09
 │   │   │   ├── 88e64352c34bd3b810ffe189ba0e48506a4fdc
+│   │   │   ├── cb1650bcef04510655d67d8262804aea4f37a6
 │   │   │   ├── e887b5c02152b665b80bbf9933cb8e815c508c
 │   │   │   └── efc9ef8fc954dc4176737bfd80a17a0b0faf2f
 │   │   ├── 97
@@ -1854,6 +1856,7 @@ SanskritAI/
 │   │   │   ├── b350d0e361c3c1cd8e5f5914d4118d931f4b03
 │   │   │   ├── c12a73d3813394a1ed026faaaed2b0e8dab145
 │   │   │   ├── cb10f481e90b14c63f795befc913911d344b4d
+│   │   │   ├── d2c69ed399449245065c340a7bbb15287f297d
 │   │   │   ├── d657646912f47dcca6ba949e394b2dbc2af72c
 │   │   │   └── dbaf7d549a08768143f4f407f0e2b91bc3e410
 │   │   ├── a6
@@ -2040,6 +2043,7 @@ SanskritAI/
 │   │   │   └── f1a349f7ee70d6f3b5700130e05df23a363bf8
 │   │   ├── b5
 │   │   │   ├── 0a7a05f53ffb687555127355b10215cc427180
+│   │   │   ├── 0c3889499ce9aad8e45f9125ef2fcc0bea7b7a
 │   │   │   ├── 1b09ecc5df81854c7145bce8f1f3567db19b2a
 │   │   │   ├── 248fa65b9ef5146165a317c413d42cf330edce
 │   │   │   ├── 6ffdb8ed7e5cd40a0625ff2554d1bb9a41b2ba
@@ -2691,6 +2695,7 @@ SanskritAI/
 │   │   │   ├── 78d614cf6ed60e280921dbef3697ce4524da7b
 │   │   │   ├── 797044653073cc7403ce3556fd6e6019703ca6
 │   │   │   ├── a0ce9c390a65134c44957fa967a81f2b6ba57d
+│   │   │   ├── b6b09137628136b6d9420dadf222ad56ffae5e
 │   │   │   └── c0019a1732a1e74044382702a7b399f225f4da
 │   │   ├── f2
 │   │   │   ├── 0d8269761773c469085170dc35d9ff3e48eb3e
@@ -2780,6 +2785,7 @@ SanskritAI/
 │   │   ├── fa
 │   │   │   ├── 1f281b841f2ea473aa824e2fd25ab3b800ea02
 │   │   │   ├── 2059bd44b0f8885527103180783c1efe4b355e
+│   │   │   ├── 2d99c507ccfef75293228a7338e3c1c56b3c8d
 │   │   │   ├── 4b3fed7dc240c20df2a00735b8a72ffcee111c
 │   │   │   ├── 6b6891aab3a4fe146f0614a541f62425c6cfba
 │   │   │   ├── 8e2996d9f2d27d5f0608e48d0bb06d7e1a9b18
@@ -2802,6 +2808,7 @@ SanskritAI/
 │   │   │   ├── 51aea836a0cec3d564e9a803ef6d779ee33b69
 │   │   │   ├── 54698fc18c47523c919d73e53dc83ffcfb6036
 │   │   │   ├── 7575c0e070a5228348fadec834cf2b9b327dbb
+│   │   │   ├── 78fe0ac76e1b29d8d2217826e803a3fed047ae
 │   │   │   ├── 8e7dd73220b4bc9a4851bcf2cc21ae652490f3
 │   │   │   ├── 97fa2573d9d78549c71f971d24af54e4bef257
 │   │   │   ├── e9080314249f49841925cecc315050fe7e89d4
@@ -2889,6 +2896,7 @@ SanskritAI/
 │   ├── __init__.py
 │   ├── acquirers
 │   │   ├── default_source_acquirer.py
+│   │   ├── default_source_acquirer.py.bak_13r8f3
 │   │   └── source_acquirer.py
 │   ├── acquisition_manager.py
 │   ├── detectors
@@ -3059,6 +3067,7 @@ SanskritAI/
 │   ├── sources
 │   │   ├── __init__.py
 │   │   ├── amarakosha.py
+│   │   ├── amarakosha_manifest.py
 │   │   ├── monier_williams.py
 │   │   └── monier_williams_manifest.py
 │   └── validators
@@ -3507,6 +3516,11 @@ SanskritAI/
 │   │   └── dhatupatha
 │   ├── processed
 │   ├── raw
+│   │   ├── amarakosha
+│   │   │   └── pdf
+│   │   │       ├── amarfin1.pdf
+│   │   │       ├── amarfin2.pdf
+│   │   │       └── amarfin3.pdf
 │   │   └── samples
 │   │       └── sample.txt
 │   ├── reference
@@ -3530,8 +3544,8 @@ SanskritAI/
 │   ├── object_model.md
 │   ├── repository.md
 │   ├── roadmap.md
-│   ├── tree3.md
-│   ├── visual_graph_consolidated_sanskrit_ai3.md
+│   ├── tree2.md
+│   ├── visual_graph_consolidated_sanskrit_ai2.md
 │   └── visual_graph_excluded_files.md
 ├── domain
 │   ├── alankara
@@ -4003,6 +4017,120 @@ SanskritAI/
 │   └── translator.py
 ├── karma_page.html
 ├── karman.html
+├── legacy1
+│   ├── acquisition
+│   │   ├── acquirers
+│   │   ├── factories
+│   │   ├── importers
+│   │   ├── knowledge
+│   │   │   ├── builders
+│   │   │   ├── indexes
+│   │   │   ├── lookup
+│   │   │   ├── models
+│   │   │   ├── pipelines
+│   │   │   ├── registries
+│   │   │   └── transformers
+│   │   ├── lexical
+│   │   │   └── monier_williams
+│   │   ├── models
+│   │   ├── providers
+│   │   ├── repositories
+│   │   └── sources
+│   ├── ai
+│   ├── amarakosha
+│   │   ├── builders
+│   │   ├── importers
+│   │   ├── models
+│   │   ├── parsers
+│   │   ├── records
+│   │   └── registries
+│   ├── application
+│   ├── core
+│   │   ├── collections
+│   │   ├── configuration
+│   │   ├── contracts
+│   │   ├── events
+│   │   ├── identities
+│   │   ├── infrastructure
+│   │   ├── mixins
+│   │   ├── plugins
+│   │   ├── types
+│   │   ├── validators
+│   │   └── value_objects
+│   ├── corpus
+│   │   ├── builders
+│   │   └── models
+│   ├── domain
+│   │   ├── derivation
+│   │   ├── dhatu
+│   │   ├── grammar
+│   │   ├── lexical
+│   │   │   ├── adapters
+│   │   │   └── validators
+│   │   ├── morphology
+│   │   ├── panini
+│   │   │   ├── rules
+│   │   │   │   └── sutras
+│   │   │   │       └── adhyaya_1
+│   │   │   │           └── pada_1
+│   │   │   └── stages
+│   │   ├── phonology
+│   │   ├── pipeline
+│   │   ├── pratyaya
+│   │   ├── reader
+│   │   ├── resolution
+│   │   ├── samasa
+│   │   ├── sandhi
+│   │   ├── semantic
+│   │   └── vakya
+│   ├── lexical
+│   │   ├── builders
+│   │   ├── enums
+│   │   ├── models
+│   │   ├── records
+│   │   └── validators
+│   ├── models
+│   │   ├── enums
+│   │   └── imports
+│   ├── scripts
+│   │   └── audits
+│   ├── services
+│   │   └── importers
+│   └── tests
+│       ├── acquisition
+│       │   ├── knowledge
+│       │   │   ├── builders
+│       │   │   ├── connectors
+│       │   │   ├── indexes
+│       │   │   ├── integration
+│       │   │   ├── lookup
+│       │   │   ├── models
+│       │   │   └── pipelines
+│       │   └── lexical
+│       │       └── monier_williams
+│       ├── corpus
+│       │   ├── builders
+│       │   └── models
+│       ├── domain
+│       │   ├── dhatu
+│       │   ├── knowledge_graph
+│       │   ├── lexical
+│       │   │   ├── acquisition
+│       │   │   ├── adapters
+│       │   │   └── validators
+│       │   ├── morphology
+│       │   ├── pratyaya
+│       │   ├── reader
+│       │   ├── resolution
+│       │   └── sandhi
+│       ├── integration
+│       ├── lexical
+│       │   ├── models
+│       │   ├── registries
+│       │   └── validators
+│       └── panini
+│           ├── mocks
+│           └── testing
 ├── lexical
 │   ├── __init__.py
 │   ├── builders
@@ -4062,7 +4190,6 @@ SanskritAI/
 │   └── performance.log
 ├── loka_page.html
 ├── main.py
-├── manu_page.html
 ├── mirror.txt
 ├── models
 │   ├── __init__.py
@@ -4112,6 +4239,8 @@ SanskritAI/
 │   ├── sentence.py
 │   ├── sloka.py
 │   └── word.py
+├── mw-meta2.txt
+├── mw.txt
 ├── mw_candidates.json
 ├── notebooks
 ├── original.txt
@@ -4158,7 +4287,6 @@ SanskritAI/
 │   ├── templates
 │   │   └── analysis_report.html
 │   └── work_registry.json
-├── rta_page.html
 ├── run_all_tests.py
 ├── sanskritai.egg-info
 │   ├── PKG-INFO
@@ -4242,6 +4370,9 @@ SanskritAI/
 │   │   ├── audit_amarakosha_batch5h5e12r_sourcetype_compatibility.py
 │   │   ├── audit_amarakosha_batch5h5e12r_sourcetype_semantic_usage.py
 │   │   ├── audit_amarakosha_batch5h5e12r_workdefinition_source_factory.py
+│   │   ├── audit_amarakosha_batch5h5e13r11_local_registration_contract.py
+│   │   ├── audit_amarakosha_batch5h5e13r12_acquirer_control_flow.py
+│   │   ├── audit_amarakosha_batch5h5e13r13_local_registration_semantics.py
 │   │   ├── audit_amarakosha_batch5h5e13r1_acquisition_boundary.py
 │   │   ├── audit_amarakosha_batch5h5e13r2_provider_manifest_trace.py
 │   │   ├── audit_amarakosha_batch5h5e13r3_abstract_lexical_manifest.py
@@ -4253,6 +4384,31 @@ SanskritAI/
 │   │   ├── audit_amarakosha_batch5h5e13r6a_concrete_artifact_discovery.py
 │   │   ├── audit_amarakosha_batch5h5e13r6b_verified_artifact.py
 │   │   ├── audit_amarakosha_batch5h5e13r6c_corpus_source_runtime.py
+│   │   ├── audit_amarakosha_batch5h5e13r7_acquisition_manifest_contract.py
+│   │   ├── audit_amarakosha_batch5h5e13r7a_manifest_runtime.py
+│   │   ├── audit_amarakosha_batch5h5e13r7b_raw_pdf_environment.py
+│   │   ├── audit_amarakosha_batch5h5e13r7c_pdf_collection.py
+│   │   ├── audit_amarakosha_batch5h5e13r7d_pdf_content_provenance.py
+│   │   ├── audit_amarakosha_batch5h5e13r7e_provenance_relationship.py
+│   │   ├── audit_amarakosha_batch5h5e13r8_runtime_acquisition_contract.py
+│   │   ├── audit_amarakosha_batch5h5e13r8_runtime_entrypoint_discovery.py
+│   │   ├── audit_amarakosha_batch5h5e13r8a_runtime_call_chain.py
+│   │   ├── audit_amarakosha_batch5h5e13r8b_runtime_contract.py
+│   │   ├── audit_amarakosha_batch5h5e13r8c_local_importer_contract.py
+│   │   ├── audit_amarakosha_batch5h5e13r8d_generic_local_acquisition_dispatch.py
+│   │   ├── audit_amarakosha_batch5h5e13r8e0_runtime_bootstrap.py
+│   │   ├── audit_amarakosha_batch5h5e13r8e1_local_importer_runtime.py
+│   │   ├── audit_amarakosha_batch5h5e13r8e1a_result_contract.py
+│   │   ├── audit_amarakosha_batch5h5e13r8e1b_local_importer_integrity.py
+│   │   ├── audit_amarakosha_batch5h5e13r8e_generic_runtime_probe.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f0_local_dispatch_boundary.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f10_manifest_semantics.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f1_local_dispatch_contract.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f2_local_dispatch_regression.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f5_default_acquirer_local_runtime.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f6_local_source_resolution.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f7_local_source_compatibility.py
+│   │   ├── audit_amarakosha_batch5h5e13r8f9_local_acquisition_lifecycle.py
 │   │   ├── audit_amarakosha_batch5h5e1_parser_input_contract.py
 │   │   ├── audit_amarakosha_batch5h5e2_source_format.py
 │   │   ├── audit_amarakosha_batch5h5e3_parser_grammar_mapping.py
@@ -4263,11 +4419,8 @@ SanskritAI/
 │   │   ├── audit_amarakosha_batch5h5e8_work_resource_acquisition.py
 │   │   ├── audit_amarakosha_batch5h5e9_work_registry_manifest_trace.py
 │   │   ├── audit_amarakosha_batch5h_record_builder_contract.py
-│   │   ├── create_amarakosha_batch5_mapping_matrix.py
-│   │   ├── repair_amarakosha_batch5h5e10r4_sourceformat_detector.py
-│   │   ├── repair_amarakosha_batch5h5e12r4_factory_defaults.py
-│   │   ├── repair_amarakosha_batch5h5e13r4s3_http_downloader_compatibility.py
-│   │   └── repair_amarakosha_batch5h5e13r4s4_muktabodha_syntax.py
+│   │   ├── audit_dictionary_raw_sources_mw_amarakosha.py
+│   │   └── create_amarakosha_batch5_mapping_matrix.py
 │   ├── backup_database.py
 │   ├── build_dictionary.py
 │   ├── compare_source_models.py
@@ -4282,7 +4435,16 @@ SanskritAI/
 │   ├── import_puranas.py
 │   ├── parse_saved_pages.py
 │   ├── prototype_reader_utility.py
-│   └── rebuild_indexes.py
+│   ├── rebuild_indexes.py
+│   ├── repair_amarakosha_batch5h5e13r8f3_local_dispatch.py
+│   └── repairs
+│       ├── repair_amarakosha_batch5h5e10r4_sourceformat_detector.py
+│       ├── repair_amarakosha_batch5h5e12r4_factory_defaults.py
+│       ├── repair_amarakosha_batch5h5e13r4s3_http_downloader_compatibility.py
+│       ├── repair_amarakosha_batch5h5e13r4s4_muktabodha_syntax.py
+│       ├── repair_amarakosha_batch5h5e13r6c_r1_monier_williams_import.py
+│       ├── repair_amarakosha_batch5h5e13r8f3_local_dispatch.py
+│       └── repair_amarakosha_batch5h5e13r8f8_local_importer_source_resolution.py
 ├── services
 │   ├── __init__.py
 │   ├── analysis_service.py
@@ -4313,7 +4475,6 @@ SanskritAI/
 │   │   └── memory_lexical_repository.py
 │   ├── tokenizer_service.py
 │   └── translation_service.py
-├── source.txt
 ├── storage
 │   ├── __init__.py
 │   ├── connection.py
@@ -4327,7 +4488,6 @@ SanskritAI/
 │       ├── corpus_repository.py
 │       ├── sloka_repository.py
 │       └── word_repository.py
-├── test_source.txt
 ├── tests
 │   ├── __init__.py
 │   ├── acquisition
@@ -4656,8 +4816,7 @@ SanskritAI/
 │   └── test_word.py
 ├── tools
 │   └── diagnose_semantic_rules.py
-├── utils
-│   ├── __init__.py
-│   ├── helpers.py
-│   └── logger.py
-└── yoga_page.html
+└── utils
+    ├── __init__.py
+    ├── helpers.py
+    └── logger.py
